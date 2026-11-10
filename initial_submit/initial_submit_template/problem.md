@@ -1,5 +1,3 @@
-# Initial problem submission
+# Problem
 
-problem_id: REPLACE_WITH_UNIQUE_PROBLEM_ID
-
-problem_description: What explains [observed phenomenon] in [specified system or conditions]?
+{problem_description}
