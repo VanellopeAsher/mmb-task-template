@@ -24,7 +24,7 @@
 
 ## Available materials
 
-[List accessible data, tools, and skills, with relative paths and formats.]
+[List the supplied input data and metadata, including file paths and formats.]
 
 ## References
 
