@@ -1,0 +1,7 @@
+# Local build and editor artifacts; authored datasets and runs remain trackable.
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.DS_Store
+Thumbs.db

@@ -1,0 +1,23 @@
+# Author-facing scientific quality rubric. Calibrate anchors on the actual task.
+version: 1
+criteria:
+  mechanism_explanation:
+    purpose: Evaluate whether the proposed mechanism explains the observations.
+    evidence_to_review: []
+    anchors: { weak: "Unsupported assertion", strong: "Coherent, testable explanation tied to evidence" }
+  evidence_strength:
+    purpose: Evaluate data quality, replication, and support for conclusions.
+    evidence_to_review: []
+    anchors: { weak: "Anecdotal or irreproducible", strong: "Traceable and reproducible support" }
+  alternative_explanations:
+    purpose: Evaluate serious competing explanations and discriminating evidence.
+    evidence_to_review: []
+    anchors: { weak: "Ignored", strong: "Compared against relevant alternatives" }
+  uncertainty:
+    purpose: Evaluate measurement error, model sensitivity, and confidence calibration.
+    evidence_to_review: []
+    anchors: { weak: "Unqualified certainty", strong: "Quantified or carefully bounded uncertainty" }
+  limitations:
+    purpose: Evaluate scope, assumptions, and failure modes.
+    evidence_to_review: []
+    anchors: { weak: "Omitted", strong: "Explicit limits linked to conclusions" }

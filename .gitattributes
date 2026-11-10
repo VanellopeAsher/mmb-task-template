@@ -1,0 +1,5 @@
+# Preserve Unix line endings for container entry points on Windows checkouts.
+*.sh text eol=lf
+Dockerfile text eol=lf
+*.toml text eol=lf
+*.yaml text eol=lf

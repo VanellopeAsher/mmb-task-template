@@ -1,0 +1,26 @@
+# Harbor task configuration. Replace these example limits with measured values.
+# Harbor uses the enclosing task directory name as its task identifier.
+artifacts = [] # Absolute agent output paths to transfer to a separate verifier.
+
+[metadata]
+task_id = "REPLACE_WITH_UNIQUE_TASK_ID" # MMB catalog identifier; match directory name.
+domain = "REPLACE_WITH_SCIENTIFIC_DOMAIN"
+subdomain = "REPLACE_WITH_SUBDOMAIN"
+category = "Science"
+tags = []
+expert_time_estimate_hours = 8 # Reassess per task; human baseline is separately limited to 8 h.
+
+[verifier]
+timeout_sec = 600.0
+environment_mode = "separate"
+
+[agent]
+timeout_sec = 14400.0
+
+[environment]
+build_timeout_sec = 1800.0
+cpus = 2
+memory_mb = 4096
+storage_mb = 10240
+gpus = 0
+network_mode = "none" # Review task needs and Harbor version before changing.

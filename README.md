@@ -1,0 +1,38 @@
+# MatterMysteryBench task template
+
+This repository is a **blank authoring template** for one MatterMysteryBench (MMB) scientific research task. It follows the final schema supplied with the project. No scientific problem, dataset, oracle, or grading claim is filled in.
+
+## Layout and access
+
+| Path | Purpose | Agent access |
+| --- | --- | --- |
+| `task/task.toml` | Harbor metadata and resource limits | Harness |
+| `task/problem.md` | The sole problem statement: scientific WHAT and WHY | Yes |
+| `task/environment/` | Per-task reproducible compute environment, data, tools, and optional skills | Yes |
+| `task/solution/` | Expert feasibility evidence or reference procedure | No during evaluation |
+| `task/tests/` | Isolated, objective verification | No during evaluation |
+| `task/authoring/` | Rubric, provenance, independent evidence, and human baseline | Never |
+| `runs/` | Agent trajectories and run artifacts | Evaluation pipeline |
+
+Every directory has a README describing its intended contents. Directory READMEs are authoring documentation; mount only the materials authorized for the agent.
+
+## Authoring a task
+
+1. Copy `task/` under a unique task directory name; use that directory name as the Harbor task ID and set `metadata.task_id` to the same value for the MMB catalog.
+2. Replace all `REPLACE_*` fields and bracketed prompts. Put licensed, versioned inputs in `environment/data/`, executable interfaces in `environment/tools/`, and task-specific tool knowledge in `environment/skills/`. Keep the problem open ended: state observations, evidence, assumptions, and the research question without prescribing a method.
+3. Pin software and data versions. Keep reference answers, rubric, provenance, and hidden evidence outside the agent image and mounts.
+4. Implement the reference material and verifier for the specific problem. Verify the reference answer against the objective checks; separately review scientific quality against `authoring/rubric.yaml`.
+5. Ask up to five experts, each with the same environment and an eight-hour limit, to produce independent human baselines. Record their conditions and outcomes in `authoring/human_baseline/`.
+6. Store each agent trajectory under `runs/<run-id>/` with a manifest linking hypotheses, chosen experiments, tool calls, observations, and changes in direction. Review for secrets or private data before publishing runs.
+
+The shell entry points deliberately fail until a real task is authored. A green verifier must never result from placeholder content.
+
+## Harbor integration
+
+Harbor currently expects an `instruction.md` file for its standard task loader, whereas this MMB schema deliberately has one source of truth named `problem.md`. At packaging time, generate `instruction.md` from `problem.md` in a build/staging directory; do not maintain a second editable question. The `task.toml` uses Harbor configuration keys plus free-form MMB metadata. Validate it against the installed Harbor version before an evaluation run. The `tests/test.sh` placeholder writes zero reward and exits nonzero until replaced.
+
+## Publication boundary
+
+This public template contains only guidance. For a live benchmark, keep `solution/`, `tests/`, and `authoring/` private until the intended evaluation release; a public GitHub repository cannot enforce the runtime access boundary.
+
+Harbor references: [task creation guide](https://github.com/harbor-framework/docs/blob/main/guides/creating-tasks.mdx), [configuration example](https://github.com/harbor-framework/terminal-bench/blob/main/docs/task-template.toml).
