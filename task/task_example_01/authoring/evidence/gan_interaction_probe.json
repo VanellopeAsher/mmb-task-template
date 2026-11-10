@@ -1,0 +1,194 @@
+{
+  "archive": "gan_wurtzite_mp804",
+  "mesh": [
+    3,
+    3,
+    6
+  ],
+  "triplets": [
+    {
+      "grid_addresses": [
+        [
+          0,
+          0,
+          1
+        ],
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          -1,
+          0,
+          -1
+        ]
+      ],
+      "all_on_screw_axis": false,
+      "near_zero_count": 256,
+      "total_mode_triplets": 1728,
+      "relative_threshold": 1e-08
+    },
+    {
+      "grid_addresses": [
+        [
+          0,
+          0,
+          1
+        ],
+        [
+          1,
+          1,
+          0
+        ],
+        [
+          -1,
+          -1,
+          -1
+        ]
+      ],
+      "all_on_screw_axis": false,
+      "near_zero_count": 416,
+      "total_mode_triplets": 1728,
+      "relative_threshold": 1e-08
+    },
+    {
+      "grid_addresses": [
+        [
+          0,
+          0,
+          1
+        ],
+        [
+          0,
+          0,
+          1
+        ],
+        [
+          0,
+          0,
+          -2
+        ]
+      ],
+      "all_on_screw_axis": true,
+      "near_zero_count": 1062,
+      "total_mode_triplets": 1728,
+      "relative_threshold": 1e-08
+    },
+    {
+      "grid_addresses": [
+        [
+          0,
+          0,
+          1
+        ],
+        [
+          1,
+          0,
+          1
+        ],
+        [
+          -1,
+          0,
+          -2
+        ]
+      ],
+      "all_on_screw_axis": false,
+      "near_zero_count": 256,
+      "total_mode_triplets": 1728,
+      "relative_threshold": 1e-08
+    },
+    {
+      "grid_addresses": [
+        [
+          0,
+          0,
+          1
+        ],
+        [
+          1,
+          1,
+          1
+        ],
+        [
+          -1,
+          -1,
+          -2
+        ]
+      ],
+      "all_on_screw_axis": false,
+      "near_zero_count": 418,
+      "total_mode_triplets": 1728,
+      "relative_threshold": 1e-08
+    },
+    {
+      "grid_addresses": [
+        [
+          0,
+          0,
+          1
+        ],
+        [
+          0,
+          0,
+          2
+        ],
+        [
+          0,
+          0,
+          -3
+        ]
+      ],
+      "all_on_screw_axis": true,
+      "near_zero_count": 1056,
+      "total_mode_triplets": 1728,
+      "relative_threshold": 1e-08
+    },
+    {
+      "grid_addresses": [
+        [
+          0,
+          0,
+          1
+        ],
+        [
+          1,
+          0,
+          2
+        ],
+        [
+          -1,
+          0,
+          -3
+        ]
+      ],
+      "all_on_screw_axis": false,
+      "near_zero_count": 256,
+      "total_mode_triplets": 1728,
+      "relative_threshold": 1e-08
+    },
+    {
+      "grid_addresses": [
+        [
+          0,
+          0,
+          1
+        ],
+        [
+          1,
+          1,
+          2
+        ],
+        [
+          -1,
+          -1,
+          -3
+        ]
+      ],
+      "all_on_screw_axis": false,
+      "near_zero_count": 396,
+      "total_mode_triplets": 1728,
+      "relative_threshold": 1e-08
+    }
+  ]
+}
