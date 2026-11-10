@@ -1,0 +1,332 @@
+{
+  "archive": "zns_wurtzite_mp10281",
+  "mesh": [
+    3,
+    3,
+    6
+  ],
+  "mode_assignment_max_error": 9.52544343200364e-13,
+  "triplets": [
+    {
+      "grid_addresses": [
+        [
+          0,
+          0,
+          1
+        ],
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          -1,
+          0,
+          -1
+        ]
+      ],
+      "all_on_screw_axis": false,
+      "near_zero_count": 2055,
+      "total_mode_triplets": 13824,
+      "relative_threshold": 1e-08
+    },
+    {
+      "grid_addresses": [
+        [
+          0,
+          0,
+          1
+        ],
+        [
+          1,
+          1,
+          0
+        ],
+        [
+          -1,
+          -1,
+          -1
+        ]
+      ],
+      "all_on_screw_axis": false,
+      "near_zero_count": 4368,
+      "total_mode_triplets": 13824,
+      "relative_threshold": 1e-08
+    },
+    {
+      "grid_addresses": [
+        [
+          0,
+          0,
+          1
+        ],
+        [
+          0,
+          0,
+          1
+        ],
+        [
+          0,
+          0,
+          -2
+        ]
+      ],
+      "all_on_screw_axis": true,
+      "near_zero_count": 8454,
+      "total_mode_triplets": 13824,
+      "relative_threshold": 1e-08
+    },
+    {
+      "grid_addresses": [
+        [
+          0,
+          0,
+          1
+        ],
+        [
+          1,
+          0,
+          1
+        ],
+        [
+          -1,
+          0,
+          -2
+        ]
+      ],
+      "all_on_screw_axis": false,
+      "near_zero_count": 2051,
+      "total_mode_triplets": 13824,
+      "relative_threshold": 1e-08
+    },
+    {
+      "grid_addresses": [
+        [
+          0,
+          0,
+          1
+        ],
+        [
+          1,
+          1,
+          1
+        ],
+        [
+          -1,
+          -1,
+          -2
+        ]
+      ],
+      "all_on_screw_axis": false,
+      "near_zero_count": 4356,
+      "total_mode_triplets": 13824,
+      "relative_threshold": 1e-08
+    },
+    {
+      "grid_addresses": [
+        [
+          0,
+          0,
+          1
+        ],
+        [
+          0,
+          0,
+          2
+        ],
+        [
+          0,
+          0,
+          -3
+        ]
+      ],
+      "all_on_screw_axis": true,
+      "near_zero_count": 8470,
+      "total_mode_triplets": 13824,
+      "relative_threshold": 1e-08
+    },
+    {
+      "grid_addresses": [
+        [
+          0,
+          0,
+          1
+        ],
+        [
+          1,
+          0,
+          2
+        ],
+        [
+          -1,
+          0,
+          -3
+        ]
+      ],
+      "all_on_screw_axis": false,
+      "near_zero_count": 2051,
+      "total_mode_triplets": 13824,
+      "relative_threshold": 1e-08
+    },
+    {
+      "grid_addresses": [
+        [
+          0,
+          0,
+          1
+        ],
+        [
+          1,
+          1,
+          2
+        ],
+        [
+          -1,
+          -1,
+          -3
+        ]
+      ],
+      "all_on_screw_axis": false,
+      "near_zero_count": 4352,
+      "total_mode_triplets": 13824,
+      "relative_threshold": 1e-08
+    }
+  ],
+  "screw_classification": [
+    {
+      "grid_addresses": [
+        [
+          0,
+          0,
+          1
+        ],
+        [
+          0,
+          0,
+          1
+        ],
+        [
+          0,
+          0,
+          -2
+        ]
+      ],
+      "axial_reciprocal_vector": 0,
+      "allowed_count": 2304,
+      "forbidden_count": 11520,
+      "forbidden_near_zero_count": 11520,
+      "allowed_near_zero_count": 0,
+      "rotation_only_allowed_count": 2304,
+      "rotation_only_allowed_near_zero_count": 0,
+      "max_forbidden_relative_strength": 3.3825259558932876e-25
+    },
+    {
+      "grid_addresses": [
+        [
+          0,
+          0,
+          1
+        ],
+        [
+          0,
+          0,
+          2
+        ],
+        [
+          0,
+          0,
+          -3
+        ]
+      ],
+      "axial_reciprocal_vector": 0,
+      "allowed_count": 2304,
+      "forbidden_count": 11520,
+      "forbidden_near_zero_count": 11520,
+      "allowed_near_zero_count": 0,
+      "rotation_only_allowed_count": 2304,
+      "rotation_only_allowed_near_zero_count": 0,
+      "max_forbidden_relative_strength": 9.829928875537994e-26
+    },
+    {
+      "grid_addresses": [
+        [
+          0,
+          0,
+          2
+        ],
+        [
+          0,
+          0,
+          1
+        ],
+        [
+          0,
+          0,
+          -3
+        ]
+      ],
+      "axial_reciprocal_vector": 0,
+      "allowed_count": 2304,
+      "forbidden_count": 11520,
+      "forbidden_near_zero_count": 11520,
+      "allowed_near_zero_count": 0,
+      "rotation_only_allowed_count": 2304,
+      "rotation_only_allowed_near_zero_count": 0,
+      "max_forbidden_relative_strength": 9.832640640111606e-26
+    },
+    {
+      "grid_addresses": [
+        [
+          0,
+          0,
+          2
+        ],
+        [
+          0,
+          0,
+          2
+        ],
+        [
+          0,
+          0,
+          2
+        ]
+      ],
+      "axial_reciprocal_vector": 1,
+      "allowed_count": 2304,
+      "forbidden_count": 11520,
+      "forbidden_near_zero_count": 11520,
+      "allowed_near_zero_count": 0,
+      "rotation_only_allowed_count": 2304,
+      "rotation_only_allowed_near_zero_count": 2304,
+      "max_forbidden_relative_strength": 4.370499053256856e-25
+    },
+    {
+      "grid_addresses": [
+        [
+          0,
+          0,
+          2
+        ],
+        [
+          0,
+          0,
+          -1
+        ],
+        [
+          0,
+          0,
+          -1
+        ]
+      ],
+      "axial_reciprocal_vector": 0,
+      "allowed_count": 2304,
+      "forbidden_count": 11520,
+      "forbidden_near_zero_count": 11520,
+      "allowed_near_zero_count": 0,
+      "rotation_only_allowed_count": 2304,
+      "rotation_only_allowed_near_zero_count": 0,
+      "max_forbidden_relative_strength": 4.689973191131626e-25
+    }
+  ]
+}

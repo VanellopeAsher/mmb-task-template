@@ -57,7 +57,7 @@ def trace_mean_at(item: dict[str, object], temperature: int) -> float:
     return sum(item["kappa_by_temperature_W_mK"][str(temperature)].values()) / 3
 
 
-def report(materials: list[dict[str, object]], interaction_probe: dict[str, object]) -> str:
+def report(materials: list[dict[str, object]], interaction_probes: list[dict[str, object]]) -> str:
     rows = ["| Material | Space group | κxx | κyy | κzz | tr(κ)/3 |", "| --- | ---: | ---: | ---: | ---: | ---: |"]
     for item in materials:
         k = item["kappa_300_W_mK"]
@@ -82,12 +82,27 @@ def report(materials: list[dict[str, object]], interaction_probe: dict[str, obje
             )
             + " |"
         )
-    axial = [row for row in interaction_probe["triplets"] if row["all_on_screw_axis"]]
-    off_axis = [row for row in interaction_probe["triplets"] if not row["all_on_screw_axis"]]
+    ga_probe = next(item for item in interaction_probes if item["archive"] == "gan_wurtzite_mp804")
+    axial = [row for row in ga_probe["triplets"] if row["all_on_screw_axis"]]
+    off_axis = [row for row in ga_probe["triplets"] if not row["all_on_screw_axis"]]
     axial_counts = ", ".join(str(row["near_zero_count"]) for row in axial)
     off_range = f"{min(row['near_zero_count'] for row in off_axis)}–{max(row['near_zero_count'] for row in off_axis)}"
-    normal = next(row for row in interaction_probe["screw_classification"] if row["axial_reciprocal_vector"] == 0)
-    umklapp = next(row for row in interaction_probe["screw_classification"] if row["axial_reciprocal_vector"] == 1)
+    normal = next(row for row in ga_probe["screw_classification"] if row["axial_reciprocal_vector"] == 0)
+    umklapp = next(row for row in ga_probe["screw_classification"] if row["axial_reciprocal_vector"] == 1)
+    mode_rows = [
+        "| Wurtzite model | Sampled triplets | Forbidden near-zero / predicted | Allowed near-zero / predicted | Max mode-assignment residual |",
+        "| --- | ---: | ---: | ---: | ---: |",
+    ]
+    for item in interaction_probes:
+        rows_for_material = item["screw_classification"]
+        forbidden = sum(row["forbidden_count"] for row in rows_for_material)
+        forbidden_small = sum(row["forbidden_near_zero_count"] for row in rows_for_material)
+        allowed = sum(row["allowed_count"] for row in rows_for_material)
+        allowed_small = sum(row["allowed_near_zero_count"] for row in rows_for_material)
+        mode_rows.append(
+            f"| {item['archive']} | {len(rows_for_material)} | {forbidden_small}/{forbidden} | "
+            f"{allowed_small}/{allowed} | {item['mode_assignment_max_error']:.1e} |"
+        )
     return "\n".join(
         [
             "# Reference investigation: nonsymmorphic symmetry and thermal transport",
@@ -102,7 +117,11 @@ def report(materials: list[dict[str, object]], interaction_probe: dict[str, obje
             "",
             f"We then construct the actual 6_3 operation from the GaN structure, diagonalize it within each degenerate phonon subspace using phonopy's position-phase convention, and recompute the interactions in the screw-eigenmode basis. Phono3py lists the three wave vectors in an all-incoming convention, so their screw labels add. For a Normal axial triplet, the rule predicts {normal['forbidden_count']} forbidden mode combinations and all {normal['forbidden_near_zero_count']} have squared coupling below 10^-8 of that triplet's maximum; none of the {normal['allowed_count']} allowed combinations falls below this threshold. For the odd-axial-Umklapp triplet with three q_z=1/3 modes, the fractional translation changes the condition to m1+m2+m3 ≡ 3 (mod 6): all {umklapp['forbidden_near_zero_count']}/{umklapp['forbidden_count']} predicted forbidden combinations are near-zero, while {umklapp['allowed_near_zero_count']}/{umklapp['allowed_count']} predicted allowed combinations are. Ignoring the screw translation would instead classify {umklapp['rotation_only_allowed_count']} combinations as allowed, all {umklapp['rotation_only_allowed_near_zero_count']} of which are near-zero. The largest forbidden coupling is {umklapp['max_forbidden_relative_strength']:.1e} times the triplet maximum. Full addresses, mode-assignment residual, and counts are in `evidence.json`.",
             "",
-            "This is material-specific evidence for the restricted screw selection condition in the reconstructed GaN force model. The mode transformation follows [phonopy's documented position-phase convention](https://phonopy.github.io/phonopy/symmetry-adapted-modes.html). The force constants were symmetrized by the scientific software; the result is model-dependent and sampled on a coarse mesh. It does not establish the energy-conserving phase space or the contribution of these particular channels to bulk thermal conductivity. A controlled symmetry-breaking comparison would be needed for a causal transport claim.",
+            "The same screw-mode check was repeated independently for the AlN and ZnS wurtzite force archives. Each row below aggregates five non-Gamma axial q-triplets, including one with odd axial Umklapp; the counts are properties of this coarse grid and declared relative threshold.",
+            "",
+            *mode_rows,
+            "",
+            "The three models support the restricted screw selection condition for these sampled processes. The mode transformation follows [phonopy's documented position-phase convention](https://phonopy.github.io/phonopy/symmetry-adapted-modes.html). The force constants were symmetrized by the scientific software; the result is model-dependent and sampled on a coarse mesh. It does not establish the energy-conserving phase space or the contribution of these particular channels to bulk thermal conductivity. A controlled symmetry-breaking comparison would be needed for a causal transport claim.",
             "",
             "## Cross-material transport evidence",
             "These computed 300 K thermal-conductivity tensor components come from the original NIMS `LTC-calc.log` files (W m^-1 K^-1). The trace average is only a descriptive scalar for comparing anisotropic and cubic phases.",
@@ -136,16 +155,16 @@ def main() -> None:
     args = parser.parse_args()
     assert allowed(6, 3, 1, 2, 0, 1)
     materials = collect()
-    interaction_probe = probe()
+    interaction_probes = [probe(name) for name in ("gan_wurtzite_mp804", "aln_wurtzite_mp661", "zns_wurtzite_mp10281")]
     claims = [
         {
             "statement": "A 6_3 screw can impose an axial reciprocal-vector-dependent necessary condition on three-phonon couplings of nondegenerate invariant-line modes.",
             "evidence": ["https://doi.org/10.1103/PhysRevResearch.4.L012024", "environment/tools/screw_selection.py"],
-            "limitations": ["Actual mode labels and coupling strengths require material-specific analysis", "Degenerate or off-axis modes require full representations"],
+            "limitations": ["Unsampled mode labels and couplings require further material-specific analysis", "Degenerate or off-axis modes require full representations"],
         },
         {
-            "statement": "For sampled GaN screw-axis triplets, reconstructed cubic couplings vanish numerically for all mode combinations forbidden by the 6_3 screw characters; an odd axial Umklapp event follows the shifted label condition.",
-            "evidence": ["environment/data/nims/gan_wurtzite_mp804.zip", "environment/tools/probe_interactions.py"],
+            "statement": "For sampled GaN, AlN, and ZnS screw-axis triplets, reconstructed cubic couplings vanish numerically for all mode combinations forbidden by the 6_3 screw characters; an odd axial Umklapp event follows the shifted label condition.",
+            "evidence": ["environment/data/nims/gan_wurtzite_mp804.zip", "environment/data/nims/aln_wurtzite_mp661.zip", "environment/data/nims/zns_wurtzite_mp10281.zip", "environment/tools/probe_interactions.py"],
             "limitations": ["Coarse q mesh and model-based symmetrized force constants", "No energy-conservation or causal thermal-transport attribution"],
         },
         {
@@ -155,8 +174,8 @@ def main() -> None:
         },
     ]
     args.output_dir.mkdir(parents=True, exist_ok=True)
-    (args.output_dir / "evidence.json").write_text(json.dumps({"materials": materials, "interaction_probe": interaction_probe, "claims": claims}, indent=2) + "\n", encoding="utf-8")
-    (args.output_dir / "report.md").write_text(report(materials, interaction_probe), encoding="utf-8")
+    (args.output_dir / "evidence.json").write_text(json.dumps({"materials": materials, "interaction_probes": interaction_probes, "claims": claims}, indent=2) + "\n", encoding="utf-8")
+    (args.output_dir / "report.md").write_text(report(materials, interaction_probes), encoding="utf-8")
     print(args.output_dir)
 
 
