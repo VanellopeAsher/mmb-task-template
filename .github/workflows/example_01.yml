@@ -18,25 +18,6 @@ jobs:
         run: |
           python task/task_example_01/authoring/provenance/build_harbor_task.py --output "$RUNNER_TEMP/mmb-example01-harbor"
           uvx harbor==0.25.0 lint "$RUNNER_TEMP/mmb-example01-harbor"
-      - name: Build agent environment
-        run: docker build -t mmb-example01-agent task/task_example_01/environment
-      - name: Build separate verifier
-        run: docker build -t mmb-example01-verifier task/task_example_01/tests
-      - name: Run Oracle in agent environment
-        run: |
-          mkdir -p "$RUNNER_TEMP/mmb-example01-results"
-          docker run --rm \
-            -v "$PWD/task/task_example_01/solution:/solution:ro" \
-            -v "$RUNNER_TEMP/mmb-example01-results:/workspace/results" \
-            mmb-example01-agent bash /solution/solve.sh
-      - name: Check transferred artifacts in separate verifier
-        run: |
-          mkdir -p "$RUNNER_TEMP/mmb-example01-verifier"
-          docker run --rm \
-            -v "$RUNNER_TEMP/mmb-example01-results:/workspace/results:ro" \
-            -v "$RUNNER_TEMP/mmb-example01-verifier:/logs/verifier" \
-            mmb-example01-verifier
-          test "$(cat "$RUNNER_TEMP/mmb-example01-verifier/reward.txt")" = "1"
       - name: Run Harbor Oracle on staged task
         run: |
           uvx harbor==0.25.0 run \

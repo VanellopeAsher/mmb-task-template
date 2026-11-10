@@ -5,6 +5,7 @@
     3,
     6
   ],
+  "mode_assignment_max_error": 4.0034223642286735e-14,
   "triplets": [
     {
       "grid_addresses": [
@@ -189,6 +190,143 @@
       "near_zero_count": 396,
       "total_mode_triplets": 1728,
       "relative_threshold": 1e-08
+    }
+  ],
+  "screw_classification": [
+    {
+      "grid_addresses": [
+        [
+          0,
+          0,
+          1
+        ],
+        [
+          0,
+          0,
+          1
+        ],
+        [
+          0,
+          0,
+          -2
+        ]
+      ],
+      "axial_reciprocal_vector": 0,
+      "allowed_count": 288,
+      "forbidden_count": 1440,
+      "forbidden_near_zero_count": 1440,
+      "allowed_near_zero_count": 0,
+      "rotation_only_allowed_count": 288,
+      "rotation_only_allowed_near_zero_count": 0,
+      "max_forbidden_relative_strength": 2.9542269367263204e-27
+    },
+    {
+      "grid_addresses": [
+        [
+          0,
+          0,
+          1
+        ],
+        [
+          0,
+          0,
+          2
+        ],
+        [
+          0,
+          0,
+          -3
+        ]
+      ],
+      "axial_reciprocal_vector": 0,
+      "allowed_count": 288,
+      "forbidden_count": 1440,
+      "forbidden_near_zero_count": 1440,
+      "allowed_near_zero_count": 0,
+      "rotation_only_allowed_count": 288,
+      "rotation_only_allowed_near_zero_count": 0,
+      "max_forbidden_relative_strength": 1.9581494706383926e-27
+    },
+    {
+      "grid_addresses": [
+        [
+          0,
+          0,
+          2
+        ],
+        [
+          0,
+          0,
+          1
+        ],
+        [
+          0,
+          0,
+          -3
+        ]
+      ],
+      "axial_reciprocal_vector": 0,
+      "allowed_count": 288,
+      "forbidden_count": 1440,
+      "forbidden_near_zero_count": 1440,
+      "allowed_near_zero_count": 0,
+      "rotation_only_allowed_count": 288,
+      "rotation_only_allowed_near_zero_count": 0,
+      "max_forbidden_relative_strength": 1.9618441926661134e-27
+    },
+    {
+      "grid_addresses": [
+        [
+          0,
+          0,
+          2
+        ],
+        [
+          0,
+          0,
+          2
+        ],
+        [
+          0,
+          0,
+          2
+        ]
+      ],
+      "axial_reciprocal_vector": 1,
+      "allowed_count": 288,
+      "forbidden_count": 1440,
+      "forbidden_near_zero_count": 1440,
+      "allowed_near_zero_count": 0,
+      "rotation_only_allowed_count": 288,
+      "rotation_only_allowed_near_zero_count": 288,
+      "max_forbidden_relative_strength": 5.2347046020626135e-27
+    },
+    {
+      "grid_addresses": [
+        [
+          0,
+          0,
+          2
+        ],
+        [
+          0,
+          0,
+          -1
+        ],
+        [
+          0,
+          0,
+          -1
+        ]
+      ],
+      "axial_reciprocal_vector": 0,
+      "allowed_count": 288,
+      "forbidden_count": 1440,
+      "forbidden_near_zero_count": 1440,
+      "allowed_near_zero_count": 0,
+      "rotation_only_allowed_count": 288,
+      "rotation_only_allowed_near_zero_count": 0,
+      "max_forbidden_relative_strength": 1.9186909803781165e-27
     }
   ]
 }
