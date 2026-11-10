@@ -1,6 +1,6 @@
 # Problem
 
-[State one scientific problem and the expected form of a research answer. Describe the goal, not a procedure.]
+[State the scientific problem and why it matters.]
 
 ## Scientific context
 
@@ -25,10 +25,6 @@
 ## Available materials
 
 [List accessible data, tools, and skills, with relative paths and formats.]
-
-## Scope & assumptions
-
-[State boundaries, allowed resources, and assumptions needed to interpret the question.]
 
 ## References
 
