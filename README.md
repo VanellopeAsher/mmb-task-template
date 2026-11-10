@@ -12,9 +12,12 @@ This repository is a **blank authoring template** for one MatterMysteryBench (MM
 | `task/task_template/solution/` | Expert feasibility evidence or reference procedure | No during evaluation |
 | `task/task_template/tests/` | Isolated, objective verification | No during evaluation |
 | `task/task_template/authoring/` | Rubric, provenance, independent evidence, and human baseline | Never |
+| `initial_submit/initial_submit_template/` | Initial proposal: problem ID, one-question description, input data inventory, and oracle | Authors only |
 | `runs/` | Agent trajectories and run artifacts | Evaluation pipeline |
 
-Every directory has a README describing its intended contents. Directory READMEs are authoring documentation; mount only the materials authorized for the agent.
+The task template directories and `runs/` have READMEs describing their intended contents. Directory READMEs are authoring documentation; mount only the materials authorized for the agent.
+
+The `initial_submit/initial_submit_template/` folder intentionally contains **only three files**: `problem.md`, `input_data_description.md`, and `solve.sh`. Their own contents describe their purpose. Copy this folder for an initial proposal before expanding it into a full task.
 
 ## Authoring a task
 
