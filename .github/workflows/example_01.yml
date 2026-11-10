@@ -43,5 +43,20 @@ jobs:
             --path "$RUNNER_TEMP/mmb-example01-harbor" \
             --agent oracle \
             --env docker \
+            --override-cpus 4 \
+            --override-memory-mb 14000 \
             --jobs-dir "$RUNNER_TEMP/mmb-example01-jobs" \
             --job-name example01-oracle
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          job = Path(os.environ["RUNNER_TEMP"]) / "mmb-example01-jobs" / "example01-oracle"
+          trials = [path for path in job.rglob("result.json") if path.parent != job]
+          assert len(trials) == 1, f"Expected one Harbor trial, found {trials}"
+          result = json.loads(trials[0].read_text(encoding="utf-8"))
+          reward = result.get("verifier_result", {}).get("rewards", {}).get("reward")
+          print(f"Harbor Oracle reward: {reward}; result: {trials[0]}")
+          assert reward == 1.0, result
+          PY
