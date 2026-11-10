@@ -6,19 +6,19 @@ This repository is a **blank authoring template** for one MatterMysteryBench (MM
 
 | Path | Purpose | Agent access |
 | --- | --- | --- |
-| `task/task.toml` | Harbor metadata and resource limits | Harness |
-| `task/problem.md` | The sole problem statement: scientific WHAT and WHY | Yes |
-| `task/environment/` | Per-task reproducible compute environment, data, tools, and optional skills | Yes |
-| `task/solution/` | Expert feasibility evidence or reference procedure | No during evaluation |
-| `task/tests/` | Isolated, objective verification | No during evaluation |
-| `task/authoring/` | Rubric, provenance, independent evidence, and human baseline | Never |
+| `task/task_template/task.toml` | Harbor metadata and resource limits | Harness |
+| `task/task_template/problem.md` | The sole problem statement: scientific WHAT and WHY | Yes |
+| `task/task_template/environment/` | Per-task reproducible compute environment, data, tools, and optional skills | Yes |
+| `task/task_template/solution/` | Expert feasibility evidence or reference procedure | No during evaluation |
+| `task/task_template/tests/` | Isolated, objective verification | No during evaluation |
+| `task/task_template/authoring/` | Rubric, provenance, independent evidence, and human baseline | Never |
 | `runs/` | Agent trajectories and run artifacts | Evaluation pipeline |
 
 Every directory has a README describing its intended contents. Directory READMEs are authoring documentation; mount only the materials authorized for the agent.
 
 ## Authoring a task
 
-1. Copy `task/` under a unique task directory name; use that directory name as the Harbor task ID and set `metadata.task_id` to the same value for the MMB catalog.
+1. Copy `task/task_template/` to `task/<unique-task-id>/`; use the new directory name as the Harbor task ID and set `metadata.task_id` to the same value for the MMB catalog.
 2. Replace all `REPLACE_*` fields and bracketed prompts. Put licensed, versioned inputs in `environment/data/`, executable interfaces in `environment/tools/`, and task-specific tool knowledge in `environment/skills/`. Keep the problem open ended: state observations, evidence, assumptions, and the research question without prescribing a method.
 3. Pin software and data versions. Keep reference answers, rubric, provenance, and hidden evidence outside the agent image and mounts.
 4. Implement the reference material and verifier for the specific problem. Verify the reference answer against the objective checks; separately review scientific quality against `authoring/rubric.yaml`.
