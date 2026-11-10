@@ -1,0 +1,3 @@
+# Objective verifier
+
+`Dockerfile` isolates `verify.py` from the agent image and disables runtime network access. `test.sh` checks that the submitted report and evidence index exist, that at least two same-composition polymorph comparisons use source-consistent 300 K conductivity values and space groups, and that claims have linked evidence and limitations. It writes 0 or 1 to `/logs/verifier/reward.txt`. This is an **objective artifact score only**; it cannot certify the mechanism, causal interpretation, literature synthesis, or scientific quality. Those require `authoring/rubric.yaml` and domain review.

@@ -1,0 +1,9 @@
+# Scientific packages available to the agent for alternative analyses.
+phono3py==4.10.0
+phonopy==4.10.0
+spglib==2.8.0
+symfc==1.8.0
+seekpath==2.2.2
+pypolymlp==0.22.1
+pandas==2.3.3
+sympy==1.14.0

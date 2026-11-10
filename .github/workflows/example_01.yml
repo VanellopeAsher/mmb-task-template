@@ -1,0 +1,34 @@
+name: Validate example_01
+
+on:
+  push:
+    paths:
+      - "task/task_example_01/**"
+      - ".github/workflows/example_01.yml"
+  workflow_dispatch:
+
+jobs:
+  oracle-and-verifier:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build agent environment
+        run: docker build -t mmb-example01-agent task/task_example_01/environment
+      - name: Build separate verifier
+        run: docker build -t mmb-example01-verifier task/task_example_01/tests
+      - name: Run Oracle in agent environment
+        run: |
+          mkdir -p "$RUNNER_TEMP/mmb-example01-results"
+          docker run --rm \
+            -v "$PWD/task/task_example_01/solution:/solution:ro" \
+            -v "$RUNNER_TEMP/mmb-example01-results:/workspace/results" \
+            mmb-example01-agent bash /solution/solve.sh
+      - name: Check transferred artifacts in separate verifier
+        run: |
+          mkdir -p "$RUNNER_TEMP/mmb-example01-verifier"
+          docker run --rm \
+            -v "$RUNNER_TEMP/mmb-example01-results:/workspace/results:ro" \
+            -v "$RUNNER_TEMP/mmb-example01-verifier:/logs/verifier" \
+            mmb-example01-verifier
+          test "$(cat "$RUNNER_TEMP/mmb-example01-verifier/reward.txt")" = "1"

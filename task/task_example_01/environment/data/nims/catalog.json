@@ -1,0 +1,58 @@
+[
+  {
+    "name": "gan_wurtzite_mp804",
+    "formula": "GaN",
+    "space_group_number_reported": 186,
+    "source_page": "https://mdr.nims.go.jp/datasets/92b313e2-94db-49b5-8214-101d14db2615",
+    "sha256": "3c44056a2dbe9124e6ec880d10084080d4dbd7400048a8de00421b72ffeb10a4"
+  },
+  {
+    "name": "gan_zincblende_mp830",
+    "formula": "GaN",
+    "space_group_number_reported": 216,
+    "source_page": "https://mdr.nims.go.jp/datasets/527318d6-e8c4-4f67-bee0-2eb0f4b17d39",
+    "sha256": "16ecc0237ae430e200dd8bb657b4f2aa63ea631ac7dd56e8f4907d41dcb745c1"
+  },
+  {
+    "name": "aln_wurtzite_mp661",
+    "formula": "AlN",
+    "space_group_number_reported": 186,
+    "source_page": "https://mdr.nims.go.jp/datasets/aa0584a1-10b5-4420-9aeb-55ba9a346fae",
+    "sha256": "63e81b3927c8a2eafb4c299311202d5dc613421e75a7609deeae06eb23f3a5da"
+  },
+  {
+    "name": "aln_zincblende_mp1700",
+    "formula": "AlN",
+    "space_group_number_reported": 216,
+    "source_page": "https://mdr.nims.go.jp/datasets/42149b59-699c-4807-922a-e19d898f039e",
+    "sha256": "1269c14e2e2162398b0d7aad62de356ba36196ca7617b04e6b86427908da0ab4"
+  },
+  {
+    "name": "zns_wurtzite_mp10281",
+    "formula": "ZnS",
+    "space_group_number_reported": 186,
+    "source_page": "https://mdr.nims.go.jp/datasets/c75b4303-4d48-47e8-9f1c-81cc47857352",
+    "sha256": "e57c385156f2f067dd07a8a71bc4fc37ffa3422106629ea16b2f93f23d0f47a2"
+  },
+  {
+    "name": "zns_zincblende_mp10695",
+    "formula": "ZnS",
+    "space_group_number_reported": 216,
+    "source_page": "https://mdr.nims.go.jp/datasets/c80f9164-fb90-4c7e-af04-3aaea2110397",
+    "sha256": "6dad675ccbb206c8f377082156eb65aa0134f54354466c32ece7b4bcdc671dfd"
+  },
+  {
+    "name": "si_diamond_mp149",
+    "formula": "Si",
+    "space_group_number_reported": 227,
+    "source_page": "https://mdr.nims.go.jp/datasets/39c3c7f1-8580-402e-b963-192613e45efe",
+    "sha256": "cbbe08947a4d6ae340df3180d47ccf11b4490608a73eee9ca76e057726aecde3"
+  },
+  {
+    "name": "si_hexagonal_mp165",
+    "formula": "Si",
+    "space_group_number_reported": 194,
+    "source_page": "https://mdr.nims.go.jp/datasets/b2d398f0-e5f5-41a5-b397-7613057219e1",
+    "sha256": "bf1a093ceb1a4cb46a37f446145b5c0560d8b630e060c9b0c034abc864b40aa1"
+  }
+]

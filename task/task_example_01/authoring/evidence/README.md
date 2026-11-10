@@ -1,0 +1,3 @@
+# Independent evidence
+
+This author-only directory records reasoning and validation boundaries. `selection_rule.md` derives a restricted screw-axis condition and separates it from unsupported transport claims. `check_verifier.py` tests that the Oracle artifacts pass while altered numerical evidence and a missing report fail. The source-log numbers used by the objective verifier were cross-checked against the eight original ZIP archives. A further independent mode-resolved scattering calculation remains necessary to attribute observed conductivity differences to a particular nonsymmorphic rule. Do not mount this directory into the agent environment.

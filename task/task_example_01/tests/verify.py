@@ -1,0 +1,99 @@
+"""Independently verify submitted observations and evidence completeness.
+
+The source-log values below were manually checked against the NIMS archives.
+This test intentionally does not grade the scientific interpretation.
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import math
+from pathlib import Path
+import re
+import sys
+
+
+EXPECTED = {
+    "gan_wurtzite_mp804": ("GaN", 186, (202.565, 202.565, 206.421)),
+    "gan_zincblende_mp830": ("GaN", 216, (179.522, 179.522, 179.522)),
+    "aln_wurtzite_mp661": ("AlN", 186, (272.264, 272.264, 238.783)),
+    "aln_zincblende_mp1700": ("AlN", 216, (231.799, 231.799, 231.799)),
+    "zns_wurtzite_mp10281": ("ZnS", 186, (41.689, 41.689, 38.618)),
+    "zns_zincblende_mp10695": ("ZnS", 216, (46.395, 46.395, 46.395)),
+    "si_diamond_mp149": ("Si", 227, (110.185, 110.185, 110.185)),
+    "si_hexagonal_mp165": ("Si", 194, (80.606, 80.606, 68.563)),
+}
+
+
+def verify(report_path: Path, evidence_path: Path) -> None:
+    report = report_path.read_text(encoding="utf-8")
+    if len(report.strip()) < 1500:
+        raise ValueError("Report is too short to document a scientific argument")
+    if len(re.findall(r"https?://", report)) < 2:
+        raise ValueError("Report needs at least two traceable source citations")
+
+    evidence = json.loads(evidence_path.read_text(encoding="utf-8"))
+    materials = evidence.get("materials")
+    claims = evidence.get("claims")
+    if not isinstance(materials, list) or len(materials) < 4:
+        raise ValueError("At least four material records are required")
+    if not isinstance(claims, list) or len(claims) < 2:
+        raise ValueError("At least two evidence-linked scientific claims are required")
+
+    seen: dict[str, set[int]] = {}
+    archive_names = set()
+    for material in materials:
+        if not isinstance(material, dict):
+            raise ValueError("Material records must be objects")
+        name = material.get("archive")
+        if name not in EXPECTED or name in archive_names:
+            raise ValueError(f"Unknown or repeated source archive: {name}")
+        archive_names.add(name)
+        formula, number, values = EXPECTED[name]
+        if material.get("space_group_number") != number:
+            raise ValueError(f"Space-group mismatch: {name}")
+        kappa = material.get("kappa_300_W_mK")
+        if not isinstance(kappa, dict):
+            raise ValueError(f"Missing 300 K conductivity tensor: {name}")
+        for axis, expected in zip(("xx", "yy", "zz"), values):
+            value = kappa.get(axis)
+            if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value):
+                raise ValueError(f"Non-numeric conductivity for {name}, {axis}")
+            if abs(value - expected) > 0.5:
+                raise ValueError(f"Conductivity differs from source log for {name}, {axis}")
+        seen.setdefault(formula, set()).add(number)
+    pairs = sum({186, 216}.issubset(numbers) for formula, numbers in seen.items() if formula in {"GaN", "AlN", "ZnS"})
+    if pairs < 2:
+        raise ValueError("At least two same-composition wurtzite/zincblende comparisons are required")
+
+    for claim in claims:
+        if not isinstance(claim, dict) or len(str(claim.get("statement", "")).strip()) < 20:
+            raise ValueError("Claim statement is missing")
+        for field in ("evidence", "limitations"):
+            values = claim.get(field)
+            if not isinstance(values, list) or not values or not all(isinstance(x, str) and x.strip() for x in values):
+                raise ValueError(f"Each claim needs a nonempty {field} list")
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--report", type=Path, default=Path("/workspace/results/report.md"))
+    parser.add_argument("--evidence", type=Path, default=Path("/workspace/results/evidence.json"))
+    parser.add_argument("--reward", type=Path, default=Path("/logs/verifier/reward.txt"))
+    args = parser.parse_args()
+    try:
+        verify(args.report, args.evidence)
+    except (OSError, ValueError, json.JSONDecodeError) as exc:
+        args.reward.parent.mkdir(parents=True, exist_ok=True)
+        args.reward.write_text("0\n", encoding="utf-8")
+        print(f"Objective verification failed: {exc}", file=sys.stderr)
+        return 1
+    args.reward.parent.mkdir(parents=True, exist_ok=True)
+    args.reward.write_text("1\n", encoding="utf-8")
+    print("Objective observations and evidence index verified; scientific quality requires rubric review.")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

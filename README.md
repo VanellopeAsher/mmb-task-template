@@ -1,6 +1,6 @@
 # MatterMysteryBench task template
 
-This repository is a **blank authoring template** for one MatterMysteryBench (MMB) scientific research task. It follows the final schema supplied with the project. No scientific problem, dataset, oracle, or grading claim is filled in.
+This repository contains a **blank authoring template** and a worked MatterMysteryBench (MMB) scientific task example. Both follow the project schema. `task/task_template/` remains intentionally unfilled; `task/task_example_01/` investigates nonsymmorphic phonon scattering and lattice thermal transport using cited scientific data.
 
 ## Layout and access
 
@@ -12,6 +12,7 @@ This repository is a **blank authoring template** for one MatterMysteryBench (MM
 | `task/task_template/solution/` | Expert feasibility evidence or reference procedure | No during evaluation |
 | `task/task_template/tests/` | Isolated, objective verification | No during evaluation |
 | `task/task_template/authoring/` | Rubric, provenance, independent evidence, and human baseline | Never |
+| `task/task_example_01/` | Worked scientific task with eight NIMS source datasets and a reference investigation | Role-dependent, as above |
 | `initial_submit/initial_submit_template/` | Initial proposal: one-question description, input data inventory, and oracle | Authors only |
 | `runs/` | Agent trajectories and run artifacts | Evaluation pipeline |
 
@@ -21,7 +22,7 @@ The `initial_submit/initial_submit_template/` folder intentionally contains **on
 
 ## Authoring a task
 
-1. Copy `task/task_template/` to `task/<unique-task-id>/`; use the new directory name as the Harbor task ID and set `metadata.task_id` to the same value for the MMB catalog.
+1. Copy `task/task_template/` to `task/task_<id>/`; set `metadata.task_id` to `<id>` and the Harbor task name to `mattermysterybench/task_<id>`.
 2. Replace all `REPLACE_*` fields and `{problem_description}`. Put licensed, versioned inputs in `environment/data/`, executable interfaces in `environment/tools/`, and task-specific tool knowledge in `environment/skills/`. Write `problem.md` as one open-ended scientific question without prescribing a method.
 3. Build an environment with enough relevant data, software, configuration options, and compute budget for materially different experimental approaches. The agent should be able to choose and configure experiments, compare alternatives, and inspect intermediate results. Pin software and data versions. Keep reference answers, rubric, provenance, and hidden evidence outside the agent image and mounts.
 4. Implement the reference material and verifier for the specific problem. Verify the reference answer against the objective checks; separately review scientific quality against `authoring/rubric.yaml`.

@@ -1,0 +1,36 @@
+schema_version = "1.0"
+
+# Only the submitted report and machine-readable observations reach the verifier.
+artifacts = ["/workspace/results/report.md", "/workspace/results/evidence.json"]
+
+[task]
+name = "mattermysterybench/task_example_01"
+description = "Investigate nonsymmorphic phonon-scattering constraints and their relation to lattice thermal transport across crystalline materials."
+authors = []
+keywords = ["phonons", "nonsymmorphic-symmetry", "selection-rules", "thermal-transport"]
+
+[metadata]
+task_id = "example_01"
+domain = "physical-sciences"
+field = "materials-science"
+subfield = "lattice-dynamics"
+tags = ["phonons", "crystallography", "thermal-conductivity"]
+expert_time_estimate_hours = 8 # Provisional until a human baseline is completed.
+
+[verifier]
+timeout_sec = 900.0
+environment_mode = "separate"
+
+[verifier.environment]
+network_mode = "no-network"
+
+[agent]
+timeout_sec = 28800.0
+
+[environment]
+build_timeout_sec = 3600.0
+cpus = 8
+memory_mb = 32768
+storage_mb = 20480
+gpus = 0
+network_mode = "public"
