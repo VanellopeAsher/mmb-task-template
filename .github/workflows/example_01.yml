@@ -10,9 +10,14 @@ on:
 jobs:
   oracle-and-verifier:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - name: Check Harbor-compatible staging task
+        run: |
+          python task/task_example_01/authoring/provenance/build_harbor_task.py --output "$RUNNER_TEMP/mmb-example01-harbor"
+          uvx harbor==0.25.0 lint "$RUNNER_TEMP/mmb-example01-harbor"
       - name: Build agent environment
         run: docker build -t mmb-example01-agent task/task_example_01/environment
       - name: Build separate verifier
@@ -32,3 +37,11 @@ jobs:
             -v "$RUNNER_TEMP/mmb-example01-verifier:/logs/verifier" \
             mmb-example01-verifier
           test "$(cat "$RUNNER_TEMP/mmb-example01-verifier/reward.txt")" = "1"
+      - name: Run Harbor Oracle on staged task
+        run: |
+          uvx harbor==0.25.0 run \
+            --path "$RUNNER_TEMP/mmb-example01-harbor" \
+            --agent oracle \
+            --env docker \
+            --jobs-dir "$RUNNER_TEMP/mmb-example01-jobs" \
+            --job-name example01-oracle
