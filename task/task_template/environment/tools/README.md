@@ -1,3 +1,3 @@
 # Scientific tools
 
-Put task-specific scientific software, scripts, or API interface definitions here. Document inputs, outputs, versions, dependencies, and how to invoke each tool. Tools should enable investigation without encoding a preferred research path.
+Put relevant scientific software, scripts, or API interface definitions here. Document inputs, outputs, versions, dependencies, configuration options, and how to invoke each tool. Where scientifically justified, provide complementary capabilities for data inspection, modeling or simulation, analysis, and independent cross-checks. Tools should enable alternative experiments without encoding a preferred research path.

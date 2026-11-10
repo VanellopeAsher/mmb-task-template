@@ -23,7 +23,7 @@ The `initial_submit/initial_submit_template/` folder intentionally contains **on
 
 1. Copy `task/task_template/` to `task/<unique-task-id>/`; use the new directory name as the Harbor task ID and set `metadata.task_id` to the same value for the MMB catalog.
 2. Replace all `REPLACE_*` fields and bracketed prompts. Put licensed, versioned inputs in `environment/data/`, executable interfaces in `environment/tools/`, and task-specific tool knowledge in `environment/skills/`. Keep the problem open ended: state observations, evidence, and the research question without prescribing a method.
-3. Pin software and data versions. Keep reference answers, rubric, provenance, and hidden evidence outside the agent image and mounts.
+3. Build an environment with enough relevant data, software, configuration options, and compute budget for materially different experimental approaches. The agent should be able to choose and configure experiments, compare alternatives, and inspect intermediate results. Pin software and data versions. Keep reference answers, rubric, provenance, and hidden evidence outside the agent image and mounts.
 4. Implement the reference material and verifier for the specific problem. Verify the reference answer against the objective checks; separately review scientific quality against `authoring/rubric.yaml`.
 5. Ask up to five experts, each with the same environment and an eight-hour limit, to produce independent human baselines. Record their conditions and outcomes in `authoring/human_baseline/`.
 6. Store each agent trajectory under `runs/<run-id>/` with a manifest linking hypotheses, chosen experiments, tool calls, observations, and changes in direction. Review for secrets or private data before publishing runs.
