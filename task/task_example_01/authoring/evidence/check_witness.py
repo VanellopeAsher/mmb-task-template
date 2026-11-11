@@ -7,7 +7,7 @@ from pathlib import Path
 import sys
 
 
-TASK = Path(__file__).resolve().parents[2]
+TASK = Path("/workspace") if Path("/solution/answer.json").is_file() else Path(__file__).resolve().parents[2]
 SOLUTION = Path("/solution") if Path("/solution/answer.json").is_file() else TASK / "solution"
 EVIDENCE = Path("/evidence") if Path("/evidence/gan_interaction_probe.json").is_file() else TASK / "authoring/evidence"
 TOOLS = Path("/workspace/tools") if Path("/workspace/tools/inspect_nims.py").is_file() else TASK / "environment/tools"
