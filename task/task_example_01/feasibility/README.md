@@ -1,3 +1,3 @@
-# Expert reference material
+# Feasibility evidence
 
-`feasibility_report.md` records the checkable signal and its limits. `reproduce.sh` verifies the eight source archives and the opposite 300 K ZnS polymorph ordering. The optional `witness/solve.py` builds one bounded example investigation in `/workspace/results/`; `witness/probe_interactions.py` and `witness/screw_selection.py` support it. Independent author-side checks are in `authoring/evidence/`. The directory is withheld from the evaluated agent.
+`feasibility_report.md` states the existence and discriminability claims and their limits. `reproduce.sh` checks source transport observations and invokes `signal_check.py` inside the pinned scientific image. That checker confirms a screw operation and a nontrivial axial/off-axis coupling signal in three supplied force models; it produces no final answer. The optional `witness/solve.py` builds one bounded example investigation in `/workspace/results/`; `witness/probe_interactions.py` and `witness/screw_selection.py` support it. Independent author-side checks are in `authoring/evidence/`. This directory is withheld from the evaluated agent.

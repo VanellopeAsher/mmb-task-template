@@ -8,7 +8,7 @@ Eight original NIMS PhononDB archives contain crystal structures, displaced-stru
 
 ## Checkable feasibility claims
 
-The source logs contain temperature-dependent conductivity tensors for all eight models. Wurtzite/zincblende comparisons do not have one universal sign across the three compounds. The wurtzite archives also contain data from which third-order interaction strengths can be evaluated; author-side probes of GaN, AlN, and ZnS show near-zero channels in sampled high-symmetry-line mode classes. A restricted screw-eigenvalue condition can be checked against those classes. `reproduce.sh` checks the availability of the original observation types; `authoring/evidence/` records cross-checks and numerical limitations. `witness/` contains an optional bounded analysis.
+The source logs contain temperature-dependent conductivity tensors for all eight models, with opposite wurtzite/zincblende orderings among the three compounds. `reproduce.sh` checks those observations and runs `signal_check.py` in the pinned scientific image. For GaN, AlN, and ZnS it verifies a `6_3` operation in the supplied structure, reconstructs nonzero three-phonon interactions from the original force/displacement data, and verifies that one axial triplet has more near-zero interaction elements than one off-axis triplet on the same mesh. These are existence and discriminability checks. The optional `witness/` contains a bounded analysis; `authoring/evidence/` records further cross-checks and numerical limitations.
 
 ## Resource and access limits
 
@@ -16,4 +16,4 @@ The data and software are provided through `environment/`, with compute limits i
 
 ## Remaining uncertainty
 
-Symmetry-constrained zeros on selected modes leave the magnitude and direction of any bulk conductivity effect unresolved. Degeneracies, phase space, surviving couplings, force-field error, and polymorph differences remain relevant. Agent difficulty requires independent model trials under the specified environment and time limit.
+The axial/off-axis contrast alone does not assign its cause or quantify its effect on bulk conductivity. Degeneracies, phase space, surviving couplings, force-field error, and polymorph differences remain relevant. The feasibility gate establishes accessible signal and distinguishable transport observations; the answer and scientific assessment remain separate.

@@ -18,6 +18,12 @@ jobs:
         run: python task/task_example_01/authoring/provenance/validate_sample_records.py
       - name: Check feasibility sources without a reference answer
         run: python task/task_example_01/authoring/provenance/validate_feasibility.py
+      - name: Reproduce scientific feasibility signal in the agent image
+        run: |
+          docker build -t mmb-example01-feasibility task/task_example_01/environment
+          docker run --rm \
+            -v "$PWD/task/task_example_01/feasibility:/feasibility:ro" \
+            mmb-example01-feasibility bash /feasibility/reproduce.sh
       - name: Check objective verifier against wrong answers
         run: python task/task_example_01/authoring/evidence/check_verifier.py
       - name: Check Harbor-compatible staging task

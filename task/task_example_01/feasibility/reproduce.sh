@@ -2,7 +2,11 @@
 set -euo pipefail
 
 # Reproduce the report's source-integrity and observable-signal claims.
-task_root="$(cd "$(dirname "$0")/.." && pwd)"
+if [[ -d /workspace/data/nims ]]; then
+  task_root=/workspace
+else
+  task_root="$(cd "$(dirname "$0")/.." && pwd)"
+fi
 python3 - "$task_root" <<'PY'
 import json
 from pathlib import Path
@@ -33,3 +37,6 @@ for formula, ordering in (("gan", True), ("aln", True), ("zns", False)):
     assert (wurtzite > zincblende) is ordering
 print("Eight source archives and opposite ZnS transport ordering verified.")
 PY
+
+# Scientific prerequisite check in the same pinned image used for the baseline.
+python3 "$(dirname "$0")/signal_check.py"
