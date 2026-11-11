@@ -14,10 +14,9 @@ The final `problem.md` must specify an `answer.json` contract for the supplied m
 {
   "conditions": {
     "<condition_id>": {
-      "dominant_scattering": "three_phonon | four_phonon",
+      "dominant_scattering": "three_phonon",
       "three_phonon_rate": 0.0,
       "four_phonon_rate": 0.0,
-      "mode_lifetime": 0.0,
       "thermal_conductivity_three_phonon": 0.0,
       "thermal_conductivity_full": 0.0,
       "selection_rule_sufficient": true
@@ -27,7 +26,7 @@ The final `problem.md` must specify an `answer.json` contract for the supplied m
 }
 ```
 
-Before release, define the mode or mode group, transport direction, units, scattering-rate convention, meaning of `dominant_scattering`, and tolerances. Define `selection_rule_sufficient` from a specific, predeclared rule prediction and its agreement with the independently calculated rates, lifetimes, and conductivity. A four-phonon-dominated result is not automatically a failure of the rule: a rule can correctly signal that three-phonon channels are suppressed. The boundary describes where that particular rule prediction ceases to hold within the supplied physical domain.
+Before release, define the mode or mode group, transport direction, units, scattering-rate convention, the `three_phonon`/`four_phonon` enum, and tolerances. Define `selection_rule_sufficient` from a specific, predeclared rule prediction and its agreement with the independently calculated rates, lifetimes, and conductivity. The verifier can derive mode lifetime from the rates; it need not be another scored field. A four-phonon-dominated result is not automatically a failure of the rule: a rule can correctly signal that three-phonon channels are suppressed. The boundary describes where that particular rule prediction ceases to hold within the supplied physical domain.
 
 The independent verifier checks every scored field against an author-held answer produced from the same physical model. It recomputes Boolean labels from the reference numbers and rejects internally inconsistent submissions. It checks that a three-phonon-only result, a symmetry label, or a copied literature value cannot earn a passing score. Numerical tolerances come from the reference calculation's uncertainty and convergence. No LLM judgment is needed for the scored artifact; an optional explanatory analysis can be reviewed separately.
 
