@@ -11,7 +11,7 @@ import unittest
 
 TASK = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(TASK / "tests"))
-from verify import final_answer, verify, verify_unstructured_answer  # noqa: E402
+from verify import final_answer, summarize_unstructured_answer, verify  # noqa: E402
 
 
 def main() -> None:
@@ -45,8 +45,9 @@ def main() -> None:
         trajectory = {"steps": [{"source": "user", "message": "question"}, {"source": "agent", "message": answer}]}
         (logs / "trajectory.json").write_text(json.dumps(trajectory), encoding="utf-8")
         case.assertEqual(final_answer(logs), answer)
-        verify_unstructured_answer(final_answer(logs))
-        case.assertRaises(ValueError, verify_unstructured_answer, "No evidence.")
+        summary = summarize_unstructured_answer(final_answer(logs))
+        case.assertEqual(summary["status"], "pending_scientific_review")
+        case.assertRaises(ValueError, summarize_unstructured_answer, "   ")
     print("Verifier contract: valid passed, tampered and missing artifacts rejected")
 
 

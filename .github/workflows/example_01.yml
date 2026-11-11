@@ -41,7 +41,7 @@ jobs:
           print(f"Harbor Oracle reward: {reward}; result: {trials[0]}")
           assert reward == 1.0, result
           PY
-      - name: Check final-answer handoff without a submission instruction
+      - name: Check final-answer capture without automatic scientific grade
         run: |
           python task/task_example_01/authoring/provenance/build_harbor_task.py --output "$RUNNER_TEMP/mmb-example01-answer-harbor"
           python - <<'PY'
@@ -82,6 +82,9 @@ jobs:
           assert len(trials) == 1, trials
           result = json.loads(trials[0].read_text(encoding="utf-8"))
           reward = result.get("verifier_result", {}).get("rewards", {}).get("reward")
-          print(f"Format-free answer reward: {reward}")
-          assert reward == 1.0, result
+          assessments = list(trials[0].parent.rglob("assessment.json"))
+          assert len(assessments) == 1, assessments
+          assessment = json.loads(assessments[0].read_text(encoding="utf-8"))
+          print(f"Format-free answer reward: {reward}; assessment: {assessment['status']}")
+          assert reward == 0.0 and assessment["status"] == "pending_scientific_review", result
           PY

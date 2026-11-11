@@ -7,6 +7,7 @@ This test intentionally does not grade the scientific interpretation.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import math
 from pathlib import Path
@@ -104,12 +105,16 @@ def final_answer(log_dir: Path) -> str:
     raise ValueError("No final agent answer found in Harbor logs")
 
 
-def verify_unstructured_answer(answer: str) -> None:
-    if len(answer.strip()) < 500:
-        raise ValueError("Final answer is too short to document a scientific argument")
+def summarize_unstructured_answer(answer: str) -> dict[str, object]:
+    if not answer.strip():
+        raise ValueError("Final answer is empty")
     citations = set(re.findall(r"https?://[^\s)\]]+|10\.\d{4,9}/[^\s)\]]+|[a-z0-9_]+\.zip", answer, flags=re.I))
-    if len(citations) < 2:
-        raise ValueError("Final answer needs at least two traceable evidence pointers")
+    return {
+        "status": "pending_scientific_review",
+        "answer_sha256": hashlib.sha256(answer.encode("utf-8")).hexdigest(),
+        "characters": len(answer.strip()),
+        "evidence_pointer_count": len(citations),
+    }
 
 
 def main() -> int:
@@ -118,20 +123,26 @@ def main() -> int:
     parser.add_argument("--evidence", type=Path, default=Path("/workspace/results/evidence.json"))
     parser.add_argument("--agent-logs", type=Path, default=Path("/logs/agent"))
     parser.add_argument("--reward", type=Path, default=Path("/logs/verifier/reward.txt"))
+    parser.add_argument("--assessment", type=Path, default=Path("/logs/verifier/assessment.json"))
     args = parser.parse_args()
     try:
         if args.report.is_file() and args.evidence.is_file():
             verify(args.report, args.evidence)
+            reward = 1
+            assessment = {"status": "objective_evidence_verified"}
         else:
-            verify_unstructured_answer(final_answer(args.agent_logs))
+            reward = 0
+            assessment = summarize_unstructured_answer(final_answer(args.agent_logs))
     except (OSError, ValueError, json.JSONDecodeError) as exc:
         args.reward.parent.mkdir(parents=True, exist_ok=True)
         args.reward.write_text("0\n", encoding="utf-8")
         print(f"Objective verification failed: {exc}", file=sys.stderr)
         return 1
     args.reward.parent.mkdir(parents=True, exist_ok=True)
-    args.reward.write_text("1\n", encoding="utf-8")
-    print("Objective evidence presence verified; scientific quality requires rubric review.")
+    args.assessment.parent.mkdir(parents=True, exist_ok=True)
+    args.reward.write_text(f"{reward}\n", encoding="utf-8")
+    args.assessment.write_text(json.dumps(assessment, indent=2) + "\n", encoding="utf-8")
+    print(f"{assessment['status']}; scientific quality requires rubric review.")
     return 0
 
 
