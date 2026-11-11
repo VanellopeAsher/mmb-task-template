@@ -11,6 +11,7 @@ keywords = ["phonons", "screw-symmetry", "three-phonon-interactions", "force-con
 
 [metadata]
 task_id = "example_01"
+status = "engineering_demo_not_research_qualified"
 domain = "physical-sciences"
 field = "materials-science"
 subfield = "lattice-dynamics"
