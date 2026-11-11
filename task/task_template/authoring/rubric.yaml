@@ -1,23 +1,14 @@
-# Author-facing scientific quality rubric. Calibrate anchors on the actual task.
+# Author-only scoring specification. Replace every placeholder for a real task.
 version: 1
-criteria:
-  mechanism_explanation:
-    purpose: Evaluate whether the proposed mechanism explains the observations.
-    evidence_to_review: []
-    anchors: { weak: "Unsupported assertion", strong: "Coherent, testable explanation tied to evidence" }
-  evidence_strength:
-    purpose: Evaluate data quality, replication, and support for conclusions.
-    evidence_to_review: []
-    anchors: { weak: "Anecdotal or irreproducible", strong: "Traceable and reproducible support" }
-  alternative_explanations:
-    purpose: Evaluate serious competing explanations and discriminating evidence.
-    evidence_to_review: []
-    anchors: { weak: "Ignored", strong: "Compared against relevant alternatives" }
-  uncertainty:
-    purpose: Evaluate measurement error, model sensitivity, and confidence calibration.
-    evidence_to_review: []
-    anchors: { weak: "Unqualified certainty", strong: "Quantified or carefully bounded uncertainty" }
-  limitations:
-    purpose: Evaluate scope, assumptions, and failure modes.
-    evidence_to_review: []
-    anchors: { weak: "Omitted", strong: "Explicit limits linked to conclusions" }
+artifact: /workspace/results/answer.json
+reward:
+  pass: 1
+  fail: 0
+  rule: REPLACE_WITH_OBJECTIVE_PASS_CONDITION
+scored_outputs:
+  - name: REPLACE_WITH_DATA_DEPENDENT_SCIENTIFIC_OBSERVABLE
+    units: REPLACE_WITH_UNITS_OR_DIMENSIONLESS
+    tolerance: REPLACE_WITH_JUSTIFIED_TOLERANCE
+    reference_source: REPLACE_WITH_INDEPENDENTLY_RECOMPUTED_EVIDENCE
+    shortcut_audit: REPLACE_WITH_TEST_SHOWING_NO_FORMULA_OR_SOURCE_COPY_SHORTCUT
+unscored_optional: [analysis]

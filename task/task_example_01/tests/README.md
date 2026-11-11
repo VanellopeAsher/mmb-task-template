@@ -1,5 +1,5 @@
 # Objective verifier
 
-`Dockerfile` isolates `verify.py` from the agent image and disables runtime network access. `test.sh` reads `/workspace/results/answer.json` and checks the stated screw condition against 1,080 integer cases, the three 300 K conductivity ratios against independently transcribed source-log values, and the cross-material Boolean. Correct objective fields receive reward `1`; wrong values, invalid expressions, and missing artifacts receive reward `0`. The `analysis` field is evaluated with the authoring rubric by domain experts.
+`Dockerfile` isolates the verifier from the Agent's scientific environment and disables runtime network access. `test.sh` runs `verify.py` on `/workspace/results/answer.json`. The verifier checks 15 numerical interaction observables: a largest sector share and an effective sector count for two axial triplets in each of GaN, AlN, and ZnS, plus one odd-to-normal total-strength ratio per material. All must meet the published tolerances for reward `1`; wrong or missing values receive `0`.
 
-`assessment.json` records the objective verdict and the rubric location for the explanatory `analysis`. The answer key is in the hidden `solution/answer.json`.
+`analysis` is optional and unscored. `assessment.json` records whether it was present without using it in the reward. The correct values are hidden under `solution/` in live evaluation.

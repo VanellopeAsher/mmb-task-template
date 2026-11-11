@@ -1,18 +1,35 @@
 # Problem
 
-**Phonon-Scattering Selection Rules in Nonsymmorphic Crystals**
+How does the $6_3$ screw symmetry manifest in the mode-resolved three-phonon interaction strengths of the supplied wurtzite GaN, AlN, and ZnS models, including an axial Umklapp process?
 
-Investigate the relationship between nonsymmorphic crystal symmetries, phonon-phonon scattering, and lattice thermal transport in crystalline solids.
-Determine whether and how nonsymmorphic symmetries impose constraints on phonon-scattering processes, and establish the extent to which these constraints are reflected in thermal transport properties across different crystalline materials.
-Identify any generalizable physical relationships supported by the available scientific evidence, together with their applicability and limitations.
+Submit `/workspace/results/answer.json` with `interaction_checks` for all three materials. The output concerns two all-incoming phonon triplets on a `3 × 3 × 6` reciprocal mesh, expressed as integer grid addresses in the supplied primitive-cell convention:
 
-Submit the result as `/workspace/results/answer.json` with exactly the four fields below. `selection_rule` is a string containing one integer equality for the necessary `6_3` screw condition on nondegenerate modes. In that expression, `m1`, `m2`, and `m3` are integer screw labels under `λ_m(qz) = exp[2πi(m − 3qz)/6]`, where `qz` is in reciprocal-lattice units; `Gz = q1 + q2 − q3` is the axial reciprocal-lattice index for `1 + 2 -> 3`. The expression may use integer constants, these four variable names, parentheses, `+`, `-`, `*`, `%`, and `==`. `ratio_300K` contains numeric trace-averaged wurtzite/zincblende conductivity ratios for GaN, AlN, and ZnS from the supplied NIMS calculations; each value is accepted within absolute error `0.002`. `all_wurtzite_higher` is a JSON Boolean stating whether all three ratios exceed 1. `analysis` is a nonempty scientific account of the mechanism, evidence, competing explanations, uncertainty, and applicability, reviewed under the authoring rubric.
+- `normal`: `[[0,0,1], [0,0,1], [0,0,-2]]`
+- `odd_umklapp`: `[[0,0,2], [0,0,2], [0,0,2]]`
+
+For each triplet, group the squared three-phonon interaction strengths by the three screw-eigenvalue labels of the participating modes. For each symmetry-allowed label sector, sum its strengths, then divide by the sum across all allowed sectors. Report `largest_sector_share`, the largest resulting share, and `effective_sector_count`, the reciprocal of the sum of squared shares. Also report `odd_normal_total_ratio`, the total squared interaction strength in allowed sectors for `odd_umklapp` divided by that for `normal`. These quantities are dimensionless and refer to the supplied force models. The verifier accepts absolute errors of `0.0002` for each share and ratio, and `0.05` for each effective sector count.
 
 ```json
 {
-  "selection_rule": "Boolean expression in m1, m2, m3, Gz",
-  "ratio_300K": {"GaN": 0.0, "AlN": 0.0, "ZnS": 0.0},
-  "all_wurtzite_higher": false,
-  "analysis": "Scientific account with evidence and applicability limits"
+  "interaction_checks": {
+    "GaN": {
+      "normal": {"largest_sector_share": 0.0, "effective_sector_count": 0.0},
+      "odd_umklapp": {"largest_sector_share": 0.0, "effective_sector_count": 0.0},
+      "odd_normal_total_ratio": 0.0
+    },
+    "AlN": {
+      "normal": {"largest_sector_share": 0.0, "effective_sector_count": 0.0},
+      "odd_umklapp": {"largest_sector_share": 0.0, "effective_sector_count": 0.0},
+      "odd_normal_total_ratio": 0.0
+    },
+    "ZnS": {
+      "normal": {"largest_sector_share": 0.0, "effective_sector_count": 0.0},
+      "odd_umklapp": {"largest_sector_share": 0.0, "effective_sector_count": 0.0},
+      "odd_normal_total_ratio": 0.0
+    }
+  },
+  "analysis": "Optional research notes; this field does not affect reward"
 }
 ```
+
+`analysis` may be omitted or left empty. Only the numerical `interaction_checks` fields determine the reward.

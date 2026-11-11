@@ -21,16 +21,16 @@
     "hidden_materials": ["solution/", "tests/", "authoring/"],
     "same_time_means_equal_time_limit": true,
     "actual_sessions_run": false,
-    "assessment_basis": "Independent scientific adjudication against authoring/rubric.yaml is required for real attempts."
+    "assessment_basis": "The numerical interaction checks in authoring/rubric.yaml determine whether a real attempt solves the task."
   },
   "attempts": [
     {
       "expert_id": "synthetic_expert_01",
       "expertise": "solid-state chemistry",
       "virtual_elapsed_hours": 7.4,
-      "hypothetical_route": "Compared polymorph structures and NIMS 300 K thermal-conductivity tensors.",
-      "illustrative_partial_finding": "Transport contrasts vary by material and do not consistently favor the nonsymmorphic polymorph.",
-      "missing_for_solution": "No mode-resolved scattering constraint was established from interaction data.",
+      "hypothetical_route": "Compared the wurtzite structures and thermal-conductivity logs.",
+      "illustrative_partial_finding": "The structures contain the target screw symmetry.",
+      "missing_for_solution": "No three-phonon interaction strengths or sector distributions were computed.",
       "solved": false,
       "adjudication_simulated": true
     },
@@ -39,8 +39,8 @@
       "expertise": "crystallography and group theory",
       "virtual_elapsed_hours": 8.0,
       "hypothetical_route": "Examined screw symmetry, wave-vector little groups, and phonon labels.",
-      "illustrative_partial_finding": "A conditional representation constraint was proposed for selected high-symmetry modes.",
-      "missing_for_solution": "The proposed rule was not checked against numerical third-order interactions or transport outcomes.",
+      "illustrative_partial_finding": "A conditional representation constraint was proposed for axial modes.",
+      "missing_for_solution": "A formula alone does not provide the data-dependent coupling strengths required by answer.json.",
       "solved": false,
       "adjudication_simulated": true
     },
@@ -49,8 +49,8 @@
       "expertise": "computational lattice dynamics",
       "virtual_elapsed_hours": 7.8,
       "hypothetical_route": "Inspected third-order force-constant and scattering-related source artifacts.",
-      "illustrative_partial_finding": "Some symmetry-related matrix elements appeared suppressed in sampled modes.",
-      "missing_for_solution": "No convergence, allowed-channel comparison, or scope analysis supported a generalizable rule.",
+      "illustrative_partial_finding": "Some raw-basis matrix elements appeared suppressed in sampled modes.",
+      "missing_for_solution": "The modes were not classified in a screw eigenbasis, leaving sector shares unresolved.",
       "solved": false,
       "adjudication_simulated": true
     },
@@ -58,9 +58,9 @@
       "expert_id": "synthetic_expert_04",
       "expertise": "thermal transport modeling",
       "virtual_elapsed_hours": 8.0,
-      "hypothetical_route": "Compared calculated conductivity with dispersion, phase-space, and polymorph differences.",
-      "illustrative_partial_finding": "Recognized that conductivity differences have multiple plausible causes.",
-      "missing_for_solution": "Could not isolate a nonsymmorphic symmetry contribution to scattering or quantify its transport effect.",
+      "hypothetical_route": "Computed one normal-process interaction from the GaN force archive.",
+      "illustrative_partial_finding": "Obtained a partial GaN sector distribution.",
+      "missing_for_solution": "The odd-Umklapp process and the AlN and ZnS values remained unsolved.",
       "solved": false,
       "adjudication_simulated": true
     },
@@ -68,9 +68,9 @@
       "expert_id": "synthetic_expert_05",
       "expertise": "phonon spectroscopy and materials analysis",
       "virtual_elapsed_hours": 7.6,
-      "hypothetical_route": "Cross-checked published symmetry arguments with the provided material models.",
-      "illustrative_partial_finding": "A narrow high-symmetry-line claim seemed plausible, with uncertain extension to full Brillouin-zone transport.",
-      "missing_for_solution": "The claim lacked independent numerical validation across materials and explicit applicability limits.",
+      "hypothetical_route": "Inspected the three force archives and attempted mode classification.",
+      "illustrative_partial_finding": "Identified candidate normal and Umklapp triplets.",
+      "missing_for_solution": "No complete, numerically validated set of sector-strength observables was submitted.",
       "solved": false,
       "adjudication_simulated": true
     }

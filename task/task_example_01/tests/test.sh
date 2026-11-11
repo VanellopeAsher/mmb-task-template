@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Score the declared answer artifact; scientific analysis is rubric-reviewed.
+# Score only the data-dependent interaction_checks in the answer artifact.
 python3 /tests/verify.py

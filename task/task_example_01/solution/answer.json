@@ -1,10 +1,20 @@
 {
-  "selection_rule": "(m1 + m2 - m3 - 3*Gz) % 6 == 0",
-  "ratio_300K": {
-    "GaN": 1.1355172810760426,
-    "AlN": 1.1264227484444138,
-    "ZnS": 0.8765024966770845
+  "interaction_checks": {
+    "GaN": {
+      "normal": {"largest_sector_share": 0.07413205196043834, "effective_sector_count": 20.918125536731576},
+      "odd_umklapp": {"largest_sector_share": 0.06941766643904153, "effective_sector_count": 21.049920900596906},
+      "odd_normal_total_ratio": 1.0126218060625252
+    },
+    "AlN": {
+      "normal": {"largest_sector_share": 0.07489282926998876, "effective_sector_count": 20.180704367893824},
+      "odd_umklapp": {"largest_sector_share": 0.06970912925294218, "effective_sector_count": 20.32738857153253},
+      "odd_normal_total_ratio": 1.0128922269504086
+    },
+    "ZnS": {
+      "normal": {"largest_sector_share": 0.06267054265857831, "effective_sector_count": 23.519386817469933},
+      "odd_umklapp": {"largest_sector_share": 0.06218598423687482, "effective_sector_count": 23.580202628195785},
+      "odd_normal_total_ratio": 1.0036113687750507
+    }
   },
-  "all_wurtzite_higher": false,
-  "analysis": "For nondegenerate modes on the 6_3 screw-invariant line, invariance of a cubic coupling requires m1 + m2 - m3 - 3Gz = 0 modulo 6. This is a necessary condition for a nonzero coupling; energy conservation and the magnitude of allowed couplings still determine scattering. Reconstructed third-order interactions in the supplied GaN, AlN, and ZnS wurtzite models show near-zero couplings for sampled screw-forbidden axial mode combinations, including the shifted condition for an odd axial Umklapp vector. The supplied 300 K NIMS conductivity tensors give trace-averaged wurtzite/zincblende ratios of 1.1355 for GaN, 1.1264 for AlN, and 0.8765 for ZnS. Thus there is no universal conductivity ordering across these materials. The polymorphs also differ in force constants, phonon spectra, and scattering phase space, so their conductivity contrast does not isolate the screw contribution. Degenerate modes require a screw eigenbasis; off-axis modes require the applicable little-group representations. The interaction check uses symmetrized model force constants and a coarse mesh; controlled symmetry-breaking calculations and convergence checks would be needed to quantify a causal effect on bulk transport."
+  "analysis": "The 6_3 screw operation constrains axial three-phonon couplings through a wave-vector-dependent representation condition. A screw-eigenmode basis resolves degenerate subspaces before the interaction strengths are grouped by character sector. The selected normal and odd-axial-Umklapp triplets show different strength distributions in the three supplied force models. The reported sector shares and effective counts are properties of these models, processes, and mesh; they do not by themselves quantify a bulk thermal-conductivity effect."
 }

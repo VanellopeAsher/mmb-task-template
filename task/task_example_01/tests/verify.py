@@ -1,97 +1,66 @@
-"""Score the published answer.json contract against independent checks."""
+"""Score data-dependent screw-sector interaction observables."""
 
 from __future__ import annotations
 
 import argparse
-import ast
 import json
 import math
 from pathlib import Path
 
 
-# Independently transcribed 300 K diagonal tensors from the supplied NIMS logs.
-# Each pair is (wurtzite, zincblende), in W m^-1 K^-1.
-SOURCE_TENSORS = {
-    "GaN": ((202.565, 202.565, 206.421), (179.522, 179.522, 179.522)),
-    "AlN": ((272.264, 272.264, 238.783), (231.799, 231.799, 231.799)),
-    "ZnS": ((41.689, 41.689, 38.618), (46.395, 46.395, 46.395)),
+# Independently transcribed from raw force-model recomputation; see
+# authoring/evidence/check_witness.py for the source-to-reference check.
+EXPECTED = {
+    "GaN": {
+        "normal": (0.07413205196043834, 20.918125536731576),
+        "odd_umklapp": (0.06941766643904153, 21.049920900596906),
+        "odd_normal_total_ratio": 1.0126218060625252,
+    },
+    "AlN": {
+        "normal": (0.07489282926998876, 20.180704367893824),
+        "odd_umklapp": (0.06970912925294218, 20.32738857153253),
+        "odd_normal_total_ratio": 1.0128922269504086,
+    },
+    "ZnS": {
+        "normal": (0.06267054265857831, 23.519386817469933),
+        "odd_umklapp": (0.06218598423687482, 23.580202628195785),
+        "odd_normal_total_ratio": 1.0036113687750507,
+    },
 }
-VARIABLES = {"m1", "m2", "m3", "Gz"}
 
 
-def integer_expression(node: ast.AST, values: dict[str, int]) -> int:
-    """Interpret only integer arithmetic needed for modular equivalence."""
-    if isinstance(node, ast.Constant) and type(node.value) is int:
-        return node.value
-    if isinstance(node, ast.Name) and node.id in VARIABLES:
-        return values[node.id]
-    if isinstance(node, ast.UnaryOp) and isinstance(node.op, (ast.UAdd, ast.USub)):
-        operand = integer_expression(node.operand, values)
-        return operand if isinstance(node.op, ast.UAdd) else -operand
-    if isinstance(node, ast.BinOp) and isinstance(node.op, (ast.Add, ast.Sub, ast.Mult, ast.Mod)):
-        left = integer_expression(node.left, values)
-        right = integer_expression(node.right, values)
-        if isinstance(node.op, ast.Add):
-            return left + right
-        if isinstance(node.op, ast.Sub):
-            return left - right
-        if isinstance(node.op, ast.Mult):
-            return left * right
-        if right == 0:
-            raise ValueError("Zero modulus in selection rule")
-        return left % right
-    raise ValueError("Selection rule contains unsupported syntax")
-
-
-def rule_value(tree: ast.Expression, values: dict[str, int]) -> bool:
-    node = tree.body
-    if not isinstance(node, ast.Compare) or len(node.ops) != 1 or not isinstance(node.ops[0], ast.Eq):
-        raise ValueError("Selection rule must be one integer equality")
-    return integer_expression(node.left, values) == integer_expression(node.comparators[0], values)
+def check_number(value: object, expected: float, tolerance: float, name: str) -> None:
+    if type(value) not in (int, float) or not math.isfinite(value):
+        raise ValueError(f"{name} must be a finite number")
+    if abs(value - expected) > tolerance:
+        raise ValueError(f"Incorrect {name}")
 
 
 def verify(answer_path: Path) -> dict[str, object]:
     answer = json.loads(answer_path.read_text(encoding="utf-8"))
-    if not isinstance(answer, dict) or set(answer) != {"selection_rule", "ratio_300K", "all_wurtzite_higher", "analysis"}:
+    if not isinstance(answer, dict) or "interaction_checks" not in answer or set(answer) - {"interaction_checks", "analysis"}:
         raise ValueError("Answer JSON fields do not match the published output shape")
-    if not isinstance(answer["analysis"], str) or not answer["analysis"].strip():
-        raise ValueError("Scientific analysis is missing")
-
-    expression = answer["selection_rule"]
-    if not isinstance(expression, str) or len(expression) > 200:
-        raise ValueError("selection_rule must be a short expression")
-    try:
-        tree = ast.parse(expression, mode="eval")
-    except SyntaxError as exc:
-        raise ValueError("selection_rule is not a valid expression") from exc
-    # The theoretical check is independent of the solution's oracle script.
-    for m1 in range(6):
-        for m2 in range(6):
-            for m3 in range(6):
-                for gz in range(-2, 3):
-                    values = {"m1": m1, "m2": m2, "m3": m3, "Gz": gz}
-                    expected = (m1 + m2 - m3 - 3 * gz) % 6 == 0
-                    if rule_value(tree, values) != expected:
-                        raise ValueError(f"Incorrect screw selection condition at {values}")
-
-    ratios = answer["ratio_300K"]
-    if not isinstance(ratios, dict) or set(ratios) != set(SOURCE_TENSORS):
-        raise ValueError("ratio_300K needs GaN, AlN, and ZnS")
-    expected_ratios = {}
-    for formula, (wurtzite, zincblende) in SOURCE_TENSORS.items():
-        expected = sum(wurtzite) / sum(zincblende)
-        value = ratios[formula]
-        if type(value) not in (int, float) or not math.isfinite(value) or abs(value - expected) > 0.002:
-            raise ValueError(f"Incorrect 300 K conductivity ratio for {formula}")
-        expected_ratios[formula] = expected
-
-    if type(answer["all_wurtzite_higher"]) is not bool or answer["all_wurtzite_higher"] is not all(v > 1 for v in expected_ratios.values()):
-        raise ValueError("Incorrect cross-material conductivity conclusion")
+    checks = answer["interaction_checks"]
+    if not isinstance(checks, dict) or set(checks) != set(EXPECTED):
+        raise ValueError("interaction_checks must contain GaN, AlN, and ZnS")
+    for material, reference in EXPECTED.items():
+        item = checks[material]
+        if not isinstance(item, dict) or set(item) != {"normal", "odd_umklapp", "odd_normal_total_ratio"}:
+            raise ValueError(f"Incorrect interaction check shape for {material}")
+        for case in ("normal", "odd_umklapp"):
+            values = item[case]
+            if not isinstance(values, dict) or set(values) != {"largest_sector_share", "effective_sector_count"}:
+                raise ValueError(f"Incorrect {material}/{case} shape")
+            share, effective_count = reference[case]
+            check_number(values["largest_sector_share"], share, 0.0002, f"{material}/{case}/largest_sector_share")
+            check_number(values["effective_sector_count"], effective_count, 0.05, f"{material}/{case}/effective_sector_count")
+        check_number(item["odd_normal_total_ratio"], reference["odd_normal_total_ratio"], 0.0002, f"{material}/odd_normal_total_ratio")
     return {
         "status": "correct",
-        "rule_cases_checked": 1080,
         "materials_checked": 3,
-        "scientific_analysis_review": "authoring/rubric.yaml",
+        "triplets_checked": 6,
+        "numeric_values_checked": 15,
+        "analysis_present": bool(answer.get("analysis")),
     }
 
 

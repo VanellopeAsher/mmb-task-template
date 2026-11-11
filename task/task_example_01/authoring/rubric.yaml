@@ -1,47 +1,25 @@
-# Scientific-quality rubric; objective answer correctness is machine-scored.
-version: 1
-score_range: [0, 4]
-objective_gate:
-  output: /workspace/results/answer.json
-  checks: [screw_condition_equivalence, source_conductivity_ratios, cross_material_boolean]
-  result: reward_1_if_all_checks_pass_else_0
-scientific_adjudication:
-  input: answer.json.analysis
-  method: independent_domain_expert_review
-  note: Expert review scores the explanatory analysis beyond the machine-scored answer fields.
-criteria:
-  mechanism_explanation:
-    weight: 0.30
-    focus: Distinguish a nonsymmorphic selection condition on actual phonon couplings from momentum, energy, or point-group restrictions; explain when the symmetry argument applies.
-    anchors:
-      0: No defensible scattering mechanism.
-      2: A plausible symmetry argument with incomplete process or representation conditions.
-      4: A correct conditional argument tied to phonon modes or interactions, with degeneracies and wave-vector scope handled.
-  evidence_strength:
-    weight: 0.25
-    focus: Trace data and literature claims to sources and demonstrate reproducible analysis across materially different crystals or polymorphs.
-    anchors:
-      0: Unsupported or fabricated evidence.
-      2: Reproducible transport comparison but weak direct scattering evidence or limited cross-checks.
-      4: Independent symmetry and scattering evidence with sound cross-material transport analysis.
-  alternative_explanations:
-    weight: 0.20
-    focus: Evaluate phonon dispersion, phase space, anharmonicity, isotope and boundary terms, structural polymorphism, and numerical settings as competing explanations.
-    anchors:
-      0: Attributes conductivity differences to nonsymmorphic symmetry alone.
-      2: Names plausible confounders without testing or ranking them.
-      4: Uses quantitative or controlled comparisons to discriminate among leading explanations.
-  uncertainty:
-    weight: 0.15
-    focus: Calibrate claims to source-data precision, mesh and model sensitivity, and the distinction between computed values and measurements.
-    anchors:
-      0: Unqualified or inconsistent certainty.
-      2: Notes major uncertainty but gives little analysis of its effect.
-      4: Tests or bounds important sensitivities and calibrates conclusions accordingly.
-  limitations:
-    weight: 0.10
-    focus: State the domain of any general relationship and where available evidence does not justify generalization or causal inference.
-    anchors:
-      0: Universal claim without applicable evidence.
-      2: Some limits stated but not connected to the central conclusion.
-      4: Clear applicability conditions and specific unresolved scientific questions.
+# Author-side scoring contract for the data-dependent interaction task.
+version: 2
+artifact: /workspace/results/answer.json
+reward:
+  pass: 1
+  fail: 0
+  rule: All 15 numerical values in interaction_checks must pass.
+materials: [GaN, AlN, ZnS]
+triplets:
+  normal: [[0, 0, 1], [0, 0, 1], [0, 0, -2]]
+  odd_umklapp: [[0, 0, 2], [0, 0, 2], [0, 0, 2]]
+per_triplet:
+  largest_sector_share:
+    absolute_tolerance: 0.0002
+    source: Reconstructed three-phonon strengths grouped in the screw eigenbasis.
+  effective_sector_count:
+    absolute_tolerance: 0.05
+    source: Inverse sum of squared shares of allowed screw-label sectors.
+per_material:
+  odd_normal_total_ratio:
+    absolute_tolerance: 0.0002
+    source: Ratio of total allowed interaction strengths for the two specified triplets.
+unscored_optional: [analysis]
+excluded_shortcuts: [selection_rule, ratio_300K, all_wurtzite_higher]
+reference_crosscheck: authoring/evidence/check_witness.py

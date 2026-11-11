@@ -1,30 +1,26 @@
 schema_version = "1.0"
 
-# Transfer ordinary workspace results and Harbor's agent log for format-free answers.
-artifacts = ["/workspace/results/", "/logs/agent/"]
+# Transfer the declared answer artifact to the isolated verifier.
+artifacts = ["/workspace/results/"]
 
 [task]
 name = "mattermysterybench/task_example_01"
-description = "Investigate nonsymmorphic phonon-scattering constraints and their relation to lattice thermal transport across crystalline materials."
+description = "Quantify screw-sector three-phonon coupling strengths in three wurtzite force models."
 authors = []
-keywords = ["phonons", "nonsymmorphic-symmetry", "selection-rules", "thermal-transport"]
+keywords = ["phonons", "screw-symmetry", "three-phonon-interactions", "force-constants"]
 
 [metadata]
 task_id = "example_01"
 domain = "physical-sciences"
 field = "materials-science"
 subfield = "lattice-dynamics"
-tags = ["phonons", "crystallography", "thermal-conductivity"]
+tags = ["phonons", "crystallography", "anharmonic-coupling"]
 
 [metadata.human_baseline]
 expert_count = 5
 time_limit_hours = 8
 environment_path = "environment/"
 human_hard_rule = "all_five_experts_unsolved"
-
-[metadata.harbor.lint]
-# Final-answer grading deliberately transfers Harbor's agent log to the separate verifier.
-ignore = ["artifact-log-overlap"]
 
 [verifier]
 timeout_sec = 900.0
