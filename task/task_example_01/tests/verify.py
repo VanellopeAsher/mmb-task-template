@@ -1,4 +1,4 @@
-"""Independently verify submitted observations and evidence completeness.
+"""Check objective evidence in optional files or Harbor's final agent answer.
 
 The source-log values below were manually checked against the NIMS archives.
 This test intentionally does not grade the scientific interpretation.
@@ -76,14 +76,54 @@ def verify(report_path: Path, evidence_path: Path) -> None:
                 raise ValueError(f"Each claim needs a nonempty {field} list")
 
 
+def final_answer(log_dir: Path) -> str:
+    trajectory_path = log_dir / "trajectory.json"
+    if trajectory_path.is_file():
+        trajectory = json.loads(trajectory_path.read_text(encoding="utf-8"))
+        steps = trajectory.get("steps", [])
+        if not isinstance(steps, list):
+            raise ValueError("Invalid agent trajectory")
+        for step in reversed(steps):
+            if not isinstance(step, dict) or step.get("source") != "agent" or step.get("tool_calls"):
+                continue
+            message = step.get("message", "")
+            if isinstance(message, list):
+                message = "\n".join(
+                    part.get("text", "")
+                    for part in message
+                    if isinstance(part, dict) and part.get("type") == "text"
+                )
+            if isinstance(message, str) and message.strip():
+                return message
+    for name in ("response.txt", "final_answer.txt", "answer.txt"):
+        path = log_dir / name
+        if path.is_file():
+            answer = path.read_text(encoding="utf-8").strip()
+            if answer:
+                return answer
+    raise ValueError("No final agent answer found in Harbor logs")
+
+
+def verify_unstructured_answer(answer: str) -> None:
+    if len(answer.strip()) < 500:
+        raise ValueError("Final answer is too short to document a scientific argument")
+    citations = set(re.findall(r"https?://[^\s)\]]+|10\.\d{4,9}/[^\s)\]]+|[a-z0-9_]+\.zip", answer, flags=re.I))
+    if len(citations) < 2:
+        raise ValueError("Final answer needs at least two traceable evidence pointers")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--report", type=Path, default=Path("/workspace/results/report.md"))
     parser.add_argument("--evidence", type=Path, default=Path("/workspace/results/evidence.json"))
+    parser.add_argument("--agent-logs", type=Path, default=Path("/logs/agent"))
     parser.add_argument("--reward", type=Path, default=Path("/logs/verifier/reward.txt"))
     args = parser.parse_args()
     try:
-        verify(args.report, args.evidence)
+        if args.report.is_file() and args.evidence.is_file():
+            verify(args.report, args.evidence)
+        else:
+            verify_unstructured_answer(final_answer(args.agent_logs))
     except (OSError, ValueError, json.JSONDecodeError) as exc:
         args.reward.parent.mkdir(parents=True, exist_ok=True)
         args.reward.write_text("0\n", encoding="utf-8")
@@ -91,7 +131,7 @@ def main() -> int:
         return 1
     args.reward.parent.mkdir(parents=True, exist_ok=True)
     args.reward.write_text("1\n", encoding="utf-8")
-    print("Objective observations and evidence index verified; scientific quality requires rubric review.")
+    print("Objective evidence presence verified; scientific quality requires rubric review.")
     return 0
 
 
