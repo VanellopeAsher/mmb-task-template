@@ -9,4 +9,4 @@ Consequences for this item:
 - The existing `solution/answer.json`, `solution/solve.sh`, and `tests/verify.py` close only the engineering pilot. They do not establish an oracle or verifier for the original scientific problem.
 - A complete replacement needs a compatible, versioned FC2/FC3/FC4 set for the same physical models, a four-phonon solver, independent reference calculations, and new answer tolerances. Mixing an unrelated FC4 file with these NIMS FC2/FC3 models would be invalid.
 
-This is a blocking data and oracle gap for final scientific acceptance. The task status in `task.toml` remains `engineering_demo_not_research_qualified`.
+This is a blocking data and oracle gap for final scientific acceptance. The limitation is recorded here and in the repository README, without adding a status field to task metadata.
