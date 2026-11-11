@@ -24,6 +24,23 @@ jobs:
           docker run --rm \
             -v "$PWD/task/task_example_01/solution:/solution:ro" \
             mmb-example01-environment bash /solution/check_sources.sh
+      - name: Recompute scientific witness
+        run: |
+          docker run --rm \
+            -v "$PWD/task/task_example_01/solution:/solution:ro" \
+            mmb-example01-environment python -c '
+          import json, sys
+          sys.path.insert(0, "/solution/witness")
+          from probe_interactions import probe
+          for formula, archive in (("GaN", "gan_wurtzite_mp804"), ("AlN", "aln_wurtzite_mp661"), ("ZnS", "zns_wurtzite_mp10281")):
+              result = probe(archive)
+              selected = {"normal": [0, 0, 1], "odd_umklapp": [0, 0, 2]}
+              summary = {}
+              for name, address in selected.items():
+                  row = next(row for row in result["screw_classification"] if row["grid_addresses"][0] == address and (row["axial_reciprocal_vector"] == 1) == (name == "odd_umklapp"))
+                  summary[name] = {key: row[key] for key in ("grid_addresses", "allowed_count", "forbidden_count", "forbidden_near_zero_count", "allowed_near_zero_count", "rotation_only_allowed_near_zero_count", "mean_allowed_relative_strength")}
+              print(json.dumps({"formula": formula, "summary": summary}, sort_keys=True), flush=True)
+          '
       - name: Check objective verifier against wrong answers
         run: python task/task_example_01/authoring/evidence/check_verifier.py
       - name: Check Harbor-compatible staging task

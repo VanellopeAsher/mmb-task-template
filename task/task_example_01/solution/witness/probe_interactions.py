@@ -156,6 +156,7 @@ def probe(archive_name: str = "gan_wurtzite_mp804") -> dict[str, object]:
                         "rotation_only_allowed_count": int(np.count_nonzero(rotation_only_allowed)),
                         "rotation_only_allowed_near_zero_count": int(np.count_nonzero(strengths[rotation_only_allowed] < threshold)),
                         "max_forbidden_relative_strength": float(np.max(strengths[~allowed]) / maximum),
+                        "mean_allowed_relative_strength": float(np.mean(strengths[allowed]) / maximum),
                     }
                 )
     return {"archive": archive_name, "mesh": [3, 3, 6], "mode_assignment_max_error": mode_error, "triplets": rows, "screw_classification": classified}
