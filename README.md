@@ -2,7 +2,7 @@
 
 This repository contains a **blank authoring template** and a worked MatterMysteryBench (MMB) scientific task example. Both follow the project schema. `task/task_template/` remains intentionally unfilled; `task/task_example_01/` measures screw-sector phonon interactions using cited force models.
 
-The worked example has a published `answer.json` contract, a hidden correct answer, an executable oracle, and an independent objective verifier. It demonstrates the engineering workflow. Its fixed triplets and prescribed observables do not require the Agent to design discriminating experiments, so it is **not a qualified research-difficulty benchmark item**. `task/task_example_01/authoring/research_redesign.md` records the scientific redesign. Simulated human-baseline and agent-run records illustrate the schema.
+The worked example has a published `answer.json` contract, a hidden correct answer, an executable oracle, and an independent objective verifier for its engineering pilot. It does **not** answer the original research question. `task/task_example_01/authoring/scientific_brief.md` preserves that question; `task/task_example_01/authoring/evidence/fc4_gap.md` records the missing fourth-order data and the resulting scientific acceptance gap. Simulated human-baseline and agent-run records illustrate the schema.
 
 ## Layout and access
 

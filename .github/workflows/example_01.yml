@@ -1,4 +1,4 @@
-name: Validate example_01
+name: Validate example_01 engineering pilot
 
 on:
   push:
@@ -36,7 +36,7 @@ jobs:
         run: |
           python task/task_example_01/authoring/provenance/build_harbor_task.py --output "$RUNNER_TEMP/mmb-example01-harbor"
           uvx harbor==0.25.0 lint "$RUNNER_TEMP/mmb-example01-harbor"
-      - name: Run the real solution oracle and verifier
+      - name: Run the engineering-pilot oracle and verifier
         run: |
           python task/task_example_01/authoring/provenance/build_harbor_task.py --output "$RUNNER_TEMP/mmb-example01-answer-harbor"
           uvx harbor==0.25.0 run \
