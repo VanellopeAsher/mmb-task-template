@@ -48,7 +48,7 @@ def main() -> None:
         summary = summarize_unstructured_answer(final_answer(logs))
         case.assertEqual(summary["status"], "pending_scientific_review")
         case.assertRaises(ValueError, summarize_unstructured_answer, "   ")
-    print("Verifier contract: valid passed, tampered and missing artifacts rejected")
+    print("Source-fact contract: valid data accepted; tampered and missing artifacts rejected")
 
 
 if __name__ == "__main__":

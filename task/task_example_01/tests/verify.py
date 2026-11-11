@@ -1,7 +1,7 @@
-"""Check objective evidence in optional files or Harbor's final agent answer.
+"""Check source facts and capture final answers pending scientific adjudication.
 
-The source-log values below were manually checked against the NIMS archives.
-This test intentionally does not grade the scientific interpretation.
+The broad question currently has no complete, independently verifiable target.
+Source-fact checks therefore never produce a passing scientific reward.
 """
 
 from __future__ import annotations
@@ -29,18 +29,13 @@ EXPECTED = {
 
 def verify(report_path: Path, evidence_path: Path) -> None:
     report = report_path.read_text(encoding="utf-8")
-    if len(report.strip()) < 1500:
-        raise ValueError("Report is too short to document a scientific argument")
-    if len(re.findall(r"https?://", report)) < 2:
-        raise ValueError("Report needs at least two traceable source citations")
+    if not report.strip():
+        raise ValueError("Report is empty")
 
     evidence = json.loads(evidence_path.read_text(encoding="utf-8"))
     materials = evidence.get("materials")
-    claims = evidence.get("claims")
     if not isinstance(materials, list) or len(materials) < 4:
         raise ValueError("At least four material records are required")
-    if not isinstance(claims, list) or len(claims) < 2:
-        raise ValueError("At least two evidence-linked scientific claims are required")
 
     seen: dict[str, set[int]] = {}
     archive_names = set()
@@ -67,15 +62,6 @@ def verify(report_path: Path, evidence_path: Path) -> None:
     pairs = sum({186, 216}.issubset(numbers) for formula, numbers in seen.items() if formula in {"GaN", "AlN", "ZnS"})
     if pairs < 2:
         raise ValueError("At least two same-composition wurtzite/zincblende comparisons are required")
-
-    for claim in claims:
-        if not isinstance(claim, dict) or len(str(claim.get("statement", "")).strip()) < 20:
-            raise ValueError("Claim statement is missing")
-        for field in ("evidence", "limitations"):
-            values = claim.get(field)
-            if not isinstance(values, list) or not values or not all(isinstance(x, str) and x.strip() for x in values):
-                raise ValueError(f"Each claim needs a nonempty {field} list")
-
 
 def final_answer(log_dir: Path) -> str:
     trajectory_path = log_dir / "trajectory.json"
@@ -128,8 +114,12 @@ def main() -> int:
     try:
         if args.report.is_file() and args.evidence.is_file():
             verify(args.report, args.evidence)
-            reward = 1
-            assessment = {"status": "objective_evidence_verified"}
+            reward = 0
+            assessment = {
+                "status": "source_facts_checked_pending_scientific_review",
+                "source_fact_check": "passed",
+                "scientific_correctness": "unverified",
+            }
         else:
             reward = 0
             assessment = summarize_unstructured_answer(final_answer(args.agent_logs))

@@ -2,7 +2,7 @@
 
 This repository contains a **blank authoring template** and a worked MatterMysteryBench (MMB) scientific task example. Both follow the project schema. `task/task_template/` remains intentionally unfilled; `task/task_example_01/` investigates nonsymmorphic phonon scattering and lattice thermal transport using cited scientific data.
 
-The worked example has a feasibility report, an optional reproducible witness, and an independent objective verifier. Simulated human-baseline and agent-run records illustrate the schema. Real expert and model trials remain to be collected.
+The worked example has a feasibility report, an optional reproducible witness, and a source-fact checker. The broad scientific question does not yet have an independent correctness target, so its verifier never awards a passing scientific score. Simulated human-baseline and agent-run records illustrate the schema. Real expert and model trials remain to be collected.
 
 ## Layout and access
 
