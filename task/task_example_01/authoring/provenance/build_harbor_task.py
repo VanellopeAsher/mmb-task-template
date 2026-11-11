@@ -25,12 +25,7 @@ def main() -> None:
         output,
         ignore=shutil.ignore_patterns("authoring", "__pycache__", "*.pyc"),
     )
-    # Harbor's built-in oracle agent requires solution/solve.sh. This is a
-    # staging-only adapter for the optional witness, not part of the MMB schema.
-    witness_entry = SOURCE / "feasibility" / "reproduce.sh"
-    if witness_entry.is_file() and (SOURCE / "feasibility" / "witness").is_dir():
-        shutil.copytree(SOURCE / "feasibility", output / "solution")
-        (output / "solution" / "reproduce.sh").rename(output / "solution" / "solve.sh")
+    # The source task already contains Harbor's solution/solve.sh oracle.
     problem = (SOURCE / "problem.md").read_text(encoding="utf-8").rstrip()
     (output / "instruction.md").write_text(f"{problem}\n", encoding="utf-8")
     print(output)

@@ -1,4 +1,4 @@
-"""Construct one optional feasibility witness from the original archives."""
+"""Build supporting interaction and transport evidence from original archives."""
 
 from __future__ import annotations
 
@@ -142,7 +142,7 @@ def report(materials: list[dict[str, object]], interaction_probes: list[dict[str
             "The defensible general relation is conditional: nonsymmorphic operations can add wave-vector-dependent representation constraints to phonon interactions, especially on invariant manifolds, while the effect on bulk thermal transport is material and process dependent. The [2026 perspective on thermal selection rules](https://doi.org/10.1038/s44435-026-00018-1) identifies generalization to three-dimensional nonsymmorphic space groups as an open challenge. This reference answer establishes a bounded result and does not claim a complete classification or a universal conductivity law.",
             "",
             "## Reproduction",
-            "Run `feasibility/reproduce.sh` with the original ZIP archives and catalog under `environment/data/nims/`. Numerical values are parsed from the source logs. The archive source pages and SHA-256 values are recorded in `authoring/provenance/nims_manifest.json`.",
+            "Run `solution/check_sources.sh` with the original ZIP archives and catalog under `environment/data/nims/`. Numerical values are parsed from the source logs. The archive source pages and SHA-256 values are recorded in `authoring/provenance/nims_manifest.json`.",
             "",
         ]
     )
@@ -159,12 +159,12 @@ def main() -> None:
     claims = [
         {
             "statement": "A 6_3 screw can impose an axial reciprocal-vector-dependent necessary condition on three-phonon couplings of nondegenerate invariant-line modes.",
-            "evidence": ["https://doi.org/10.1103/PhysRevResearch.4.L012024", "feasibility/witness/screw_selection.py"],
+            "evidence": ["https://doi.org/10.1103/PhysRevResearch.4.L012024", "solution/witness/screw_selection.py"],
             "limitations": ["Unsampled mode labels and couplings require further material-specific analysis", "Degenerate or off-axis modes require full representations"],
         },
         {
             "statement": "For sampled GaN, AlN, and ZnS screw-axis triplets, reconstructed cubic couplings vanish numerically for all mode combinations forbidden by the 6_3 screw characters; an odd axial Umklapp event follows the shifted label condition.",
-            "evidence": ["environment/data/nims/gan_wurtzite_mp804.zip", "environment/data/nims/aln_wurtzite_mp661.zip", "environment/data/nims/zns_wurtzite_mp10281.zip", "feasibility/witness/probe_interactions.py"],
+            "evidence": ["environment/data/nims/gan_wurtzite_mp804.zip", "environment/data/nims/aln_wurtzite_mp661.zip", "environment/data/nims/zns_wurtzite_mp10281.zip", "solution/witness/probe_interactions.py"],
             "limitations": ["Coarse q mesh and model-based symmetrized force constants", "No energy-conservation or causal thermal-transport attribution"],
         },
         {

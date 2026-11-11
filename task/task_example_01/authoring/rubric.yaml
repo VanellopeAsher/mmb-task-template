@@ -1,15 +1,14 @@
-# Scientific-quality rubric; objective verifier results are a separate gate.
+# Scientific-quality rubric; objective answer correctness is machine-scored.
 version: 1
 score_range: [0, 4]
 objective_gate:
   output: /workspace/results/answer.json
   checks: [screw_condition_equivalence, source_conductivity_ratios, cross_material_boolean]
-  result: recorded_in_assessment_json
-  automatic_full_credit: false
+  result: reward_1_if_all_checks_pass_else_0
 scientific_adjudication:
   input: answer.json.analysis
   method: independent_domain_expert_review
-  note: The objective gate checks subclaims; scientific correctness requires this rubric.
+  note: Expert review scores the explanatory analysis beyond the machine-scored answer fields.
 criteria:
   mechanism_explanation:
     weight: 0.30

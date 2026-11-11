@@ -1,4 +1,4 @@
-"""Check source integrity and observable signal, without solving the task."""
+"""Check source integrity and transport observations independently of the oracle."""
 
 import hashlib
 import json
@@ -13,8 +13,7 @@ from inspect_nims import conductivity_rows  # noqa: E402
 
 
 def main() -> None:
-    report = TASK / "feasibility" / "feasibility_report.md"
-    assert report.is_file() and "Checkable feasibility claims" in report.read_text(encoding="utf-8")
+    assert (TASK / "solution" / "answer.json").is_file()
     manifest = json.loads((TASK / "authoring" / "provenance" / "nims_manifest.json").read_text(encoding="utf-8"))
     assert len(manifest) == 8
     traces = {}
@@ -29,7 +28,7 @@ def main() -> None:
         wurtzite = next(value for name, value in traces.items() if name.startswith(f"{formula}_wurtzite_"))
         zincblende = next(value for name, value in traces.items() if name.startswith(f"{formula}_zincblende_"))
         assert (wurtzite > zincblende) is ordering
-    print("Feasibility sources: eight verified archives and opposite ZnS transport ordering.")
+    print("Source check: eight verified archives and opposite ZnS transport ordering.")
 
 
 if __name__ == "__main__":

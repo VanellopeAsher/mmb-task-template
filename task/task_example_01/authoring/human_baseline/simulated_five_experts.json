@@ -6,7 +6,7 @@
   "purpose": "Illustrate the five-expert decision rule; these are fictional attempts, not measurements.",
   "author_side_basis": [
     "environment/data/nims/catalog.json",
-    "feasibility/witness/solve.py",
+    "solution/witness/solve.py",
     "authoring/evidence/gan_interaction_probe.json",
     "authoring/evidence/aln_interaction_probe.json",
     "authoring/evidence/zns_interaction_probe.json"
@@ -18,7 +18,7 @@
     "environment_snapshot": "task/task_example_01/environment/ at this repository revision",
     "container_image_digest": null,
     "agent_visible_materials": ["problem.md", "environment/"],
-    "hidden_materials": ["feasibility/", "tests/", "authoring/"],
+    "hidden_materials": ["solution/", "tests/", "authoring/"],
     "same_time_means_equal_time_limit": true,
     "actual_sessions_run": false,
     "assessment_basis": "Independent scientific adjudication against authoring/rubric.yaml is required for real attempts."

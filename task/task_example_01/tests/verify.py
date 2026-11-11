@@ -1,14 +1,12 @@
-"""Check objective subclaims; reserve scientific conclusions for the rubric."""
+"""Score the published answer.json contract against independent checks."""
 
 from __future__ import annotations
 
 import argparse
 import ast
-import hashlib
 import json
 import math
 from pathlib import Path
-import sys
 
 
 # Independently transcribed 300 K diagonal tensors from the supplied NIMS logs.
@@ -66,7 +64,7 @@ def verify(answer_path: Path) -> dict[str, object]:
         tree = ast.parse(expression, mode="eval")
     except SyntaxError as exc:
         raise ValueError("selection_rule is not a valid expression") from exc
-    # The theoretical check is independent of the optional feasibility witness.
+    # The theoretical check is independent of the solution's oracle script.
     for m1 in range(6):
         for m2 in range(6):
             for m3 in range(6):
@@ -90,41 +88,25 @@ def verify(answer_path: Path) -> dict[str, object]:
     if type(answer["all_wurtzite_higher"]) is not bool or answer["all_wurtzite_higher"] is not all(v > 1 for v in expected_ratios.values()):
         raise ValueError("Incorrect cross-material conductivity conclusion")
     return {
-        "status": "objective_subclaims_correct_pending_scientific_review",
+        "status": "correct",
         "rule_cases_checked": 1080,
         "materials_checked": 3,
-        "scientific_analysis_checked": False,
+        "scientific_analysis_review": "authoring/rubric.yaml",
     }
-
-
-def final_answer(log_dir: Path) -> str:
-    trajectory_path = log_dir / "trajectory.json"
-    if trajectory_path.is_file():
-        trajectory = json.loads(trajectory_path.read_text(encoding="utf-8"))
-        for step in reversed(trajectory.get("steps", [])):
-            if isinstance(step, dict) and step.get("source") == "agent" and not step.get("tool_calls"):
-                message = step.get("message", "")
-                if isinstance(message, str) and message.strip():
-                    return message
-    raise ValueError("No structured answer or final agent message found")
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--answer", type=Path, default=Path("/workspace/results/answer.json"))
-    parser.add_argument("--agent-logs", type=Path, default=Path("/logs/agent"))
     parser.add_argument("--reward", type=Path, default=Path("/logs/verifier/reward.txt"))
     parser.add_argument("--assessment", type=Path, default=Path("/logs/verifier/assessment.json"))
     args = parser.parse_args()
     reward = 0
     try:
-        if args.answer.is_file():
-            assessment = verify(args.answer)
-            # Objective checks alone do not establish the broad research claim.
-            reward = 0
-        else:
-            message = final_answer(args.agent_logs)
-            assessment = {"status": "missing_answer_json", "answer_sha256": hashlib.sha256(message.encode("utf-8")).hexdigest()}
+        if not args.answer.is_file():
+            raise ValueError("Missing /workspace/results/answer.json")
+        assessment = verify(args.answer)
+        reward = 1
     except (OSError, ValueError, json.JSONDecodeError, TypeError) as exc:
         assessment = {"status": "incorrect_or_invalid", "reason": str(exc)}
     args.reward.parent.mkdir(parents=True, exist_ok=True)

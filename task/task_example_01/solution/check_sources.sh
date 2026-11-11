@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Reproduce the report's source-integrity and observable-signal claims.
+# Cross-check source integrity and the observed scientific signal.
 if [[ -d /workspace/data/nims ]]; then
   task_root=/workspace
 else

@@ -1,0 +1,10 @@
+{
+  "selection_rule": "(m1 + m2 - m3 - 3*Gz) % 6 == 0",
+  "ratio_300K": {
+    "GaN": 1.1355172810760426,
+    "AlN": 1.1264227484444138,
+    "ZnS": 0.8765024966770845
+  },
+  "all_wurtzite_higher": false,
+  "analysis": "For nondegenerate modes on the 6_3 screw-invariant line, invariance of a cubic coupling requires m1 + m2 - m3 - 3Gz = 0 modulo 6. This is a necessary condition for a nonzero coupling; energy conservation and the magnitude of allowed couplings still determine scattering. Reconstructed third-order interactions in the supplied GaN, AlN, and ZnS wurtzite models show near-zero couplings for sampled screw-forbidden axial mode combinations, including the shifted condition for an odd axial Umklapp vector. The supplied 300 K NIMS conductivity tensors give trace-averaged wurtzite/zincblende ratios of 1.1355 for GaN, 1.1264 for AlN, and 0.8765 for ZnS. Thus there is no universal conductivity ordering across these materials. The polymorphs also differ in force constants, phonon spectra, and scattering phase space, so their conductivity contrast does not isolate the screw contribution. Degenerate modes require a screw eigenbasis; off-axis modes require the applicable little-group representations. The interaction check uses symmetrized model force constants and a coarse mesh; controlled symmetry-breaking calculations and convergence checks would be needed to quantify a causal effect on bulk transport."
+}

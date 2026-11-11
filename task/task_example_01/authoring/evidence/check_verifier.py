@@ -8,18 +8,11 @@ import tempfile
 
 TASK = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(TASK / "tests"))
-from verify import SOURCE_TENSORS, main as verifier_main, verify  # noqa: E402
+from verify import main as verifier_main, verify  # noqa: E402
 
 
 def main() -> None:
-    correct = {
-        "selection_rule": "(m1 + m2 - m3 - 3*Gz) % 6 == 0",
-        "ratio_300K": {
-            name: sum(pair[0]) / sum(pair[1]) for name, pair in SOURCE_TENSORS.items()
-        },
-        "all_wurtzite_higher": False,
-        "analysis": "The numerical source comparison alone cannot isolate a symmetry-induced transport effect.",
-    }
+    correct = json.loads((TASK / "solution" / "answer.json").read_text(encoding="utf-8"))
     with tempfile.TemporaryDirectory() as directory:
         path = Path(directory) / "answer.json"
 
@@ -53,8 +46,27 @@ def main() -> None:
             assert verifier_main() == 0
         finally:
             sys.argv = original_argv
+        assert reward.read_text(encoding="utf-8").strip() == "1"
+        assert json.loads(assessment.read_text(encoding="utf-8"))["status"] == "correct"
+        bad = dict(correct, all_wurtzite_higher=True)
+        path.write_text(json.dumps(bad), encoding="utf-8")
+        original_argv = sys.argv
+        try:
+            sys.argv = ["verify.py", "--answer", str(path), "--reward", str(reward), "--assessment", str(assessment)]
+            assert verifier_main() == 0
+        finally:
+            sys.argv = original_argv
         assert reward.read_text(encoding="utf-8").strip() == "0"
-        assert json.loads(assessment.read_text(encoding="utf-8"))["status"] == "objective_subclaims_correct_pending_scientific_review"
+        assert json.loads(assessment.read_text(encoding="utf-8"))["status"] == "incorrect_or_invalid"
+        path.unlink()
+        original_argv = sys.argv
+        try:
+            sys.argv = ["verify.py", "--answer", str(path), "--reward", str(reward), "--assessment", str(assessment)]
+            assert verifier_main() == 0
+        finally:
+            sys.argv = original_argv
+        assert reward.read_text(encoding="utf-8").strip() == "0"
+        assert json.loads(assessment.read_text(encoding="utf-8"))["status"] == "incorrect_or_invalid"
     print("Objective checks accepted equivalent rules and rejected wrong physics, ratios, and invalid fields.")
 
 

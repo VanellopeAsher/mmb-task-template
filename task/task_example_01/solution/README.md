@@ -1,0 +1,3 @@
+# Reference solution
+
+`answer.json` is the correct answer in the format published in `problem.md`. Harbor runs `solve.sh`, which writes it to `/workspace/results/answer.json`. `check_sources.sh` verifies source transport observations and calls `signal_check.py` in the pinned scientific image; the signal checker reconstructs a screw operation and interaction contrast for three models. `witness/solve.py`, `witness/probe_interactions.py`, and `witness/screw_selection.py` retain the detailed supporting investigation. Independent verifier checks are in `tests/` and author-side evidence is in `authoring/evidence/`. This directory is withheld from the evaluated Agent and human baseline.
