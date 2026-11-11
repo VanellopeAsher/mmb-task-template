@@ -25,7 +25,7 @@ MODULES = (
     "symfc",
     "sympy",
 )
-EXECUTABLES = ("ase", "phonopy", "phono3py")
+EXECUTABLES = ("ase", "phonopy", "phono3py", "pypolymlp-calc")
 
 
 def main() -> int:
