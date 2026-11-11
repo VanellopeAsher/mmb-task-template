@@ -26,10 +26,7 @@ def main() -> None:
         ignore=shutil.ignore_patterns("authoring", "__pycache__", "*.pyc"),
     )
     problem = (SOURCE / "problem.md").read_text(encoding="utf-8").rstrip()
-    submission = (SOURCE / "environment" / "skills" / "submission.md").read_text(encoding="utf-8").rstrip()
-    (output / "instruction.md").write_text(
-        f"{problem}\n\n{submission}\n", encoding="utf-8"
-    )
+    (output / "instruction.md").write_text(f"{problem}\n", encoding="utf-8")
     print(output)
 
 

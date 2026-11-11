@@ -159,12 +159,12 @@ def main() -> None:
     claims = [
         {
             "statement": "A 6_3 screw can impose an axial reciprocal-vector-dependent necessary condition on three-phonon couplings of nondegenerate invariant-line modes.",
-            "evidence": ["https://doi.org/10.1103/PhysRevResearch.4.L012024", "environment/tools/screw_selection.py"],
+            "evidence": ["https://doi.org/10.1103/PhysRevResearch.4.L012024", "solution/screw_selection.py"],
             "limitations": ["Unsampled mode labels and couplings require further material-specific analysis", "Degenerate or off-axis modes require full representations"],
         },
         {
             "statement": "For sampled GaN, AlN, and ZnS screw-axis triplets, reconstructed cubic couplings vanish numerically for all mode combinations forbidden by the 6_3 screw characters; an odd axial Umklapp event follows the shifted label condition.",
-            "evidence": ["environment/data/nims/gan_wurtzite_mp804.zip", "environment/data/nims/aln_wurtzite_mp661.zip", "environment/data/nims/zns_wurtzite_mp10281.zip", "environment/tools/probe_interactions.py"],
+            "evidence": ["environment/data/nims/gan_wurtzite_mp804.zip", "environment/data/nims/aln_wurtzite_mp661.zip", "environment/data/nims/zns_wurtzite_mp10281.zip", "solution/probe_interactions.py"],
             "limitations": ["Coarse q mesh and model-based symmetrized force constants", "No energy-conservation or causal thermal-transport attribution"],
         },
         {

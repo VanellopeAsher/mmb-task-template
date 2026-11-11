@@ -14,5 +14,6 @@ RUN python -m pip install --no-cache-dir -r /workspace/requirements.lock \
 COPY data/ /workspace/data/
 COPY tools/ /workspace/tools/
 COPY skills/ /workspace/skills/
+RUN python /workspace/tools/check_software.py
 
 CMD ["bash"]

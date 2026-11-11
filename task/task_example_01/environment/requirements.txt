@@ -7,3 +7,9 @@ seekpath==2.2.2
 pypolymlp==0.22.1
 pandas==2.3.3
 sympy==1.14.0
+ase==3.29.0
+hiphive==1.5
+pymatgen==2026.9.24
+pymatgen-core==2026.9.23
+mp-api==0.46.5
+boto3>=1.40,<2

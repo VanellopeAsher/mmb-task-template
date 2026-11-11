@@ -1,7 +1,0 @@
-# Research methods and limits
-
-The task provides structural records, second- and third-order force data, computed thermal-transport logs, and open-source analysis software. Possible investigations include space-group and little-group symmetry analysis, phonon-mode analysis, three-phonon interaction calculations, comparisons of conductivity tensors and their temperature trends, and critical comparison with published studies. Choose methods appropriate to the claim; no route is mandatory.
-
-For symmetry claims, distinguish a forbidden matrix element from an energetically unavailable channel, and distinguish a screw/glide constraint from a point-group or ordinary momentum rule. A crystallographic label alone does not establish that a particular scattering process vanishes. For transport claims, distinguish total conductivity from mode-resolved scattering rates, and account for changes in structure, dispersion, anharmonic force constants, temperature, isotope/boundary assumptions, and calculation settings. Cross-material correlations are not causal proof.
-
-Relevant primary literature includes Yang et al., *Physical Review B* 103, 184302 (2021), DOI 10.1103/PhysRevB.103.184302; Cammarata, *RSC Advances* 9, 37491–37496 (2019), DOI 10.1039/C9RA08294H; and the 2026 perspective "Tuning thermal transport using phonon scattering selection rules," DOI 10.1038/s44435-026-00018-1. Review the scope of each result before generalizing it to three-dimensional nonsymmorphic crystals.

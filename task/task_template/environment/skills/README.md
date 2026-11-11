@@ -1,3 +1,3 @@
-# Task-specific skills
+# Agent Skills
 
-Put optional, agent-visible domain and tool usage guidance here. Explain available methods, parameter choices, input and output conventions, and known limitations so the agent can design and compare experiments. Avoid a step-by-step solution, a mandated method, or privileged evidence. Load only skills relevant to this task.
+Place existing, relevant Agent Skill packages here with their complete `SKILL.md`, supporting files, upstream source, pinned commit, and license. Skills are reusable scientific capabilities chosen by the agent. Do not write new task-specific skills that encode an answer, mandated method, or research sequence.
