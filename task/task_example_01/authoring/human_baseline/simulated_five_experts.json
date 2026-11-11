@@ -1,0 +1,82 @@
+{
+  "record_type": "simulated_five_expert_human_baseline",
+  "simulation": true,
+  "real_experts_recruited": 0,
+  "task_id": "example_01",
+  "purpose": "Illustrate the five-expert decision rule; these are fictional attempts, not measurements.",
+  "author_side_basis": [
+    "environment/data/nims/catalog.json",
+    "solution/solve.py",
+    "authoring/evidence/gan_interaction_probe.json",
+    "authoring/evidence/aln_interaction_probe.json",
+    "authoring/evidence/zns_interaction_probe.json"
+  ],
+  "shared_protocol": {
+    "expert_count_from_task_toml": 5,
+    "time_limit_hours_from_task_toml": 8,
+    "environment_path_from_task_toml": "environment/",
+    "environment_snapshot": "task/task_example_01/environment/ at this repository revision",
+    "container_image_digest": null,
+    "agent_visible_materials": ["problem.md", "environment/"],
+    "hidden_materials": ["solution/", "tests/", "authoring/"],
+    "same_time_means_equal_time_limit": true,
+    "actual_sessions_run": false,
+    "assessment_basis": "Independent scientific adjudication against authoring/rubric.yaml is required for real attempts."
+  },
+  "attempts": [
+    {
+      "expert_id": "synthetic_expert_01",
+      "expertise": "solid-state chemistry",
+      "virtual_elapsed_hours": 7.4,
+      "hypothetical_route": "Compared polymorph structures and NIMS 300 K thermal-conductivity tensors.",
+      "illustrative_partial_finding": "Transport contrasts vary by material and do not consistently favor the nonsymmorphic polymorph.",
+      "missing_for_solution": "No mode-resolved scattering constraint was established from interaction data.",
+      "solved": false,
+      "adjudication_simulated": true
+    },
+    {
+      "expert_id": "synthetic_expert_02",
+      "expertise": "crystallography and group theory",
+      "virtual_elapsed_hours": 8.0,
+      "hypothetical_route": "Examined screw symmetry, wave-vector little groups, and phonon labels.",
+      "illustrative_partial_finding": "A conditional representation constraint was proposed for selected high-symmetry modes.",
+      "missing_for_solution": "The proposed rule was not checked against numerical third-order interactions or transport outcomes.",
+      "solved": false,
+      "adjudication_simulated": true
+    },
+    {
+      "expert_id": "synthetic_expert_03",
+      "expertise": "computational lattice dynamics",
+      "virtual_elapsed_hours": 7.8,
+      "hypothetical_route": "Inspected third-order force-constant and scattering-related source artifacts.",
+      "illustrative_partial_finding": "Some symmetry-related matrix elements appeared suppressed in sampled modes.",
+      "missing_for_solution": "No convergence, allowed-channel comparison, or scope analysis supported a generalizable rule.",
+      "solved": false,
+      "adjudication_simulated": true
+    },
+    {
+      "expert_id": "synthetic_expert_04",
+      "expertise": "thermal transport modeling",
+      "virtual_elapsed_hours": 8.0,
+      "hypothetical_route": "Compared calculated conductivity with dispersion, phase-space, and polymorph differences.",
+      "illustrative_partial_finding": "Recognized that conductivity differences have multiple plausible causes.",
+      "missing_for_solution": "Could not isolate a nonsymmorphic symmetry contribution to scattering or quantify its transport effect.",
+      "solved": false,
+      "adjudication_simulated": true
+    },
+    {
+      "expert_id": "synthetic_expert_05",
+      "expertise": "phonon spectroscopy and materials analysis",
+      "virtual_elapsed_hours": 7.6,
+      "hypothetical_route": "Cross-checked published symmetry arguments with the provided material models.",
+      "illustrative_partial_finding": "A narrow high-symmetry-line claim seemed plausible, with uncertain extension to full Brillouin-zone transport.",
+      "missing_for_solution": "The claim lacked independent numerical validation across materials and explicit applicability limits.",
+      "solved": false,
+      "adjudication_simulated": true
+    }
+  ],
+  "simulated_all_five_unsolved": true,
+  "simulated_human_hard": true,
+  "empirical_human_hard": null,
+  "warning": "Neither the five expert attempts nor their outcomes occurred. This record cannot certify human hardness."
+}

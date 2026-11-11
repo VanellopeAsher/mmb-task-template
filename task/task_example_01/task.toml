@@ -15,7 +15,12 @@ domain = "physical-sciences"
 field = "materials-science"
 subfield = "lattice-dynamics"
 tags = ["phonons", "crystallography", "thermal-conductivity"]
-expert_time_estimate_hours = 8 # Provisional until a human baseline is completed.
+
+[metadata.human_baseline]
+expert_count = 5
+time_limit_hours = 8
+environment_path = "environment/"
+human_hard_rule = "all_five_experts_unsolved"
 
 [metadata.harbor.lint]
 # Final-answer grading deliberately transfers Harbor's agent log to the separate verifier.

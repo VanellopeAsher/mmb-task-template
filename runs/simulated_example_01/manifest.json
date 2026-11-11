@@ -1,0 +1,14 @@
+{
+  "record_type": "simulated_agent_run",
+  "simulation": true,
+  "task_id": "example_01",
+  "environment_reference": "task/task_example_01/environment/",
+  "time_limit_hours_from_task_toml": 8,
+  "model_invoked": false,
+  "container_launched": false,
+  "tool_calls_executed": false,
+  "trajectory_file": "trajectory.json",
+  "outcome": "illustrative_partial_answer_pending_scientific_review",
+  "empirical_agent_success": null,
+  "purpose": "Show how hypotheses, choices, observations, and revisions can be recorded without presenting a fabricated model trial as empirical evidence."
+}

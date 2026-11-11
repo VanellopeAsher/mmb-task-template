@@ -1,0 +1,42 @@
+{
+  "schema": "illustrative_research_trajectory_v1",
+  "simulation": true,
+  "task_id": "example_01",
+  "events": [
+    {
+      "step": 1,
+      "virtual_elapsed_hours": 0.0,
+      "kind": "hypothesis",
+      "content": "Screw symmetry might forbid some three-phonon interaction amplitudes on special wave-vector lines."
+    },
+    {
+      "step": 2,
+      "virtual_elapsed_hours": 1.2,
+      "kind": "hypothetical_experiment_choice",
+      "content": "Compare nonsymmorphic and symmorphic polymorphs in the supplied NIMS records; inspect symmetry labels and thermal conductivity.",
+      "actual_tool_call": false
+    },
+    {
+      "step": 3,
+      "virtual_elapsed_hours": 2.0,
+      "kind": "source_grounded_observation",
+      "content": "The source-reported 300 K conductivity ordering differs across GaN, AlN, and ZnS polymorph pairs, so symmetry alone does not predict the sign of a bulk conductivity contrast.",
+      "evidence_basis": "task/task_example_01/environment/data/nims/catalog.json and cited archive LTC-calc.log files"
+    },
+    {
+      "step": 4,
+      "virtual_elapsed_hours": 4.1,
+      "kind": "hypothesis_revision",
+      "content": "Restrict the proposed selection rule to declared little-group representations and distinguish forbidden amplitudes from energy-conserving scattering phase space."
+    },
+    {
+      "step": 5,
+      "virtual_elapsed_hours": 7.5,
+      "kind": "hypothetical_final_answer",
+      "content": "A narrow symmetry-conditioned scattering constraint is plausible; the provided cross-material transport contrasts do not by themselves identify its causal contribution. Numerical interaction checks, alternative explanations, and uncertainty remain necessary.",
+      "scientific_review_status": "pending",
+      "actual_submission": false
+    }
+  ],
+  "warning": "All decisions and elapsed times are synthetic. The observation is paraphrased from source records; no agent ran this trajectory."
+}

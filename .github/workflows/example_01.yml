@@ -14,6 +14,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v6
+      - name: Check five-expert simulated record protocol
+        run: python task/task_example_01/authoring/provenance/validate_sample_records.py
       - name: Check Harbor-compatible staging task
         run: |
           python task/task_example_01/authoring/provenance/build_harbor_task.py --output "$RUNNER_TEMP/mmb-example01-harbor"

@@ -2,7 +2,7 @@
 
 This repository contains a **blank authoring template** and a worked MatterMysteryBench (MMB) scientific task example. Both follow the project schema. `task/task_template/` remains intentionally unfilled; `task/task_example_01/` investigates nonsymmorphic phonon scattering and lattice thermal transport using cited scientific data.
 
-The worked example has a reproducible Oracle and objective verifier. Its eight-hour expert human baseline and independent agent trials have not yet been collected, so it is not certified as a finalized benchmark item.
+The worked example has a reproducible Oracle and objective verifier. It includes explicitly simulated human-baseline and agent-run records to demonstrate the schema. No real eight-hour expert baseline or independent model trial has been collected, so it is not certified as a finalized benchmark item.
 
 ## Layout and access
 
@@ -28,7 +28,7 @@ The `initial_submit/initial_submit_template/` folder intentionally contains **on
 2. Replace all `REPLACE_*` fields and `{problem_description}`. Put licensed, versioned inputs in `environment/data/`, installed software and executable interfaces in `environment/tools/`, and relevant, existing Agent Skills in `environment/skills/`. Record each skill's upstream repository, commit, and license. Write `problem.md` as one open-ended scientific question without prescribing a method.
 3. Build an environment with enough relevant data, software, configuration options, and compute budget for materially different experimental approaches. The agent chooses its own experiments and skills; neither `problem.md` nor environment materials specify a research sequence. Pin software and data versions. Keep reference answers, rubric, provenance, and hidden evidence outside the agent image and mounts.
 4. Implement the reference material and verifier for the specific problem. Verify the reference answer against the objective checks; separately review scientific quality against `authoring/rubric.yaml`.
-5. Ask up to five experts, each with the same environment and an eight-hour limit, to produce independent human baselines. Record their conditions and outcomes in `authoring/human_baseline/`.
+5. Give exactly five independent domain experts the same `environment/` and the time limit in `task.toml` (normally eight hours). One correct solution makes the task human-solvable; label it human-hard only if all five fail. Record the conditions and outcomes in `authoring/human_baseline/`. A simulated panel illustrates this protocol but cannot establish empirical human difficulty.
 6. Store each agent trajectory under `runs/<run-id>/` with a manifest linking hypotheses, chosen experiments, tool calls, observations, and changes in direction. Review for secrets or private data before publishing runs.
 
 The shell entry points deliberately fail until a real task is authored. A green verifier must never result from placeholder content.
