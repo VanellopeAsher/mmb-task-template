@@ -55,9 +55,22 @@ The author must answer each question using the *actual candidate data* before ca
 
 This is a design test, not a claim that the current archives already meet it.
 
+### Case-selection gate: create real scientific forks
+
+A single smooth crossing is still too close to a parameter sweep. The released condition set must contain several *genuine* competing cases, selected from calculated or measured force models rather than created by multiplying rates in a spreadsheet:
+
+- Two conditions with similar apparent three-phonon phase-space restriction but materially different cubic matrix elements, so phase-space ranking alone gives the wrong rate ranking in one case.
+- A condition where three-phonon channels are strongly restricted yet four-phonon scattering changes the heat-carrying lifetimes and κ, and another where the same qualitative restriction leaves four-phonon scattering comparatively unimportant.
+- A conspicuous symmetry or dispersion feature that affects a narrow mode set but contributes little to κ, so treating every forbidden triplet as transport-relevant yields the wrong answer.
+- At least one condition where the inexpensive rule-based forecast agrees with the full calculation, so the answer is a *domain of validity* rather than a blanket rejection of selection rules.
+
+These are acceptance conditions for choosing the scientific instances. The author must not assert that BP/BAs automatically supply all four; if the actual pressure–temperature series lacks a fork, expand the material set or choose another physically grounded series. The final question should ask for the correct domain and its decisive counterexample, with numerical rate and transport predictions. It should not list these four cases or tell the Agent how to locate them.
+
 ## Missing inputs before this becomes a full example
 
 The eight current source archives support the fixed three-phonon coupling demonstration. They do not by themselves establish converged fourth-order force constants, four-phonon scattering rates, or a pressure–temperature series for BP and BAs. Those force observations, compatible fourth-order fitting and scattering software, and a correct answer must be produced before replacing the current `problem.md`. [FourPhonon](https://github.com/FourPhonon/FourPhonon) can calculate both three- and four-phonon rates and conductivity from second-, third-, and fourth-order IFCs; [Fourthorder](https://github.com/FourPhonon/Fourthorder) offers a finite-displacement route to fourth-order IFCs. Other scientific tools may be included so the environment does not dictate a single route. No Agent trial is needed to judge the structural design; human or Agent trials address empirical difficulty after the scientific task exists.
+
+The environment should expose executable, upstream scientific software and its ordinary interfaces: harmonic/symmetry inspection (Phonopy, spglib), third-order rates and transport (Phono3py or ShengBTE), fourth-order fitting and rates (Fourthorder and FourPhonon), and an independent force-constant fitting option such as hiPhive. It should include the associated raw force data and callable calculators where needed. Each tool file records its official source and interface, but no file lays out a task-specific sequence. Existing Agent Skills can be included as optional general capabilities with recorded upstream provenance; they are distinct from the installed scientific tools. All five human-baseline experts receive exactly this environment.
 
 ## Sources
 
