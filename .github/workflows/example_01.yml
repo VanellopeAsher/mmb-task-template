@@ -38,7 +38,7 @@ jobs:
               summary = {}
               for name, address in selected.items():
                   row = next(row for row in result["screw_classification"] if row["grid_addresses"][0] == address and (row["axial_reciprocal_vector"] == 1) == (name == "odd_umklapp"))
-                  summary[name] = {key: row[key] for key in ("grid_addresses", "allowed_count", "forbidden_count", "forbidden_near_zero_count", "allowed_near_zero_count", "rotation_only_allowed_near_zero_count", "mean_allowed_relative_strength")}
+                  summary[name] = {key: row[key] for key in ("grid_addresses", "allowed_total_strength", "largest_sector_share", "effective_sector_count")}
               print(json.dumps({"formula": formula, "summary": summary}, sort_keys=True), flush=True)
           '
       - name: Check objective verifier against wrong answers

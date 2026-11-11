@@ -145,6 +145,14 @@ def probe(archive_name: str = "gan_wurtzite_mp804") -> dict[str, object]:
                 strengths = interaction.interaction_strength[index]
                 maximum = float(np.max(strengths))
                 threshold = maximum * 1e-8
+                sector_ids = 36 * m1[:, None, None] + 6 * m2[None, :, None] + m3[None, None, :]
+                sector_strengths = np.bincount(
+                    sector_ids[allowed].ravel(), weights=strengths[allowed].ravel(), minlength=216
+                )
+                allowed_total = float(np.sum(sector_strengths))
+                if allowed_total <= 0:
+                    raise ValueError(f"No allowed interaction strength for {addresses}")
+                sector_shares = sector_strengths / allowed_total
                 classified.append(
                     {
                         "grid_addresses": addresses,
@@ -156,7 +164,9 @@ def probe(archive_name: str = "gan_wurtzite_mp804") -> dict[str, object]:
                         "rotation_only_allowed_count": int(np.count_nonzero(rotation_only_allowed)),
                         "rotation_only_allowed_near_zero_count": int(np.count_nonzero(strengths[rotation_only_allowed] < threshold)),
                         "max_forbidden_relative_strength": float(np.max(strengths[~allowed]) / maximum),
-                        "mean_allowed_relative_strength": float(np.mean(strengths[allowed]) / maximum),
+                        "allowed_total_strength": allowed_total,
+                        "largest_sector_share": float(np.max(sector_shares)),
+                        "effective_sector_count": float(1 / np.sum(sector_shares**2)),
                     }
                 )
     return {"archive": archive_name, "mesh": [3, 3, 6], "mode_assignment_max_error": mode_error, "triplets": rows, "screw_classification": classified}
