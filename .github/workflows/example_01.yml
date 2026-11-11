@@ -41,3 +41,47 @@ jobs:
           print(f"Harbor Oracle reward: {reward}; result: {trials[0]}")
           assert reward == 1.0, result
           PY
+      - name: Check final-answer handoff without a submission instruction
+        run: |
+          python task/task_example_01/authoring/provenance/build_harbor_task.py --output "$RUNNER_TEMP/mmb-example01-answer-harbor"
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          task = Path(os.environ["RUNNER_TEMP"]) / "mmb-example01-answer-harbor"
+          answer = (
+              "A scientific account separates symmetry constraints on interaction amplitudes "
+              "from energy-conserving scattering phase space and bulk transport. The source "
+              "calculations are model-dependent; polymorph differences do not isolate a "
+              "symmetry effect. Any general claim needs a declared mode class and wave-vector "
+              "scope, evidence from the underlying data, alternative explanations, and "
+              "uncertainty. " * 3
+              + "Data: https://github.com/atztogo/phonondb ; literature: "
+              "https://doi.org/10.1103/PhysRevResearch.4.L012024."
+          )
+          trajectory = {"steps": [{"source": "user", "message": "Problem"}, {"source": "agent", "message": answer}]}
+          script = "#!/usr/bin/env bash\nset -euo pipefail\ncat > /logs/agent/trajectory.json <<'ATIF'\n" + json.dumps(trajectory) + "\nATIF\n"
+          (task / "solution" / "solve.sh").write_text(script, encoding="utf-8")
+          PY
+          uvx harbor==0.25.0 run \
+            --path "$RUNNER_TEMP/mmb-example01-answer-harbor" \
+            --agent oracle \
+            --env docker \
+            --override-cpus 4 \
+            --override-memory-mb 14000 \
+            --jobs-dir "$RUNNER_TEMP/mmb-example01-jobs" \
+            --job-name example01-answer
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          job = Path(os.environ["RUNNER_TEMP"]) / "mmb-example01-jobs" / "example01-answer"
+          trials = [path for path in job.rglob("result.json") if path.parent != job]
+          assert len(trials) == 1, trials
+          result = json.loads(trials[0].read_text(encoding="utf-8"))
+          reward = result.get("verifier_result", {}).get("rewards", {}).get("reward")
+          print(f"Format-free answer reward: {reward}")
+          assert reward == 1.0, result
+          PY
