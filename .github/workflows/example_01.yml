@@ -18,8 +18,8 @@ jobs:
         run: python task/task_example_01/authoring/provenance/validate_sample_records.py
       - name: Check feasibility sources without a reference answer
         run: python task/task_example_01/authoring/provenance/validate_feasibility.py
-      - name: Check false-claim scoring boundary
-        run: python task/task_example_01/authoring/evidence/check_scoring_boundary.py
+      - name: Check objective verifier against wrong answers
+        run: python task/task_example_01/authoring/evidence/check_verifier.py
       - name: Check Harbor-compatible staging task
         run: |
           python task/task_example_01/authoring/provenance/build_harbor_task.py --output "$RUNNER_TEMP/mmb-example01-harbor"
@@ -69,5 +69,5 @@ jobs:
           assert len(assessments) == 1, assessments
           assessment = json.loads(assessments[0].read_text(encoding="utf-8"))
           print(f"Format-free answer reward: {reward}; assessment: {assessment['status']}")
-          assert reward == 0.0 and assessment["status"] == "pending_scientific_review", result
+          assert reward == 0.0 and assessment["status"] == "missing_answer_json", result
           PY

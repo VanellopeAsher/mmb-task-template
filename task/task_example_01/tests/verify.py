@@ -1,138 +1,137 @@
-"""Check source facts and capture final answers pending scientific adjudication.
-
-The broad question currently has no complete, independently verifiable target.
-Source-fact checks therefore never produce a passing scientific reward.
-"""
+"""Check objective subclaims; reserve scientific conclusions for the rubric."""
 
 from __future__ import annotations
 
 import argparse
+import ast
 import hashlib
 import json
 import math
 from pathlib import Path
-import re
 import sys
 
 
-EXPECTED = {
-    "gan_wurtzite_mp804": ("GaN", 186, (202.565, 202.565, 206.421)),
-    "gan_zincblende_mp830": ("GaN", 216, (179.522, 179.522, 179.522)),
-    "aln_wurtzite_mp661": ("AlN", 186, (272.264, 272.264, 238.783)),
-    "aln_zincblende_mp1700": ("AlN", 216, (231.799, 231.799, 231.799)),
-    "zns_wurtzite_mp10281": ("ZnS", 186, (41.689, 41.689, 38.618)),
-    "zns_zincblende_mp10695": ("ZnS", 216, (46.395, 46.395, 46.395)),
-    "si_diamond_mp149": ("Si", 227, (110.185, 110.185, 110.185)),
-    "si_hexagonal_mp165": ("Si", 194, (80.606, 80.606, 68.563)),
+# Independently transcribed 300 K diagonal tensors from the supplied NIMS logs.
+# Each pair is (wurtzite, zincblende), in W m^-1 K^-1.
+SOURCE_TENSORS = {
+    "GaN": ((202.565, 202.565, 206.421), (179.522, 179.522, 179.522)),
+    "AlN": ((272.264, 272.264, 238.783), (231.799, 231.799, 231.799)),
+    "ZnS": ((41.689, 41.689, 38.618), (46.395, 46.395, 46.395)),
 }
+VARIABLES = {"m1", "m2", "m3", "Gz"}
 
 
-def verify(report_path: Path, evidence_path: Path) -> None:
-    report = report_path.read_text(encoding="utf-8")
-    if not report.strip():
-        raise ValueError("Report is empty")
+def integer_expression(node: ast.AST, values: dict[str, int]) -> int:
+    """Interpret only integer arithmetic needed for modular equivalence."""
+    if isinstance(node, ast.Constant) and type(node.value) is int:
+        return node.value
+    if isinstance(node, ast.Name) and node.id in VARIABLES:
+        return values[node.id]
+    if isinstance(node, ast.UnaryOp) and isinstance(node.op, (ast.UAdd, ast.USub)):
+        operand = integer_expression(node.operand, values)
+        return operand if isinstance(node.op, ast.UAdd) else -operand
+    if isinstance(node, ast.BinOp) and isinstance(node.op, (ast.Add, ast.Sub, ast.Mult, ast.Mod)):
+        left = integer_expression(node.left, values)
+        right = integer_expression(node.right, values)
+        if isinstance(node.op, ast.Add):
+            return left + right
+        if isinstance(node.op, ast.Sub):
+            return left - right
+        if isinstance(node.op, ast.Mult):
+            return left * right
+        if right == 0:
+            raise ValueError("Zero modulus in selection rule")
+        return left % right
+    raise ValueError("Selection rule contains unsupported syntax")
 
-    evidence = json.loads(evidence_path.read_text(encoding="utf-8"))
-    materials = evidence.get("materials")
-    if not isinstance(materials, list) or len(materials) < 4:
-        raise ValueError("At least four material records are required")
 
-    seen: dict[str, set[int]] = {}
-    archive_names = set()
-    for material in materials:
-        if not isinstance(material, dict):
-            raise ValueError("Material records must be objects")
-        name = material.get("archive")
-        if name not in EXPECTED or name in archive_names:
-            raise ValueError(f"Unknown or repeated source archive: {name}")
-        archive_names.add(name)
-        formula, number, values = EXPECTED[name]
-        if material.get("space_group_number") != number:
-            raise ValueError(f"Space-group mismatch: {name}")
-        kappa = material.get("kappa_300_W_mK")
-        if not isinstance(kappa, dict):
-            raise ValueError(f"Missing 300 K conductivity tensor: {name}")
-        for axis, expected in zip(("xx", "yy", "zz"), values):
-            value = kappa.get(axis)
-            if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value):
-                raise ValueError(f"Non-numeric conductivity for {name}, {axis}")
-            if abs(value - expected) > 0.5:
-                raise ValueError(f"Conductivity differs from source log for {name}, {axis}")
-        seen.setdefault(formula, set()).add(number)
-    pairs = sum({186, 216}.issubset(numbers) for formula, numbers in seen.items() if formula in {"GaN", "AlN", "ZnS"})
-    if pairs < 2:
-        raise ValueError("At least two same-composition wurtzite/zincblende comparisons are required")
+def rule_value(tree: ast.Expression, values: dict[str, int]) -> bool:
+    node = tree.body
+    if not isinstance(node, ast.Compare) or len(node.ops) != 1 or not isinstance(node.ops[0], ast.Eq):
+        raise ValueError("Selection rule must be one integer equality")
+    return integer_expression(node.left, values) == integer_expression(node.comparators[0], values)
+
+
+def verify(answer_path: Path) -> dict[str, object]:
+    answer = json.loads(answer_path.read_text(encoding="utf-8"))
+    if not isinstance(answer, dict) or set(answer) != {"selection_rule", "ratio_300K", "all_wurtzite_higher", "analysis"}:
+        raise ValueError("Answer JSON fields do not match the published output shape")
+    if not isinstance(answer["analysis"], str) or not answer["analysis"].strip():
+        raise ValueError("Scientific analysis is missing")
+
+    expression = answer["selection_rule"]
+    if not isinstance(expression, str) or len(expression) > 200:
+        raise ValueError("selection_rule must be a short expression")
+    try:
+        tree = ast.parse(expression, mode="eval")
+    except SyntaxError as exc:
+        raise ValueError("selection_rule is not a valid expression") from exc
+    # The theoretical check is independent of the optional feasibility witness.
+    for m1 in range(6):
+        for m2 in range(6):
+            for m3 in range(6):
+                for gz in range(-2, 3):
+                    values = {"m1": m1, "m2": m2, "m3": m3, "Gz": gz}
+                    expected = (m1 + m2 - m3 - 3 * gz) % 6 == 0
+                    if rule_value(tree, values) != expected:
+                        raise ValueError(f"Incorrect screw selection condition at {values}")
+
+    ratios = answer["ratio_300K"]
+    if not isinstance(ratios, dict) or set(ratios) != set(SOURCE_TENSORS):
+        raise ValueError("ratio_300K needs GaN, AlN, and ZnS")
+    expected_ratios = {}
+    for formula, (wurtzite, zincblende) in SOURCE_TENSORS.items():
+        expected = sum(wurtzite) / sum(zincblende)
+        value = ratios[formula]
+        if type(value) not in (int, float) or not math.isfinite(value) or abs(value - expected) > 0.002:
+            raise ValueError(f"Incorrect 300 K conductivity ratio for {formula}")
+        expected_ratios[formula] = expected
+
+    if type(answer["all_wurtzite_higher"]) is not bool or answer["all_wurtzite_higher"] is not all(v > 1 for v in expected_ratios.values()):
+        raise ValueError("Incorrect cross-material conductivity conclusion")
+    return {
+        "status": "objective_subclaims_correct_pending_scientific_review",
+        "rule_cases_checked": 1080,
+        "materials_checked": 3,
+        "scientific_analysis_checked": False,
+    }
+
 
 def final_answer(log_dir: Path) -> str:
     trajectory_path = log_dir / "trajectory.json"
     if trajectory_path.is_file():
         trajectory = json.loads(trajectory_path.read_text(encoding="utf-8"))
-        steps = trajectory.get("steps", [])
-        if not isinstance(steps, list):
-            raise ValueError("Invalid agent trajectory")
-        for step in reversed(steps):
-            if not isinstance(step, dict) or step.get("source") != "agent" or step.get("tool_calls"):
-                continue
-            message = step.get("message", "")
-            if isinstance(message, list):
-                message = "\n".join(
-                    part.get("text", "")
-                    for part in message
-                    if isinstance(part, dict) and part.get("type") == "text"
-                )
-            if isinstance(message, str) and message.strip():
-                return message
-    for name in ("response.txt", "final_answer.txt", "answer.txt"):
-        path = log_dir / name
-        if path.is_file():
-            answer = path.read_text(encoding="utf-8").strip()
-            if answer:
-                return answer
-    raise ValueError("No final agent answer found in Harbor logs")
-
-
-def summarize_unstructured_answer(answer: str) -> dict[str, object]:
-    if not answer.strip():
-        raise ValueError("Final answer is empty")
-    citations = set(re.findall(r"https?://[^\s)\]]+|10\.\d{4,9}/[^\s)\]]+|[a-z0-9_]+\.zip", answer, flags=re.I))
-    return {
-        "status": "pending_scientific_review",
-        "answer_sha256": hashlib.sha256(answer.encode("utf-8")).hexdigest(),
-        "characters": len(answer.strip()),
-        "evidence_pointer_count": len(citations),
-    }
+        for step in reversed(trajectory.get("steps", [])):
+            if isinstance(step, dict) and step.get("source") == "agent" and not step.get("tool_calls"):
+                message = step.get("message", "")
+                if isinstance(message, str) and message.strip():
+                    return message
+    raise ValueError("No structured answer or final agent message found")
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--report", type=Path, default=Path("/workspace/results/report.md"))
-    parser.add_argument("--evidence", type=Path, default=Path("/workspace/results/evidence.json"))
+    parser.add_argument("--answer", type=Path, default=Path("/workspace/results/answer.json"))
     parser.add_argument("--agent-logs", type=Path, default=Path("/logs/agent"))
     parser.add_argument("--reward", type=Path, default=Path("/logs/verifier/reward.txt"))
     parser.add_argument("--assessment", type=Path, default=Path("/logs/verifier/assessment.json"))
     args = parser.parse_args()
+    reward = 0
     try:
-        if args.report.is_file() and args.evidence.is_file():
-            verify(args.report, args.evidence)
+        if args.answer.is_file():
+            assessment = verify(args.answer)
+            # Objective checks alone do not establish the broad research claim.
             reward = 0
-            assessment = {
-                "status": "source_facts_checked_pending_scientific_review",
-                "source_fact_check": "passed",
-                "scientific_correctness": "unverified",
-            }
         else:
-            reward = 0
-            assessment = summarize_unstructured_answer(final_answer(args.agent_logs))
-    except (OSError, ValueError, json.JSONDecodeError) as exc:
-        args.reward.parent.mkdir(parents=True, exist_ok=True)
-        args.reward.write_text("0\n", encoding="utf-8")
-        print(f"Objective verification failed: {exc}", file=sys.stderr)
-        return 1
+            message = final_answer(args.agent_logs)
+            assessment = {"status": "missing_answer_json", "answer_sha256": hashlib.sha256(message.encode("utf-8")).hexdigest()}
+    except (OSError, ValueError, json.JSONDecodeError, TypeError) as exc:
+        assessment = {"status": "incorrect_or_invalid", "reason": str(exc)}
     args.reward.parent.mkdir(parents=True, exist_ok=True)
     args.assessment.parent.mkdir(parents=True, exist_ok=True)
     args.reward.write_text(f"{reward}\n", encoding="utf-8")
     args.assessment.write_text(json.dumps(assessment, indent=2) + "\n", encoding="utf-8")
-    print(f"{assessment['status']}; scientific quality requires rubric review.")
+    print(assessment["status"])
     return 0
 
 
