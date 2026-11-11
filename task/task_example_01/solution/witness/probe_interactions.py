@@ -26,12 +26,18 @@ def screw_mode_labels(interaction, primitive) -> tuple[dict[int, np.ndarray], fl
     symmetry = spglib.get_symmetry(
         (primitive.cell, primitive.scaled_positions, primitive.numbers)
     )
+    axis = primitive.cell[2] / np.linalg.norm(primitive.cell[2])
+    radial = primitive.cell[0] - np.dot(primitive.cell[0], axis) * axis
     rotation, translation = next(
         (rotation, translation)
         for rotation, translation in zip(symmetry["rotations"], symmetry["translations"])
         if np.linalg.det(rotation) == 1
         and np.trace(rotation) == 2
         and abs(translation[2] % 1 - 0.5) < 1e-5
+        and np.dot(
+            np.cross(radial, (primitive.cell.T @ rotation @ np.linalg.inv(primitive.cell.T)) @ radial),
+            axis,
+        ) > 0
     )
     cartesian_rotation = primitive.cell.T @ rotation @ np.linalg.inv(primitive.cell.T)
     action_without_phase = np.zeros((3 * len(primitive), 3 * len(primitive)), dtype=complex)
