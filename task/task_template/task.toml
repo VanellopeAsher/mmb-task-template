@@ -1,12 +1,18 @@
 # Harbor task configuration. Replace these example limits with measured values.
-# Harbor uses the enclosing task directory name as its task identifier.
-artifacts = [] # Absolute agent output paths to transfer to a separate verifier.
+schema_version = "1.0"
+artifacts = ["/workspace/results/"]
+
+[task]
+name = "mattermysterybench/task_REPLACE_WITH_UNIQUE_TASK_ID"
+description = "REPLACE_WITH_SCIENTIFIC_QUESTION_SUMMARY"
+authors = []
+keywords = []
 
 [metadata]
 task_id = "REPLACE_WITH_UNIQUE_TASK_ID" # MMB catalog identifier; match directory name.
 domain = "REPLACE_WITH_SCIENTIFIC_DOMAIN"
-subdomain = "REPLACE_WITH_SUBDOMAIN"
-category = "Science"
+field = "REPLACE_WITH_FIELD"
+subfield = "REPLACE_WITH_SUBFIELD"
 tags = []
 
 # Human baseline protocol. Set the per-task limit before recruiting experts.
@@ -20,8 +26,11 @@ human_hard_rule = "all_five_experts_unsolved"
 timeout_sec = 600.0
 environment_mode = "separate"
 
+[verifier.environment]
+network_mode = "no-network"
+
 [agent]
-timeout_sec = 14400.0
+timeout_sec = 28800.0
 
 [environment]
 build_timeout_sec = 1800.0
