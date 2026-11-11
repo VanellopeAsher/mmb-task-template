@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  oracle-and-verifier:
+  feasibility-and-verifier:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
@@ -16,33 +16,12 @@ jobs:
       - uses: astral-sh/setup-uv@v6
       - name: Check five-expert simulated record protocol
         run: python task/task_example_01/authoring/provenance/validate_sample_records.py
+      - name: Check feasibility sources without a reference answer
+        run: python task/task_example_01/authoring/provenance/validate_feasibility.py
       - name: Check Harbor-compatible staging task
         run: |
           python task/task_example_01/authoring/provenance/build_harbor_task.py --output "$RUNNER_TEMP/mmb-example01-harbor"
           uvx harbor==0.25.0 lint "$RUNNER_TEMP/mmb-example01-harbor"
-      - name: Run Harbor Oracle on staged task
-        run: |
-          uvx harbor==0.25.0 run \
-            --path "$RUNNER_TEMP/mmb-example01-harbor" \
-            --agent oracle \
-            --env docker \
-            --override-cpus 4 \
-            --override-memory-mb 14000 \
-            --jobs-dir "$RUNNER_TEMP/mmb-example01-jobs" \
-            --job-name example01-oracle
-          python - <<'PY'
-          import json
-          import os
-          from pathlib import Path
-
-          job = Path(os.environ["RUNNER_TEMP"]) / "mmb-example01-jobs" / "example01-oracle"
-          trials = [path for path in job.rglob("result.json") if path.parent != job]
-          assert len(trials) == 1, f"Expected one Harbor trial, found {trials}"
-          result = json.loads(trials[0].read_text(encoding="utf-8"))
-          reward = result.get("verifier_result", {}).get("rewards", {}).get("reward")
-          print(f"Harbor Oracle reward: {reward}; result: {trials[0]}")
-          assert reward == 1.0, result
-          PY
       - name: Check final-answer capture without automatic scientific grade
         run: |
           python task/task_example_01/authoring/provenance/build_harbor_task.py --output "$RUNNER_TEMP/mmb-example01-answer-harbor"

@@ -1,4 +1,4 @@
-"""Author-side contract check: valid Oracle passes and tampered data fails."""
+"""Author-side verifier contract check with a valid fixture and altered data."""
 
 from __future__ import annotations
 
@@ -16,7 +16,7 @@ from verify import final_answer, summarize_unstructured_answer, verify  # noqa: 
 
 def main() -> None:
     if len(sys.argv) != 2:
-        raise SystemExit("Usage: python check_verifier.py <oracle-output-dir>")
+        raise SystemExit("Usage: python check_verifier.py <fixture-output-dir>")
     output = Path(sys.argv[1])
     report = output / "report.md"
     evidence_path = output / "evidence.json"
