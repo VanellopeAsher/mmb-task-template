@@ -117,13 +117,26 @@ def inspect_cif(path: Path) -> dict[str, object]:
         "carbon_cap_count": carbon_group_sizes[1],
         "cluster_linker_degree_sequence": sorted(degrees.get(i, 0) for i in range(observed_clusters)),
     }
-    if repeats == [1, 1, 1]:
-        result["cluster_linker_edge_multiplicities"] = sorted(linker_edges.values())
-        if observed_clusters == 3 and sorted(degrees.values()) == [8, 8, 8] and sorted(linker_edges.values()) == [4, 4, 4]:
+    # Fold a repeated ordered lattice to its primitive structural motif.
+    # Randomly removed sites do not have complete multiplicity in this fold.
+    volume = int(np.prod(repeats))
+    motif_position = (cluster_centers * np.asarray(repeats)) % 1.0
+    motif_position = np.where(motif_position > 0.9995, 0.0, motif_position)
+    motif_keys = [tuple(np.round(center, 3)) for center in motif_position]
+    motif_ids = {key: i for i, key in enumerate(sorted(set(motif_keys)))}
+    motif_edges: Counter[tuple[int, int]] = Counter()
+    for (left, right), count in linker_edges.items():
+        motif_edges[tuple(sorted((motif_ids[motif_keys[left]], motif_ids[motif_keys[right]])))] += count
+    if observed_clusters == len(motif_ids) * volume and all(count % volume == 0 for count in motif_edges.values()):
+        normalized_edges = Counter({edge: count // volume for edge, count in motif_edges.items()})
+        motif_degrees = Counter(node for (left, right), count in normalized_edges.items() for node in [left] * count + [right] * count)
+        multiplicities = sorted(normalized_edges.values())
+        result["motif_edge_multiplicities"] = multiplicities
+        if len(motif_ids) == 3 and sorted(motif_degrees.values()) == [8, 8, 8] and multiplicities == [4, 4, 4]:
             result["topology_from_graph"] = "reo"
-        elif observed_clusters == 3 and sorted(degrees.values()) == [4, 4, 8] and sorted(linker_edges.values()) == [4, 4]:
+        elif len(motif_ids) == 3 and sorted(motif_degrees.values()) == [4, 4, 8] and multiplicities == [4, 4]:
             result["topology_from_graph"] = "scu"
-        elif observed_clusters == 4 and sorted(degrees.values()) == [8, 8, 8, 8] and sorted(linker_edges.values()) == [4, 4, 4, 4]:
+        elif len(motif_ids) == 4 and sorted(motif_degrees.values()) == [8, 8, 8, 8] and multiplicities == [4, 4, 4, 4]:
             result["topology_from_graph"] = "bcu"
     if missing_clusters == 0:
         if carbon_deficit < 0 or carbon_deficit % CARBON_REMOVED_PER_MISSING_LINKER:

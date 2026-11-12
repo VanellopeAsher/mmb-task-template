@@ -1,4 +1,5 @@
 import hashlib, pathlib, requests
+from ase.io import read, write
 
 OWNER="meiirbek-islamov"
 REPO="defective-UiO-66"
@@ -26,5 +27,10 @@ for name, rel, expected in FILES:
     actual=hashlib.sha1(blob).hexdigest()
     if actual != expected:
         raise RuntimeError(f"{name}: Git blob SHA mismatch {actual} != {expected}")
-    (OUT/name).write_bytes(data)
-    print(f"verified {name} ({len(data)} bytes)")
+    output = OUT / name
+    output.write_bytes(data)
+    if name in {"sample_07.cif", "sample_08.cif", "sample_09.cif"}:
+        # All Agent-visible structures use the same 3x3x3 cell scale.
+        # Preserve the source hash above; the output is a deterministic supercell.
+        write(output, read(output).repeat((3, 3, 3)))
+    print(f"verified {name} ({len(data)} source bytes)")

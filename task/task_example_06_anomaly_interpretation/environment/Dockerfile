@@ -1,6 +1,6 @@
 FROM python:3.11-slim AS data_builder
 WORKDIR /workspace
-RUN pip install --no-cache-dir requests==2.32.3
+RUN pip install --no-cache-dir requests==2.32.3 ase==3.24.0
 COPY data/fetch_data.py /workspace/data/fetch_data.py
 RUN python /workspace/data/fetch_data.py
 

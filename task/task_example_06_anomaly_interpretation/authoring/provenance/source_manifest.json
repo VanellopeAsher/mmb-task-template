@@ -8,5 +8,5 @@
     "url": "https://github.com/meiirbek-islamov/defective-UiO-66",
     "license": "No explicit licence found in repository; do not redistribute raw CIFs without permission."
   },
-  "acquisition": "Fetch selected raw CIFs from upstream GitHub raw URLs and verify Git blob SHA-1 before renaming to sample_01..sample_09."
+  "acquisition": "Fetch selected raw CIFs from upstream GitHub raw URLs and verify Git blob SHA-1 before renaming to sample_01..sample_09; deterministically repeat source primitive cells 3x3x3 for samples 07..09 with ASE 3.24.0."
 }
