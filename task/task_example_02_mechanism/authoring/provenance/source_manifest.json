@@ -13,7 +13,7 @@
         "dataverse_file_id": 607931,
         "bytes": 183407701,
         "md5": "085ecb1b86089a542f909c5d867d50b0",
-        "verification": "Dataverse metadata checked; full local archive verification pending"
+        "verification": "Full 183407701-byte archive matched published MD5 and passed ZIP member CRC validation"
       },
       "MassSpectrometer.zip": {
         "dataverse_file_id": 607930,

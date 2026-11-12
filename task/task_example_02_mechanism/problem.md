@@ -13,7 +13,8 @@
 - `activation.mcr_component_count_au_edge`、`activation.mcr_component_count_cu_edge`: MCR-ALS 对 Au L₃-edge 与 Cu K-edge 选择的组分数。
 - `activation.cu_reduction_promoted_by_au`: Au 是否促进 Cu 前驱体还原。
 - `reaction.au_state`: 反应温度 100、130、150 °C 下 Au 的状态是否稳定。
+- `xanes_state_change`: 按 `Au` 和 `Cu` 分组，各报告键 `100`、`130`、`150` 对应的无量纲谱形变化。定义为反应阶段与还原后室温 H₂ 阶段的平均归一化谱之差的 L₂ 范数，除以初始室温 He 阶段与还原后阶段的谱差范数。各阶段使用该阶段全部归一化谱，100 °C 采用反应末段。能量网格为相应吸收边（Au 11919 eV，Cu 8979 eV）相对 −10 至 +30 eV，间隔 1 eV，线性插值。绝对容差为 0.002。
 - `products.main_conversion`: 主要转化反应。
 - `products.overhydrogenation_observed`: 是否观察到丙烯进一步加氢为丙烷或丁烯进一步加氢为丁烷。
 
-数值按源论文报告值填写；配位数允许绝对误差 0.6（Au–Cu）和 0.7（Au–Au）。类别字段必须与物理证据一致。`analysis` 可选且不计分。
+配位数允许绝对误差 0.6（Au–Cu）和 0.7（Au–Au）。类别字段必须与物理证据一致。`analysis` 可选且不计分。

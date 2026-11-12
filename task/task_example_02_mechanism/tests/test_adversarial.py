@@ -13,6 +13,7 @@ assert run(GOOD)
 with_analysis = dict(GOOD, analysis="")
 assert run(with_analysis)
 bad = json.loads(json.dumps(GOOD))
-# The task-specific mutation is added by the package validator if needed.
+bad["xanes_state_change"]["Cu"]["150"] = bad["xanes_state_change"]["Au"]["150"]
+assert not run(bad)
 assert not run({})
 print("adversarial verifier smoke test passed")

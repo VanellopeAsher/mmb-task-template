@@ -3,6 +3,18 @@ import argparse, json, math
 from pathlib import Path
 
 def verify(payload):
+    expected = json.loads(Path(__file__).with_name("reference_answer.json").read_text(encoding="utf-8"))["xanes_state_change"]
+    reported = payload["xanes_state_change"]
+    if not isinstance(reported, dict) or set(reported) != set(expected):
+        raise ValueError("Expected Au and Cu XANES results")
+    for edge, stages in expected.items():
+        values = reported[edge]
+        if not isinstance(values, dict) or set(values) != set(stages):
+            raise ValueError(f"Incorrect reaction stages for {edge}")
+        for stage, target in stages.items():
+            value = values[stage]
+            if type(value) not in (int, float) or not math.isfinite(value) or value < 0 or abs(value - target) > 0.002:
+                raise ValueError(f"Incorrect XANES change for {edge} at {stage} C")
     assert payload["active_site_model"] == "well_mixed_AuCu_alloy"
     assert abs(float(payload["aucu_exafs"]["au_cu_coordination_number"]) - 3.8) <= 0.6
     assert abs(float(payload["aucu_exafs"]["au_au_coordination_number"]) - 3.8) <= 0.7
