@@ -61,6 +61,7 @@ def measure(path):
                                for column, arm in ((2, "control"), (3, "chelated"))}
     return {
         "dark_recovery": result,
+        "iodine_ratio": dict(zip(("control", "chelated"), zip(fresh, aged))),
         "fractional_iodine_loss_xps": iodine_loss,
         "pce_retention_at_150h": retention,
     }
@@ -69,5 +70,13 @@ def measure(path):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("workbook", type=Path)
+    parser.add_argument("--scoring-endpoints", action="store_true")
     args = parser.parse_args()
-    print(json.dumps(measure(args.workbook), indent=2))
+    result = measure(args.workbook)
+    if args.scoring_endpoints:
+        result = {
+            "power": {panel: result["dark_recovery"][panel]["maximum_power_density_mW_cm2"]
+                      for panel in ("a", "c")},
+            "iodine_ratio": result["iodine_ratio"],
+        }
+    print(json.dumps(result, indent=2))

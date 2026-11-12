@@ -1,3 +1,3 @@
-# Objective verifier
+# Verifier
 
-The isolated verifier checks only the task's structured scientific output. Optional `analysis` is ignored. `reference_answer.json` is author-only verifier calibration data and must never be copied into the Agent image.
+`verify.py` evaluates the submitted experiments against hidden measured endpoints and writes a continuous reward. The endpoint file stays in the isolated verifier. The scoring thresholds are benchmark conventions, with no claim of universal mechanistic cutoffs.

@@ -1,5 +1,11 @@
 # Outcome-based verification requirement for Example 03
 
+The implemented design uses the reverse-bias source workbook described below.
+Generate the held-out inputs with
+`python recompute_reverse_bias_recovery.py <workbook> --scoring-endpoints`.
+The selected measurements score independent recovery and iodine-loss contrasts.
+The original OC/SC formulation is preserved here as scientific context.
+
 The acceptance target is an objective test of whether an experimental plan **actually separates the plausible mechanisms using measured outcomes**. Checking for the names of measurements, a full-rank hypothetical signature matrix, or an exact match to one reference protocol does not establish this. The scientific outcome need not be binary: a plan can exclude some alternatives while leaving others unresolved. Reward should reflect the measured degree of separation, with uncertainty, instead of forcing every design into a 0/1 judgment.
 
 For a prospective design task, the evaluator must have a frozen set of admissible interventions and measurements, observed results for those interventions from a **matched material/device system**, and an independently supported mechanism label or active-mechanism set. The evaluator must keep the actual results hidden from the Agent. The task can then be scored as follows:

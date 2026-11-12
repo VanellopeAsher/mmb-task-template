@@ -1,23 +1,11 @@
 version: 1
 artifact: /workspace/results/answer.json
 reward:
-  pass: 1
-  fail: 0
-  rule: Pass only when the protocol contains matched OC/SC stress arms, dark recovery over minute-to-day timescales, complementary electrical and chemical observables, sufficient replication, and source-consistent transport anchors.
+  range: [0, 1]
+  rule: Equal weights for measured recovery and matched XPS contrasts, discounted by prediction error under the stated budget.
 scored_outputs:
-  - name: stress_recovery_design
-    units: structured_protocol
-    tolerance: constraint-based
-    reference_source: Expert-authored design based on the cited ion-migration and degradation/recovery studies.
-    shortcut_audit: Missing matched controls, recovery window, or chemical assay fails.
-  - name: iodide_diffusion_coefficient_cm2_s
-    units: cm2 s-1
-    tolerance: 1e-13
-    reference_source: DOI 10.1021/acs.jpcc.9b04662.
-    shortcut_audit: Perturbed transport anchor rejected.
-  - name: iodide_mobility_cm2_V_s
-    units: cm2 V-1 s-1
-    tolerance: 5e-12
-    reference_source: DOI 10.1021/acs.jpcc.9b04662.
-    shortcut_audit: Perturbed transport anchor rejected.
+  - name: experiments
+    units: fractional loss or recovery
+    reference_source: Published source workbook, Supplementary Figure 3 and Figure 3f.
+    tolerance: Full prediction credit within 0.05 absolute error, zero from 0.25.
 unscored_optional: [analysis]

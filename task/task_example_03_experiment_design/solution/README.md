@@ -1,3 +1,3 @@
-# Reference solution
+# Oracle
 
-`answer.json` is the author-side reference output. `solve.sh` writes the reference artifact to `/workspace/results/answer.json`. `witness/` contains the reference-generation or evidence-reconstruction notes. Keep this directory unavailable to evaluated Agents.
+`solve.sh` computes the recovery and iodine-loss predictions from frozen measured endpoints. The selected plan combines the largest observed recovery with matched XPS controls. The authoring evidence script reproduces the endpoints from the publisher workbook.
