@@ -1,4 +1,4 @@
 # Tools
 
-- `rank_candidates.py`: computes the feasible set under the five published task constraints and ranks feasible candidates by purity, recovery, working capacity, and energy demand.
-- pandas/NumPy are sufficient for the supplied process-KPI table. The linked Zenodo dataset contains the wider process simulations and adsorption isotherms for follow-on work.
+- The environment includes Python, NumPy, pandas, SciPy, and JSON/ZIP standard-library interfaces for inspecting TSA cycle trajectories and analyzing gas and heat balances.
+- The public [Zenodo dataset](https://zenodo.org/records/21132903) contains the wider process simulations and adsorption isotherms.

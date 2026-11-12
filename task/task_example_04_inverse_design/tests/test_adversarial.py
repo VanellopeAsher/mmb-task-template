@@ -42,7 +42,7 @@ if __name__ == "__main__":
     })
     assert run(published_rounding)
     wrong_material = deepcopy(GOOD)
-    wrong_material["selected_candidate"] = "TAKTAD"
+    wrong_material["selected_candidate"] = "candidate_04"
     assert not run(wrong_material)
     below_rounding = deepcopy(GOOD)
     below_rounding["process_kpis"]["purity"] = 0.79

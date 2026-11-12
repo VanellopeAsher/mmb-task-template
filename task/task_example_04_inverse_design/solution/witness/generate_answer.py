@@ -97,7 +97,7 @@ def generate(archive_path: Path) -> dict[str, object]:
     selected = feasible[0]
     main, dilute, checks = candidates[selected]
     return {
-        "selected_candidate": selected,
+        "selected_candidate": f"candidate_{MATERIALS.index(selected) + 1:02d}",
         "process_kpis": main,
         "enrichment": {"x_ch4_0_5": main["purity"] / 0.5, "x_ch4_0_003": dilute["purity"] / 0.003},
         "constraint_check": checks,

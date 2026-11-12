@@ -9,8 +9,8 @@ import math
 from pathlib import Path
 
 
-# The Agent-visible table is rounded to two decimal places, except energy to
-# three. These intervals accept the underlying unrounded process calculation.
+# The source paper's displayed table is rounded to two decimal places, except
+# energy to three. These intervals accept the underlying unrounded calculation.
 ROUNDED_VALUES = {
     "purity": (0.80, 0.005),
     "recovery": (0.58, 0.005),
@@ -29,7 +29,7 @@ def within_rounding(value: object, rounded: float, half_unit: float, field: str)
 
 
 def verify(payload: object) -> None:
-    if not isinstance(payload, dict) or payload.get("selected_candidate") != "NIRPAI":
+    if not isinstance(payload, dict) or payload.get("selected_candidate") != "candidate_03":
         raise ValueError("Incorrect selected candidate")
     kpis = payload.get("process_kpis")
     enrichment = payload.get("enrichment")

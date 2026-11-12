@@ -6,18 +6,18 @@ reward:
   rule: Select the unique candidate meeting all five process-level constraints and report its source KPI values within tolerance.
 scored_outputs:
   - name: selected_candidate
-    units: MOF identifier
+    units: anonymous MOF candidate identifier
     tolerance: exact
     reference_source: CoRE MOF TSA process trajectories, independently reconciled with Table 1, Granderath et al. 2026.
-    shortcut_audit: Current Agent-visible five-row table exposes the choice by direct filtering; not eligible as a discovery challenge.
+    shortcut_audit: The five-row KPI table and source evaluation JSONs are author-only; the Agent receives source-derived cycle trajectories with anonymous IDs.
   - name: process_kpis
     units: mixed (dimensionless, mol kg-1, MJ mol-1)
     tolerance: Published rounding intervals, half-width 0.005 for purity/recovery/capacity and 0.0005 for energy.
     reference_source: Recomputed process trajectory mass balance, checked against source evaluations.
-    shortcut_audit: Objective numeric check, but source table is visible to the Agent.
+    shortcut_audit: The Agent must derive product, recovery, working capacity and heat demand from the cycle balances.
   - name: enrichment
     units: dimensionless
     tolerance: Published rounding interval, half-width 0.005.
     reference_source: Recomputed methane product purity divided by feed mole fraction at 0.5 and 0.003.
-    shortcut_audit: Both feed values are visible in the current five-row table.
+    shortcut_audit: Both feed values require analysis of separate cycle trajectories.
 unscored_optional: [analysis]
