@@ -17,6 +17,10 @@
   },
   "recovery_paper": {
     "doi": "10.1021/acsaem.1c00588",
-    "url": "https://pubs.acs.org/doi/10.1021/acsaem.1c00588"
+    "url": "https://pubs.acs.org/doi/10.1021/acsaem.1c00588",
+    "accepted_manuscript": "https://findresearcher.sdu.dk/ws/portalfiles/portal/192223977/Draft_Perovskite_CLEAN_Jul01.pdf",
+    "source_observations": "authoring/evidence/source_observations.json",
+    "table_1_transcription": "authoring/evidence/model_fit_parameters.csv",
+    "caveat": "Table 1 values are model fits; ToF-SIMS uses a separate non-encapsulated cohort with OC-to-T50 and SC-to-T30 endpoints."
   }
 }

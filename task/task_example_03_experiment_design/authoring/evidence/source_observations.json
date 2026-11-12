@@ -1,0 +1,56 @@
+{
+  "source": {
+    "citation": "Prete et al., ACS Applied Energy Materials 4(7), 6562-6573 (2021)",
+    "doi": "10.1021/acsaem.1c00588",
+    "publisher_url": "https://pubs.acs.org/doi/10.1021/acsaem.1c00588",
+    "accepted_manuscript_url": "https://findresearcher.sdu.dk/ws/portalfiles/portal/192223977/Draft_Perovskite_CLEAN_Jul01.pdf",
+    "source_type": "peer-reviewed article; accepted manuscript used for source checking; PDF is linked but not redistributed in this package"
+  },
+  "device_and_stress": {
+    "architecture": "n-i-p",
+    "layer_stack": [
+      "glass/ITO",
+      "SnO2 nanoparticles",
+      "Cs0.15(FA)0.85PbI2.7Br0.3",
+      "Spiro-OMeTAD",
+      "Au"
+    ],
+    "condition": "ISOS-L-2",
+    "illumination_suns": 1.0,
+    "temperature_C": 65,
+    "stress_atmosphere": "air at ambient relative humidity",
+    "aging_bias_conditions": [
+      "open_circuit",
+      "short_circuit"
+    ],
+    "degradation_endpoint": "T60",
+    "dark_recovery": {
+      "atmosphere": "air",
+      "temperature": "room_temperature",
+      "duration_h": 22,
+      "reference_condition": "open_circuit",
+      "bias_treatments": [
+        "0 V",
+        "+0.5 V for 30 min",
+        "-0.5 V for 30 min"
+      ]
+    }
+  },
+  "reported_observations": {
+    "recovery_after_OC_aging": "At T60, OC-aged devices show no recovery within 22 h and instead exhibit a drop-in-dark decrease, mainly in FF, with an S-shaped J-V curve appearing at 1.5 h.",
+    "recovery_after_SC_aging": "At T60, SC-aged devices recover fully during dark storage.",
+    "transient_photoluminescence": "The weighted-average trPL lifetime recovers during dark storage for both OC- and SC-aged devices, while OC-aged device PCE continues to decrease.",
+    "trpl_caveat": "The paper measures trPL on the full device stack and explicitly notes that charge extraction and other processes complicate interpretation; full-stack trPL alone is not a clean measure of intrinsic bulk recombination.",
+    "tof_sims": "Li is detected throughout even fresh devices; degradation causes further redistribution under both OC and SC. Relative Li concentration near the electron-transport interface is largest after OC degradation. Au migrates through Spiro-OMeTAD into the perovskite under both conditions, more severely under SC.",
+    "tof_sims_sample_caveat": "The ToF-SIMS samples were separately prepared, non-encapsulated devices. The paper's SIMS profiles compare approximately OC-to-T50 and SC-to-T30 samples, not the encapsulated T60 devices used for the main J-V recovery experiment.",
+    "tof_sims_timing_caveat": "SIMS was performed many hours after light degradation; the authors note that the observed Li distribution may reflect little or no back-migration and cannot resolve the full transient trajectory.",
+    "recovery_bias": "A -0.5 V bias applied for the first 30 min of dark recovery accelerates recovery of OC-aged devices; the same treatment on a fresh device causes pronounced FF degradation. The effect depends on the degradation state and sample/batch variation.",
+    "model_interpretation": "Drift-diffusion fits show a persistent elevated SnO2-interface defect density after OC aging, while the fitted value returns to the fresh-state value after SC recovery. These are fitted model parameters, not direct defect-density measurements.",
+    "oxygen_alternative": "The authors discuss oxygen adsorption/desorption at the metal-oxide surface as an alternative explanation for the extraction barrier, and also discuss possible oxygen release/superoxide-related degradation. These oxygen-related pathways are proposed alternatives or additional effects, not uniquely established by the study."
+  },
+  "measurement_caveats": {
+    "model_fit_parameters": "The CSV transcribes selected drift-diffusion fitted quantities from Table 1. They must not be presented as direct measurements of absolute defect concentrations.",
+    "tof_sims": "Use matched sacrificial devices; do not claim repeated ToF-SIMS on the same photovoltaic device. Because the original SIMS cohort was non-encapsulated and had different T50/T30 endpoints, a new T60 SIMS cohort must independently demonstrate comparable qualitative degradation/recovery behavior.",
+    "mechanistic_status": "The paper proposes a coupled SnO2 surface-defect / extrinsic Li-ion trapping explanation. It does not prove a unique causal mechanism; oxygen adsorption/desorption is explicitly discussed as an alternative or additional explanation."
+  }
+}

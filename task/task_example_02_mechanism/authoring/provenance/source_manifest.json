@@ -9,8 +9,18 @@
     "url": "https://entrepot.recherche.data.gouv.fr/dataset.xhtml?persistentId=doi:10.57745/EQL6HT",
     "license": "Etalab Open Licence 2.0; metadata states compatible with CC-BY 2.0",
     "files": {
-      "DataXAS.zip": "085ecb1b86089a542f909c5d867d50b0",
-      "MassSpectrometer.zip": "6ea7054361b23d8bb6022dd3d0761b86"
+      "DataXAS.zip": {
+        "dataverse_file_id": 607931,
+        "bytes": 183407701,
+        "md5": "085ecb1b86089a542f909c5d867d50b0",
+        "verification": "Dataverse metadata checked; full local archive verification pending"
+      },
+      "MassSpectrometer.zip": {
+        "dataverse_file_id": 607930,
+        "bytes": 7950132,
+        "md5": "6ea7054361b23d8bb6022dd3d0761b86",
+        "verification": "Downloaded in full; local MD5 and ZIP extraction verified"
+      }
     }
   },
   "answer_source": "Published EXAFS fit and operando XAS/MS interpretation; raw-data reanalysis remains a required pre-release check."
