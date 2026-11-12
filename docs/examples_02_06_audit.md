@@ -1,6 +1,6 @@
 # Examples 02–06: scientific and execution audit
 
-The five folders under `task/` are being upgraded from imported proposals. They currently **do not pass the MMB scientific closed-loop gate**. Example 06 has a computed structural witness, objective numeric fields, adversarial verifier tests and a passing Harbor CI for its scoped engineering pilot. Examples 02–05 still have direct-answer or checklist shortcuts in their scored outputs. The `solution/solve.sh` scripts copy prepared answers, so each task needs a separate substantive witness before its scientific answer can be accepted. `tests/reference_answer.json` duplicates `solution/answer.json` in each proposal.
+The five folders under `task/` are being upgraded from imported proposals. They currently **do not pass the MMB scientific closed-loop gate**. Example 06 has a computed structural witness, objective numeric fields, adversarial verifier tests and a passing Harbor CI for its earlier scoped engineering pilot. Examples 02–05 still have direct-answer or checklist shortcuts in their scored outputs and copy prepared answers from `solution/solve.sh`. Example 06 now generates its answer from CIFs. `tests/reference_answer.json` duplicates `solution/answer.json` in each proposal.
 
 | Example | Intended discovery type | Main blocking issue | Required scientific closure |
 | --- | --- | --- | --- |

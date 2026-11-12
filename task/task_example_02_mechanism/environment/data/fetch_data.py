@@ -17,12 +17,13 @@ EXPECTED = {
     "MassSpectrometer.zip": "6ea7054361b23d8bb6022dd3d0761b86",
 }
 OUTPUT = Path("/workspace/data/raw")
+MAX_DOWNLOAD_ATTEMPTS = 64
 
 
 def download(file_id: int, destination: Path, expected_size: int) -> None:
     """Resume a truncated Dataverse transfer without accepting partial archives."""
     url = f"{BASE}/api/access/datafile/{file_id}"
-    for attempt in range(12):
+    for attempt in range(MAX_DOWNLOAD_ATTEMPTS):
         offset = destination.stat().st_size if destination.exists() else 0
         if offset == expected_size:
             return
@@ -44,7 +45,7 @@ def download(file_id: int, destination: Path, expected_size: int) -> None:
             if destination.stat().st_size == expected_size:
                 return
         except (requests.RequestException, OSError) as exc:
-            if attempt == 11:
+            if attempt == MAX_DOWNLOAD_ATTEMPTS - 1:
                 raise RuntimeError(f"{destination.name}: incomplete download") from exc
         time.sleep(min(attempt + 1, 5))
     raise RuntimeError(f"{destination.name}: incomplete download")
