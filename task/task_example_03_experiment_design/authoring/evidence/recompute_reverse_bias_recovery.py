@@ -18,6 +18,11 @@ def measure(path):
     workbook = load_workbook(path, read_only=True, data_only=True)
     try:
         rows = list(workbook["Supplementary Fig. 3"].values)
+        xps = list(workbook["Fig 3f"].values)
+        lifetime = {
+            "without_reverse_bias": list(workbook["Fig 5c"].values)[3:],
+            "with_reverse_bias": list(workbook["Fig 5d"].values)[4:],
+        }
     finally:
         workbook.close()
 
@@ -44,7 +49,21 @@ def measure(path):
                 (powers["24h"] - powers["0h"]) / loss if loss > 0 else None
             ),
         }
-    return result
+    fresh, aged = xps[4][3:5], xps[4][7:9]
+    iodine_loss = {arm: 1 - after / before
+                   for arm, before, after in zip(("control", "chelated"), fresh, aged)}
+    retention = {}
+    for protocol, readings in lifetime.items():
+        if readings[0][1] != 0:
+            raise ValueError(f"Missing initial measurement for {protocol}")
+        at_150h, = (row for row in readings if row[1] == 150)
+        retention[protocol] = {arm: at_150h[column] / readings[0][column]
+                               for column, arm in ((2, "control"), (3, "chelated"))}
+    return {
+        "dark_recovery": result,
+        "fractional_iodine_loss_xps": iodine_loss,
+        "pce_retention_at_150h": retention,
+    }
 
 
 if __name__ == "__main__":
