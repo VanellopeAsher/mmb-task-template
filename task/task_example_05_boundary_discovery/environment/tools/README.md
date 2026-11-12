@@ -1,5 +1,13 @@
-# Tools
+# Scientific software
 
-- `extract_si_text.sh`: extracts the source-linked Supporting Information PDF to searchable text.
-- `correlation_template.py`: template for Pearson correlation and log-log power-law analysis once raw product partial-current tables are parsed.
-- Python stack: pandas, NumPy, SciPy, PyMuPDF, pdfplumber, matplotlib.
+- [WebPlotDigitizer](webplotdigitizer.md)
+- [PyMuPDF](pymupdf.md)
+- [pdfplumber](pdfplumber.md)
+- [OpenCV](opencv-python.md)
+- [statsmodels](statsmodels.md)
+- [SciPy](scipy.md)
+
+## Dataset utilities
+
+- [correlation_template.py](correlation_template.py)
+- [extract_si_text.sh](extract_si_text.sh)
