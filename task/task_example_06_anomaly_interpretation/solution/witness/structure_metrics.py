@@ -91,8 +91,10 @@ def inspect_cif(path: Path) -> dict[str, object]:
     intact_linkers = [group for group in carbon_groups if len(group) == 8]
     cluster_centers = np.asarray([periodic_center(zirconium[group]) for group in clusters])
     linker_edges: Counter[tuple[int, int]] = Counter()
+    linker_centers = []
     for group in intact_linkers:
         center = periodic_center(carbon[group])
+        linker_centers.append(center)
         displacement = cluster_centers - center
         displacement -= np.rint(displacement)
         distance = np.linalg.norm(displacement * lengths, axis=1)
@@ -104,6 +106,13 @@ def inspect_cif(path: Path) -> dict[str, object]:
     missing_clusters = ideal_clusters - observed_clusters
     if missing_clusters < 0:
         raise ValueError(f"Too many zirconium clusters in {path}")
+    sites = cluster_centers if missing_clusters else np.asarray(linker_centers)
+    tree = cKDTree((sites % 1.0) * lengths, boxsize=lengths)
+    overlaps = []
+    for translation in np.diag(1 / np.asarray(repeats)):
+        shifted = ((sites + translation) % 1.0) * lengths
+        distances, _ = tree.query(shifted)
+        overlaps.append(float(np.mean(distances <= 0.25)))
     carbon_deficit = IDEAL_CARBON_PER_CLUSTER * ideal_clusters - counts["C"]
     result: dict[str, object] = {
         "cell_lengths_angstrom": [cell[axis] for axis in "abc"],
@@ -114,6 +123,7 @@ def inspect_cif(path: Path) -> dict[str, object]:
         "missing_cluster_fraction_pct": 100 * missing_clusters / ideal_clusters,
         "carbon_deficit_vs_ideal": carbon_deficit,
         "intact_linker_count": len(intact_linkers),
+        "primitive_translation_overlap": sum(overlaps) / len(overlaps),
         "carbon_cap_count": carbon_group_sizes[1],
         "cluster_linker_degree_sequence": sorted(degrees.get(i, 0) for i in range(observed_clusters)),
     }

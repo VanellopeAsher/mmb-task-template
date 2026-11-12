@@ -45,6 +45,7 @@ def generate(data_dir: Path) -> dict[str, object]:
         structural_metrics[sample_id] = {
             "measured_fraction_pct": fraction,
             "intact_linker_count": int(metrics["intact_linker_count"]),
+            "primitive_translation_overlap": metrics["primitive_translation_overlap"],
             "cluster_degree_min": min(degrees),
             "cluster_degree_max": max(degrees),
             "cluster_degree_mean": sum(degrees) / len(degrees),

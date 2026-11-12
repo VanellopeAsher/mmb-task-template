@@ -39,6 +39,8 @@ if __name__ == "__main__":
     assert not run(changed("sample_07", "measured_fraction_pct", 25.151))
     assert not run(changed("sample_08", "cluster_degree_mean", 5.345))
     assert not run(changed("sample_07", "intact_linker_count", 13))
+    assert not run(changed("sample_04", "primitive_translation_overlap", 1.0))
+    assert not run(changed("sample_07", "primitive_translation_overlap", 1.001))
     assert not run(changed("sample_07", "cluster_degree_min", True))
     assert not run(changed("sample_07", "cluster_degree_mean", float("nan")))
     print("adversarial verifier checks passed")

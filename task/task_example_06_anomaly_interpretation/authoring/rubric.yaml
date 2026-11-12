@@ -5,6 +5,10 @@ reward:
   fail: 0
   rule: Correctly classify all nine anonymized structures and reproduce structure-derived defect fractions and cluster-linker graph metrics.
 scored_outputs:
+  - name: primitive_translation_overlap
+    units: dimensionless
+    tolerance: 0.005
+    reference_source: Periodic nearest-center matching on the nine supplied CIFs at 0.25 angstrom.
   - name: defect_type
     units: categorical
     tolerance: exact

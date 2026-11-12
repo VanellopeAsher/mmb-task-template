@@ -13,6 +13,7 @@ REFERENCE = json.loads(Path(__file__).with_name("reference_answer.json").read_te
 METRIC_TOLERANCES = {
     "measured_fraction_pct": 0.15,
     "intact_linker_count": 0,
+    "primitive_translation_overlap": 0.005,
     "cluster_degree_min": 0,
     "cluster_degree_max": 0,
     "cluster_degree_mean": 0.01,
@@ -48,6 +49,8 @@ def verify(payload: dict) -> None:
                 raise ValueError(f"{sample_id}/{key}: expected a finite number")
             if abs(value - target_metrics[key]) > tolerance:
                 raise ValueError(f"{sample_id}/{key}: outside tolerance")
+            if key == "primitive_translation_overlap" and not 0 <= value <= 1:
+                raise ValueError(f"{sample_id}/{key}: outside physical range")
 
 
 def main() -> int:
