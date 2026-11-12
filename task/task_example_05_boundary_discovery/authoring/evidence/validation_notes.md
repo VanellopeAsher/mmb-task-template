@@ -1,3 +1,3 @@
 # Validation notes
 
-The reference values are the aggregate values explicitly reported in the paper. The raw SI is downloaded and text-extracted at environment build. The current reference verifier does not yet recompute every alloy-specific coefficient from the raw SI; do that before treating the task as a fully calibrated live benchmark.
+The reference values are the aggregate values explicitly reported in the paper. The SI PDF passed its published MD5 and is downloaded and text-extracted at environment build. The "Raw Data" section presents the alloy/additive results as raster plots rather than a point-level table; the first two figures are embedded images of 1684×796 pixels. The current verifier does not recompute alloy-specific correlations or a microenvironment failure boundary from observed points. A predeclared figure-digitization method, point uncertainty and an independent regression check are required before this can be a calibrated live task.
