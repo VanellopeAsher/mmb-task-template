@@ -1,0 +1,39 @@
+schema_version = "1.0"
+artifacts = ["/workspace/results/"]
+
+[task]
+name = "mattermysterybench/task_example_05_boundary_discovery"
+description = "Determine when bulk Cu alloying preserves the CH4/C2+ scaling relation and when a molecular film breaks it."
+authors = []
+keywords = ["CO2-electroreduction", "partial-current-density", "Pearson-correlation", "organic-additive"]
+
+[metadata]
+task_id = "task_example_05_boundary_discovery"
+domain = "physical-sciences"
+field = "chemistry"
+subfield = "electrocatalysis"
+tags = ["boundary-discovery", "scaling-relations", "CO2RR", "microenvironment", "copper-alloys"]
+
+[metadata.human_baseline]
+expert_count = 5
+time_limit_hours = 8
+environment_path = "environment/"
+human_hard_rule = "all_five_experts_unsolved"
+
+[verifier]
+timeout_sec = 600.0
+environment_mode = "separate"
+
+[verifier.environment]
+network_mode = "no-network"
+
+[agent]
+timeout_sec = 28800
+
+[environment]
+build_timeout_sec = 3600.0
+cpus = 4
+memory_mb = 8192
+storage_mb = 10240
+gpus = 0
+network_mode = "public"

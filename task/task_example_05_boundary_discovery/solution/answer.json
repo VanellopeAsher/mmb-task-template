@@ -1,0 +1,20 @@
+{
+  "scaling_analysis": {
+    "product_pair": [
+      "CH4",
+      "C2+"
+    ],
+    "pure_cu_no_additive_pearson_r": 0.99,
+    "alloy_pearson_r_lower_bound": 0.98,
+    "alloy_elements": [
+      "Co",
+      "In",
+      "Mn",
+      "Zn"
+    ],
+    "unique_experiment_count": 137,
+    "bulk_alloying_breaks_relation": false,
+    "organic_film_breaks_relation": true,
+    "c2plus_partial_current_enhanced": true
+  }
+}

@@ -1,0 +1,23 @@
+version: 1
+artifact: /workspace/results/answer.json
+reward:
+  pass: 1
+  fail: 0
+  rule: Correctly classify all nine anonymized structures by defect type, random/correlated distribution, nominal random concentration, and correlated topology.
+scored_outputs:
+  - name: defect_type
+    units: categorical
+    tolerance: exact
+    reference_source: Source CIF manifest and structural connectivity.
+    shortcut_audit: Original filenames are replaced by opaque sample IDs in the Agent environment.
+  - name: nominal_fraction_pct
+    units: percent
+    tolerance: exact nominal label for random series
+    reference_source: Original source series and structural defect counts.
+    shortcut_audit: Sample labels do not expose the nominal fraction.
+  - name: topology
+    units: topology label
+    tolerance: exact
+    reference_source: Correlated-defect CIF structures and source paper.
+    shortcut_audit: Requires node/linker connectivity analysis; formula alone is insufficient.
+unscored_optional: [analysis]

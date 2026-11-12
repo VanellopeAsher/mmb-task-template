@@ -1,0 +1,26 @@
+{
+  "active_site_model": "well_mixed_AuCu_alloy",
+  "aucu_exafs": {
+    "au_cu_coordination_number": 3.8,
+    "au_au_coordination_number": 3.8
+  },
+  "activation": {
+    "au_reduced_state": "Au0",
+    "cu_reduced_state": "Cu0",
+    "mcr_component_count_au_edge": 2,
+    "mcr_component_count_cu_edge": 3,
+    "cu_reduction_promoted_by_au": true
+  },
+  "reaction": {
+    "au_state": "metallic_stable",
+    "temperature_points_C": [
+      100,
+      130,
+      150
+    ]
+  },
+  "products": {
+    "main_conversion": "butadiene_to_butenes",
+    "overhydrogenation_observed": false
+  }
+}

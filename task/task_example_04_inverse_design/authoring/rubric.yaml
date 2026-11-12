@@ -1,0 +1,23 @@
+version: 1
+artifact: /workspace/results/answer.json
+reward:
+  pass: 1
+  fail: 0
+  rule: Select the unique candidate meeting all five process-level constraints and report its source KPI values within tolerance.
+scored_outputs:
+  - name: selected_candidate
+    units: MOF identifier
+    tolerance: exact
+    reference_source: Table 1, Granderath et al. 2026.
+    shortcut_audit: Candidate must satisfy all five constraints; any other MOF fails.
+  - name: process_kpis
+    units: mixed (dimensionless, mol kg-1, MJ mol-1)
+    tolerance: 0.001
+    reference_source: Published process-level screening table.
+    shortcut_audit: Each KPI is independently checked.
+  - name: enrichment
+    units: dimensionless
+    tolerance: 0.01
+    reference_source: Published cross-feed enrichment values.
+    shortcut_audit: Both high- and dilute-feed values are required.
+unscored_optional: [analysis]

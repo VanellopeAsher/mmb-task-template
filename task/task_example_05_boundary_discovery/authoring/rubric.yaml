@@ -1,0 +1,23 @@
+version: 1
+artifact: /workspace/results/answer.json
+reward:
+  pass: 1
+  fail: 0
+  rule: Correctly identify the alloying-preserved scaling relation and the organic-film boundary, with source-consistent numerical anchors.
+scored_outputs:
+  - name: pure_cu_no_additive_pearson_r
+    units: dimensionless
+    tolerance: 0.01
+    reference_source: Lai et al. 2021, Figure 2 discussion.
+    shortcut_audit: Perturbed correlation rejected.
+  - name: alloy_pearson_r_lower_bound
+    units: dimensionless lower bound
+    tolerance: minimum 0.98
+    reference_source: Lai et al. 2021, Results and Discussion.
+    shortcut_audit: Values below the published lower bound rejected.
+  - name: scaling_boundary
+    units: categorical
+    tolerance: exact
+    reference_source: Article abstract and correlation analysis.
+    shortcut_audit: Reversing the effect of alloying or organic film fails.
+unscored_optional: [analysis]

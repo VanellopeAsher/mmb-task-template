@@ -1,0 +1,58 @@
+{
+  "samples": {
+    "sample_01": {
+      "defect_type": "missing_linker",
+      "distribution": "random",
+      "nominal_fraction_pct": 1,
+      "topology": null
+    },
+    "sample_02": {
+      "defect_type": "missing_linker",
+      "distribution": "random",
+      "nominal_fraction_pct": 10,
+      "topology": null
+    },
+    "sample_03": {
+      "defect_type": "missing_linker",
+      "distribution": "random",
+      "nominal_fraction_pct": 20,
+      "topology": null
+    },
+    "sample_04": {
+      "defect_type": "missing_cluster",
+      "distribution": "random",
+      "nominal_fraction_pct": 1,
+      "topology": null
+    },
+    "sample_05": {
+      "defect_type": "missing_cluster",
+      "distribution": "random",
+      "nominal_fraction_pct": 10,
+      "topology": null
+    },
+    "sample_06": {
+      "defect_type": "missing_cluster",
+      "distribution": "random",
+      "nominal_fraction_pct": 20,
+      "topology": null
+    },
+    "sample_07": {
+      "defect_type": "missing_cluster",
+      "distribution": "correlated",
+      "nominal_fraction_pct": null,
+      "topology": "reo"
+    },
+    "sample_08": {
+      "defect_type": "missing_cluster",
+      "distribution": "correlated",
+      "nominal_fraction_pct": null,
+      "topology": "scu"
+    },
+    "sample_09": {
+      "defect_type": "missing_linker",
+      "distribution": "correlated",
+      "nominal_fraction_pct": null,
+      "topology": "bcu"
+    }
+  }
+}

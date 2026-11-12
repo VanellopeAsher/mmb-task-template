@@ -1,0 +1,12 @@
+{
+  "paper": {
+    "title": "Correlated missing linker defects increase thermal conductivity in metal-organic framework UiO-66",
+    "doi": "10.1039/D2SC06120A",
+    "url": "https://pubs.rsc.org/en/content/articlehtml/2023/sc/d2sc06120a"
+  },
+  "structure_repository": {
+    "url": "https://github.com/meiirbek-islamov/defective-UiO-66",
+    "license": "No explicit licence found in repository; do not redistribute raw CIFs without permission."
+  },
+  "acquisition": "Fetch selected raw CIFs from upstream GitHub raw URLs and verify Git blob SHA-1 before renaming to sample_01..sample_09."
+}

@@ -1,0 +1,34 @@
+version: 1
+artifact: /workspace/results/answer.json
+reward:
+  pass: 1
+  fail: 0
+  rule: Correct alloy-site assignment, EXAFS coordination values within source uncertainties, reduced metallic states, and reaction-product interpretation.
+scored_outputs:
+  - name: active_site_model
+    units: categorical
+    tolerance: exact
+    reference_source: Nassereddine et al., ChemCatChem 2025, Table 1 and operando XAS discussion.
+    shortcut_audit: Must agree with both Au-Cu and Au-Au coordination numbers; an Au-only or core-shell assignment fails.
+  - name: au_cu_coordination_number
+    units: coordination_number
+    tolerance: 0.6
+    reference_source: Au L3-edge EXAFS fit.
+    shortcut_audit: Perturbed numeric values are rejected.
+  - name: au_au_coordination_number
+    units: coordination_number
+    tolerance: 0.7
+    reference_source: Au L3-edge EXAFS fit.
+    shortcut_audit: Perturbed numeric values are rejected.
+  - name: product_selectivity
+    units: categorical
+    tolerance: exact
+    reference_source: Operando mass spectrometry discussion.
+    shortcut_audit: Overhydrogenation claims are rejected.
+unscored_optional: [analysis]
+
+  - name: mcr_component_counts
+    units: component_count
+    tolerance: exact
+    reference_source: Nassereddine et al. 2025, MCR-ALS analysis of time-resolved Au L3 and Cu K-edge XANES.
+    shortcut_audit: Both edge-specific component counts are checked.

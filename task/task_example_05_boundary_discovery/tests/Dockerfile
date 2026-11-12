@@ -1,0 +1,4 @@
+FROM python:3.11-slim
+WORKDIR /tests
+COPY . /tests/
+CMD ["bash", "/tests/test.sh"]

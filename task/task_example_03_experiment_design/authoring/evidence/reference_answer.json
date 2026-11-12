@@ -1,0 +1,45 @@
+{
+  "protocol": {
+    "stress_arms": [
+      "light_open_circuit",
+      "light_short_circuit"
+    ],
+    "stress_illumination_sun": 1.0,
+    "stress_temperature_C": 25.0,
+    "stress_duration_h": 4.0,
+    "matched_device_batches": true,
+    "recovery": {
+      "environment": "dark_open_circuit",
+      "timepoints_min": [
+        0,
+        1,
+        5,
+        15,
+        30,
+        60,
+        240,
+        1440
+      ]
+    },
+    "electrical_measurements": [
+      "MPP_tracking",
+      "transient_dark_current",
+      "capacitance_transient"
+    ],
+    "chemical_measurements": [
+      "TOF-SIMS",
+      "XPS"
+    ],
+    "replicates_per_arm": 5
+  },
+  "reference_ion_transport": {
+    "iodide_diffusion_coefficient_cm2_s": 1.3e-12,
+    "iodide_mobility_cm2_V_s": 5e-11
+  },
+  "predicted_signatures": {
+    "short_circuit_aged_recovery": "recoverable",
+    "open_circuit_aged_recovery": "persistent_or_drop_in_dark",
+    "reversible_ionic_redistribution": "transient_electrical_signal_relaxes_during_dark_recovery",
+    "irreversible_chemical_degradation": "persistent_chemical_or_compositional_change_after_recovery"
+  }
+}

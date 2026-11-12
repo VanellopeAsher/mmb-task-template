@@ -1,0 +1,17 @@
+{
+  "paper": {
+    "title": "Operando X-ray Absorption Study of TiO2-Supported Au, Cu, and Au-Cu Catalysts for Butadiene Selective Hydrogenation",
+    "doi": "10.1002/cctc.202500379",
+    "url": "https://chemistry-europe.onlinelibrary.wiley.com/doi/10.1002/cctc.202500379"
+  },
+  "dataset": {
+    "doi": "10.57745/EQL6HT",
+    "url": "https://entrepot.recherche.data.gouv.fr/dataset.xhtml?persistentId=doi:10.57745/EQL6HT",
+    "license": "Etalab Open Licence 2.0; metadata states compatible with CC-BY 2.0",
+    "files": {
+      "DataXAS.zip": "085ecb1b86089a542f909c5d867d50b0",
+      "MassSpectrometer.zip": "6ea7054361b23d8bb6022dd3d0761b86"
+    }
+  },
+  "answer_source": "Published EXAFS fit and operando XAS/MS interpretation; raw-data reanalysis remains a required pre-release check."
+}

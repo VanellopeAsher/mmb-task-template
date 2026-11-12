@@ -1,6 +1,6 @@
 # MatterMysteryBench task template
 
-This repository contains a **blank authoring template** and a worked MatterMysteryBench (MMB) scientific task example. Both follow the project schema. `task/task_template/` remains intentionally unfilled; `task/task_example_01/` measures screw-sector phonon interactions using cited force models.
+This repository contains a **blank authoring template**, one engineering pilot (`task_example_01`), and five proposed examples (`task_example_02`–`task_example_06`). The five proposed examples follow the directory schema but are **not yet validated scientific evaluation tasks**. Their audit and release gates are recorded in `docs/examples_02_06_audit.md`.
 
 The worked example has a published `answer.json` contract, a hidden correct answer, an executable oracle, and an independent objective verifier for its engineering pilot. It does **not** answer the original research question. `task/task_example_01/authoring/scientific_brief.md` preserves that question; `task/task_example_01/authoring/evidence/fc4_gap.md` records the missing fourth-order data and the resulting scientific acceptance gap. Simulated human-baseline and agent-run records illustrate the schema.
 
@@ -15,6 +15,7 @@ The worked example has a published `answer.json` contract, a hidden correct answ
 | `task/task_template/tests/` | Isolated, objective verification | No during evaluation |
 | `task/task_template/authoring/` | Rubric, provenance, independent evidence, and human baseline | Never |
 | `task/task_example_01/` | Worked scientific task with eight NIMS source datasets and a reference investigation | Role-dependent, as above |
+| `task/task_example_02_*/` through `task/task_example_06_*/` | Proposed examples for five additional discovery types; see the scientific audit before evaluation | Role-dependent, as above |
 | `initial_submit/initial_submit_template/` | Initial proposal: one-question description, input data inventory, and oracle | Authors only |
 | `runs/` | Agent trajectories and run artifacts | Evaluation pipeline |
 
