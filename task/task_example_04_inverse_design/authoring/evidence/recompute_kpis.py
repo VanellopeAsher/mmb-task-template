@@ -34,7 +34,10 @@ def compute_kpis(trace: dict) -> dict[str, float]:
     for step in trace["steps_desorption"]:
         amount = float(step["moles_out [mol]"])
         methane_fraction, nitrogen_fraction = step["column_state"]["mole_fraction_gas [mol]"]
-        if amount < -1e-10 or abs(methane_fraction + nitrogen_fraction - 1) > 1e-6:
+        # Preserve signed process fluxes. At dilute feed the published trace
+        # contains a brief negative desorption flux; dropping it breaks the
+        # source evaluator's cycle mass balance.
+        if not math.isfinite(amount) or abs(methane_fraction + nitrogen_fraction - 1) > 1e-6:
             raise ValueError("Invalid desorption product stream")
         methane_product += amount * methane_fraction
         nitrogen_product += amount * nitrogen_fraction

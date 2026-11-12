@@ -1,14 +1,14 @@
 {
   "selected_candidate": "NIRPAI",
   "process_kpis": {
-    "purity": 0.8,
-    "recovery": 0.58,
-    "working_capacity_mol_kg": 1.68,
-    "thermal_energy_MJ_mol": 0.06
+    "purity": 0.7956276452527686,
+    "recovery": 0.5758060340310058,
+    "working_capacity_mol_kg": 1.6774336043284084,
+    "thermal_energy_MJ_mol": 0.05974742511177806
   },
   "enrichment": {
-    "x_ch4_0_5": 1.59,
-    "x_ch4_0_003": 1.87
+    "x_ch4_0_5": 1.5912552905055373,
+    "x_ch4_0_003": 1.873717215222211
   },
   "constraint_check": {
     "purity": true,

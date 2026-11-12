@@ -8,16 +8,16 @@ scored_outputs:
   - name: selected_candidate
     units: MOF identifier
     tolerance: exact
-    reference_source: Table 1, Granderath et al. 2026.
-    shortcut_audit: Candidate must satisfy all five constraints; any other MOF fails.
+    reference_source: CoRE MOF TSA process trajectories, independently reconciled with Table 1, Granderath et al. 2026.
+    shortcut_audit: Current Agent-visible five-row table exposes the choice by direct filtering; not eligible as a discovery challenge.
   - name: process_kpis
     units: mixed (dimensionless, mol kg-1, MJ mol-1)
-    tolerance: 0.001
-    reference_source: Published process-level screening table.
-    shortcut_audit: Each KPI is independently checked.
+    tolerance: Published rounding intervals, half-width 0.005 for purity/recovery/capacity and 0.0005 for energy.
+    reference_source: Recomputed process trajectory mass balance, checked against source evaluations.
+    shortcut_audit: Objective numeric check, but source table is visible to the Agent.
   - name: enrichment
     units: dimensionless
-    tolerance: 0.01
-    reference_source: Published cross-feed enrichment values.
-    shortcut_audit: Both high- and dilute-feed values are required.
+    tolerance: Published rounding interval, half-width 0.005.
+    reference_source: Recomputed methane product purity divided by feed mole fraction at 0.5 and 0.003.
+    shortcut_audit: Both feed values are visible in the current five-row table.
 unscored_optional: [analysis]
