@@ -3,21 +3,33 @@ artifact: /workspace/results/answer.json
 reward:
   pass: 1
   fail: 0
-  rule: Correctly classify all nine anonymized structures by defect type, random/correlated distribution, nominal random concentration, and correlated topology.
+  rule: Correctly classify all nine anonymized structures and reproduce structure-derived defect fractions and cluster-linker graph metrics.
 scored_outputs:
   - name: defect_type
     units: categorical
     tolerance: exact
-    reference_source: Source CIF manifest and structural connectivity.
-    shortcut_audit: Original filenames are replaced by opaque sample IDs in the Agent environment.
+    reference_source: Zr6 cluster and complete-linker connectivity in pinned CIFs.
+    shortcut_audit: Source filenames are absent from the final Agent image; numeric graph metrics must also match.
   - name: nominal_fraction_pct
     units: percent
     tolerance: exact nominal label for random series
-    reference_source: Original source series and structural defect counts.
+    reference_source: Structural defect counts checked against the source series.
     shortcut_audit: Sample labels do not expose the nominal fraction.
   - name: topology
     units: topology label
     tolerance: exact
-    reference_source: Correlated-defect CIF structures and source paper.
-    shortcut_audit: Requires node/linker connectivity analysis; formula alone is insufficient.
+    reference_source: Cluster-linker quotient-graph signatures in correlated CIFs.
+    shortcut_audit: The graph signatures and measured fractions must match the hidden reference.
+  - name: measured_fraction_pct
+    units: percent
+    tolerance: 0.15 percentage points absolute
+    reference_source: Missing Zr6 or complete-linker sites divided by the corresponding ideal site count.
+  - name: intact_linker_count
+    units: count
+    tolerance: exact integer
+    reference_source: Eight-carbon connected components in the CIF.
+  - name: cluster_degree_min_max_mean
+    units: linkers per Zr6 cluster
+    tolerance: exact integers for min/max; 0.01 absolute for mean
+    reference_source: Periodic Zr6-linker multigraph reconstructed from the CIF.
 unscored_optional: [analysis]

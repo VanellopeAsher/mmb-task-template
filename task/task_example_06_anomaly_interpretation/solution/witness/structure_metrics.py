@@ -1,7 +1,6 @@
-"""Derive basic defect counts from anonymous UiO-66 CIF atom sites.
+"""Derive defect counts and cluster-linker graph from anonymous UiO-66 CIFs.
 
-This is a coordinate/stoichiometry check, not a topology classifier. It does
-not read the source manifest or sample-to-source filename mapping.
+This module does not read the source manifest or sample-to-source filenames.
 """
 
 from __future__ import annotations
@@ -11,6 +10,7 @@ from collections import Counter
 import json
 from pathlib import Path
 import numpy as np
+from scipy.spatial import cKDTree
 
 
 ELEMENTS = {"Zr", "O", "C", "H"}
@@ -21,10 +21,37 @@ LINKERS_PER_CLUSTER = 6
 PRIMITIVE_CELL_ANGSTROM = 20.7004
 
 
+def connected_groups(fractional: np.ndarray, lengths: np.ndarray, cutoff: float) -> list[list[int]]:
+    parent = list(range(len(fractional)))
+
+    def find(index: int) -> int:
+        while parent[index] != index:
+            parent[index] = parent[parent[index]]
+            index = parent[index]
+        return index
+
+    if len(fractional):
+        wrapped = (fractional % 1.0) * lengths
+        for i, j in cKDTree(wrapped, boxsize=lengths).query_pairs(cutoff):
+            parent[find(j)] = find(i)
+    components: dict[int, list[int]] = {}
+    for i in range(len(fractional)):
+        components.setdefault(find(i), []).append(i)
+    return list(components.values())
+
+
+def periodic_center(fractional: np.ndarray) -> np.ndarray:
+    first = fractional[0]
+    delta = fractional - first
+    delta -= np.rint(delta)
+    return (first + delta.mean(axis=0)) % 1.0
+
+
 def inspect_cif(path: Path) -> dict[str, object]:
     counts: Counter[str] = Counter()
     cell: dict[str, float] = {}
     zirconium_fractional: list[list[float]] = []
+    carbon_fractional: list[list[float]] = []
     in_atom_loop = False
     for raw in path.read_text(encoding="utf-8").splitlines():
         line = raw.strip()
@@ -41,6 +68,8 @@ def inspect_cif(path: Path) -> dict[str, object]:
                 counts[fields[0]] += 1
                 if fields[0] == "Zr":
                     zirconium_fractional.append([float(value) for value in fields[3:6]])
+                elif fields[0] == "C":
+                    carbon_fractional.append([float(value) for value in fields[3:6]])
 
     if set(cell) != {"a", "b", "c"} or counts["Zr"] % ZIRCONIUM_PER_CLUSTER:
         raise ValueError(f"Unsupported UiO-66 CIF: {path}")
@@ -48,25 +77,30 @@ def inspect_cif(path: Path) -> dict[str, object]:
     if any(abs(cell[axis] / PRIMITIVE_CELL_ANGSTROM - repeats[i]) > 0.02 for i, axis in enumerate("abc")):
         raise ValueError(f"Unexpected unit cell in {path}")
     ideal_clusters = 4 * repeats[0] * repeats[1] * repeats[2]
-    coordinates = np.asarray(zirconium_fractional) % 1.0
-    parent = list(range(len(coordinates)))
-
-    def find(index: int) -> int:
-        while parent[index] != index:
-            parent[index] = parent[parent[index]]
-            index = parent[index]
-        return index
-
-    for i in range(len(coordinates)):
-        difference = coordinates[i + 1 :] - coordinates[i]
-        difference -= np.rint(difference)
-        distance = np.linalg.norm(difference * np.asarray([cell[axis] for axis in "abc"]), axis=1)
-        for j in np.flatnonzero(distance < 4.5) + i + 1:
-            parent[find(int(j))] = find(i)
-    cluster_sizes = Counter(find(i) for i in range(len(coordinates)))
-    if any(size != ZIRCONIUM_PER_CLUSTER for size in cluster_sizes.values()):
+    lengths = np.asarray([cell[axis] for axis in "abc"])
+    zirconium = np.asarray(zirconium_fractional)
+    carbon = np.asarray(carbon_fractional)
+    clusters = connected_groups(zirconium, lengths, 4.5)
+    if any(len(group) != ZIRCONIUM_PER_CLUSTER for group in clusters):
         raise ValueError(f"Zr atoms do not form intact Zr6 clusters in {path}")
-    observed_clusters = len(cluster_sizes)
+    observed_clusters = len(clusters)
+    carbon_groups = connected_groups(carbon, lengths, 1.8)
+    carbon_group_sizes = Counter(len(group) for group in carbon_groups)
+    if set(carbon_group_sizes) - {1, 8}:
+        raise ValueError(f"Unexpected carbon connectivity in {path}: {carbon_group_sizes}")
+    intact_linkers = [group for group in carbon_groups if len(group) == 8]
+    cluster_centers = np.asarray([periodic_center(zirconium[group]) for group in clusters])
+    linker_edges: Counter[tuple[int, int]] = Counter()
+    for group in intact_linkers:
+        center = periodic_center(carbon[group])
+        displacement = cluster_centers - center
+        displacement -= np.rint(displacement)
+        distance = np.linalg.norm(displacement * lengths, axis=1)
+        nearest = np.argsort(distance)[:2]
+        if len(nearest) != 2 or distance[nearest[1]] > 8.0:
+            raise ValueError(f"Cannot attach linker to two Zr6 clusters in {path}")
+        linker_edges[tuple(sorted(map(int, nearest)))] += 1
+    degrees = Counter(node for (left, right), count in linker_edges.items() for node in [left] * count + [right] * count)
     missing_clusters = ideal_clusters - observed_clusters
     if missing_clusters < 0:
         raise ValueError(f"Too many zirconium clusters in {path}")
@@ -79,7 +113,18 @@ def inspect_cif(path: Path) -> dict[str, object]:
         "missing_cluster_count": missing_clusters,
         "missing_cluster_fraction_pct": 100 * missing_clusters / ideal_clusters,
         "carbon_deficit_vs_ideal": carbon_deficit,
+        "intact_linker_count": len(intact_linkers),
+        "carbon_cap_count": carbon_group_sizes[1],
+        "cluster_linker_degree_sequence": sorted(degrees.get(i, 0) for i in range(observed_clusters)),
     }
+    if repeats == [1, 1, 1]:
+        result["cluster_linker_edge_multiplicities"] = sorted(linker_edges.values())
+        if observed_clusters == 3 and sorted(degrees.values()) == [8, 8, 8] and sorted(linker_edges.values()) == [4, 4, 4]:
+            result["topology_from_graph"] = "reo"
+        elif observed_clusters == 3 and sorted(degrees.values()) == [4, 4, 8] and sorted(linker_edges.values()) == [4, 4]:
+            result["topology_from_graph"] = "scu"
+        elif observed_clusters == 4 and sorted(degrees.values()) == [8, 8, 8, 8] and sorted(linker_edges.values()) == [4, 4, 4, 4]:
+            result["topology_from_graph"] = "bcu"
     if missing_clusters == 0:
         if carbon_deficit < 0 or carbon_deficit % CARBON_REMOVED_PER_MISSING_LINKER:
             raise ValueError(f"Unexpected carbon count in {path}")

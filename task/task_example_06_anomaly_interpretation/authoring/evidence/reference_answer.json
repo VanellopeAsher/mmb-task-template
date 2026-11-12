@@ -54,5 +54,16 @@
       "nominal_fraction_pct": null,
       "topology": "bcu"
     }
+  },
+  "structural_metrics": {
+    "sample_01": {"measured_fraction_pct": 1.080247, "intact_linker_count": 641, "cluster_degree_min": 10, "cluster_degree_max": 12, "cluster_degree_mean": 11.87037},
+    "sample_02": {"measured_fraction_pct": 10.030864, "intact_linker_count": 583, "cluster_degree_min": 8, "cluster_degree_max": 12, "cluster_degree_mean": 10.796296},
+    "sample_03": {"measured_fraction_pct": 20.061728, "intact_linker_count": 518, "cluster_degree_min": 6, "cluster_degree_max": 12, "cluster_degree_mean": 9.592593},
+    "sample_04": {"measured_fraction_pct": 0.925926, "intact_linker_count": 636, "cluster_degree_min": 11, "cluster_degree_max": 12, "cluster_degree_mean": 11.88785},
+    "sample_05": {"measured_fraction_pct": 10.185185, "intact_linker_count": 522, "cluster_degree_min": 8, "cluster_degree_max": 12, "cluster_degree_mean": 10.762887},
+    "sample_06": {"measured_fraction_pct": 20.37037, "intact_linker_count": 408, "cluster_degree_min": 7, "cluster_degree_max": 12, "cluster_degree_mean": 9.488372},
+    "sample_07": {"measured_fraction_pct": 25, "intact_linker_count": 12, "cluster_degree_min": 8, "cluster_degree_max": 8, "cluster_degree_mean": 8},
+    "sample_08": {"measured_fraction_pct": 25, "intact_linker_count": 8, "cluster_degree_min": 4, "cluster_degree_max": 8, "cluster_degree_mean": 5.333333},
+    "sample_09": {"measured_fraction_pct": 33.333333, "intact_linker_count": 16, "cluster_degree_min": 8, "cluster_degree_max": 8, "cluster_degree_mean": 8}
   }
 }
