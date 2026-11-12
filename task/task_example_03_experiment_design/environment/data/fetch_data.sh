@@ -2,7 +2,7 @@
 set -euo pipefail
 OUT=/workspace/data/raw
 mkdir -p "$OUT/bath" "$OUT/zenodo"
-for item in "Fig4a.csv:27" "Fig5a.csv:26" "Fig5b.csv:25" "Fig5c.csv:24" "Fig7a_298K.csv:32" "SIFig1.csv:48"; do
+for item in "Fig4a.csv:6" "Fig5a.csv:5" "Fig5b.csv:4" "Fig5c.csv:3" "Fig7a_298K.csv:11" "SIFig1.csv:27"; do
   name="${item%%:*}"; id="${item##*:}"
   curl -L --fail --retry 3 "https://researchdata.bath.ac.uk/251/${id}/${name}" -o "$OUT/bath/${name}"
 done
