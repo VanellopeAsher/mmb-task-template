@@ -7,7 +7,19 @@
   "dataset": {
     "doi": "10.5281/zenodo.21132903",
     "url": "https://zenodo.org/records/21132903",
-    "license": "CC-BY-4.0"
+    "license": "CC-BY-4.0",
+    "checked_archives": {
+      "PrISMa_cDFT_isotherms.zip": {
+        "bytes": 3866943,
+        "md5": "ea013089af5bdc51f1b6f37ce3b16f41",
+        "json_members": 1888
+      },
+      "PrISMa_process_simulations.zip": {
+        "bytes": 157380613,
+        "md5": "e02cf7ad1715605b4e522309336ad28c",
+        "json_members": 4642
+      }
+    }
   },
   "table": "Table 1: five promising MOFs and four process KPIs plus enrichment at x_CH4=0.5 and 0.003."
 }
