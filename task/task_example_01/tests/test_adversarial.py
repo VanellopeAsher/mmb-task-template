@@ -46,6 +46,18 @@ def main() -> None:
                        (base["modes"][label]["q"], base["modes"][label]["branch"])]
             alternate["modes"][label] = to_answer_mode(choices[0])
         check(alternate, True, directory)
+        subdominant = [m for m in REFERENCE["accepted_modes"]
+                       if m["dominant"] == "three_phonon" and
+                       (m["q"], m["branch"]) ==
+                       (base["modes"]["three_phonon"]["q"],
+                        base["modes"]["three_phonon"]["branch"])][0]
+        sampled = copy.deepcopy(base)
+        sampled["modes"]["three_phonon"]["rates_ps_inverse"]["20"]["four"] = (
+            1.4 * subdominant["rates_ps_inverse"]["20"]["four"])
+        check(sampled, True, directory)
+        sampled["modes"]["three_phonon"]["rates_ps_inverse"]["20"]["four"] = (
+            1.5 * subdominant["rates_ps_inverse"]["20"]["four"])
+        check(sampled, False, directory)
         bad = copy.deepcopy(base)
         bad["gap_alone_predicts_dominant_order"] = True
         check(bad, False, directory)

@@ -55,7 +55,8 @@ def check_mode(value: object, label: str, gap: float) -> None:
         ref = expected["rates_ps_inverse"][mesh]
         three = close(pair["three"], ref["three"], max(1e-5, 0.05 * ref["three"]),
                       f"{label}/{mesh}/three")
-        four = close(pair["four"], ref["four"], max(1e-5, 0.35 * ref["four"]),
+        four_tolerance = 0.45 if label == "three_phonon" else 0.35
+        four = close(pair["four"], ref["four"], max(1e-5, four_tolerance * ref["four"]),
                      f"{label}/{mesh}/four")
         if three <= 0 or four <= 0:
             raise ValueError(f"{label}/{mesh} rates must be positive")
