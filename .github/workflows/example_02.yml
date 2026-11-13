@@ -40,6 +40,7 @@ jobs:
             --path "$RUNNER_TEMP/mmb-example02-answer-harbor" \
             --agent oracle \
             --env docker \
+            --override-cpus 4 \
             --jobs-dir "$RUNNER_TEMP/mmb-example02-jobs" \
             --job-name example02-answer
           python - <<'PY'
@@ -51,7 +52,7 @@ jobs:
           trials = [path for path in job.rglob("result.json") if path.parent != job]
           assert len(trials) == 1, trials
           result = json.loads(trials[0].read_text(encoding="utf-8"))
-          reward = result.get("verifier_result", {}).get("rewards", {}).get("reward")
+          reward = (result.get("verifier_result") or {}).get("rewards", {}).get("reward")
           print(f"Oracle reward: {reward}")
           assert reward == 1.0, result
           PY
