@@ -60,6 +60,11 @@ def main() -> None:
                 raise AssertionError("Missing alternative mode")
         alternate["modes"].reverse()
         check(alternate, True, directory)
+        newly_eligible = next(row for row in REFERENCE["modes"]
+                              if row["q"] == [0.75, 0.5, 0.25] and row["branch"] == 1)
+        expanded = copy.deepcopy(base)
+        expanded["modes"][1] = to_answer_mode(newly_eligible)
+        check(expanded, True, directory)
         subdominant = next(to_answer_mode(row) for row in REFERENCE["modes"]
                            if (row["q"], row["branch"]) ==
                            (base["modes"][0]["q"], base["modes"][0]["branch"]))
