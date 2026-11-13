@@ -57,9 +57,12 @@ def run_case(data: Path, solver: Path, root: Path, mesh: int, full: bool,
     env = dict(os.environ, OMP_NUM_THREADS="1", OMPI_ALLOW_RUN_AS_ROOT="1",
                OMPI_ALLOW_RUN_AS_ROOT_CONFIRM="1")
     with (path / "solver.log").open("w", encoding="utf-8") as log:
-        subprocess.run(["mpirun", "-np", str(ranks), str(solver)], cwd=path,
-                       env=env, stdout=log, stderr=subprocess.STDOUT, check=True)
+        completed = subprocess.run(["mpirun", "--oversubscribe", "-np", str(ranks), str(solver)],
+                                   cwd=path, env=env, stdout=log, stderr=subprocess.STDOUT)
     log_text = (path / "solver.log").read_text(encoding="utf-8")
+    if completed.returncode:
+        raise RuntimeError(f"Solver exited {completed.returncode} for {name}:\n"
+                           + "\n".join(log_text.splitlines()[-80:]))
     if "Info: normal exit" not in log_text:
         raise RuntimeError(f"Solver did not report normal exit for {name}")
     return path
