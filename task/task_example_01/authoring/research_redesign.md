@@ -14,6 +14,8 @@ Mode acceptance uses both meshes and independent 10,000- and 100,000-sample runs
 
 The accepted set is frozen in `tests/reference_modes.json`. The verifier admits any supported opposing pair and checks independently reported rates on both meshes. It does not require the two examples above.
 
+For the executable 10,000-sample Oracle, q=(1/2,1/2,0), branch 2 is the preferred four-phonon witness. Its 16/20-grid sampled rates in the independent 10,000-sample run were 2.813×10⁻³ and 2.922×10⁻³ ps⁻¹ versus 3.303×10⁻³ and 2.893×10⁻³ ps⁻¹ in the 100,000-sample run. A different strong-ratio candidate, q=(3/4,1/2,1/4), branch 2, fluctuated to 3.549×10⁻³ ps⁻¹ on a later 20-grid 10,000-sample CI run versus the 2.385×10⁻³ ps⁻¹ 100,000-sample estimate, exceeding the declared 35% absolute-rate tolerance while preserving four-phonon dominance. The Oracle therefore prefers the lower-variance validated witness; the Agent and verifier remain free to use other supported modes when their reported rates match the corresponding reference within tolerance.
+
 ## Scope and remaining validation
 
 The numerical result concerns this force model, temperature, broadening, sampled solver, and RTA definition. It does not establish a universal selection rule or experimental BAs conductivity. At 300 K, the upstream published process counts correspond to `scalebroad=1.0` even though the checked-in `CONTROL` says 0.1. A corrected 100,000-sample reproduction has about 3.01% median and 10.0% 95th-percentile fourth-order mode-rate error against that public output, but its RTA conductivity differs by 5.13%. The benchmark therefore uses independently run 350 K outputs rather than calibrating tolerances against the historical 300 K conductivity.

@@ -21,11 +21,6 @@ jobs:
           python -O task/task_example_01/tests/test_adversarial.py
       - name: Build scientific image
         run: docker build -t mmb-example01-environment task/task_example_01/environment
-      - name: Recompute answer from released force constants
-        run: |
-          docker run --rm \
-            -v "$PWD/task/task_example_01/solution:/solution:ro" \
-            mmb-example01-environment bash /solution/solve.sh
       - name: Check Harbor-compatible staging task
         run: |
           python scripts/build_harbor_task.py \

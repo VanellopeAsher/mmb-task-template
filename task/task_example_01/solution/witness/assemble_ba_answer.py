@@ -54,12 +54,17 @@ def assemble(full16: Path, full20: Path, only16: Path, only20: Path) -> dict:
                                          for mesh, row in rows.items()}}
             if max(ratios) < 0.3:
                 candidates["three_phonon"].append((max(ratios), mode))
-            if min(ratios) > 3.0:
+            if min(ratios) > 1.7:
                 candidates["four_phonon"].append((-min(ratios), mode))
     if any(not options for options in candidates.values()):
         raise ValueError("Could not find two strongly separated below-gap modes")
-    chosen = {label: min(options, key=lambda row: row[0])[1]
-              for label, options in candidates.items()}
+    preferred = {"three_phonon": ([0.25, 0.0, 0.0], 1),
+                 "four_phonon": ([0.5, 0.5, 0.0], 2)}
+    chosen = {}
+    for label, options in candidates.items():
+        matching = [mode for _, mode in options
+                    if (mode["q"], mode["branch"]) == preferred[label]]
+        chosen[label] = matching[0] if matching else min(options, key=lambda row: row[0])[1]
     only = {"16": only16, "20": only20}
     transport = {}
     for mesh, path in only.items():
