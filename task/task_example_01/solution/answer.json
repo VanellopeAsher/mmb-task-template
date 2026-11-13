@@ -1,20 +1,54 @@
 {
-  "interaction_checks": {
-    "GaN": {
-      "normal": {"largest_sector_share": 0.07413205196043834, "effective_sector_count": 20.918125536731576},
-      "odd_umklapp": {"largest_sector_share": 0.06941766643904153, "effective_sector_count": 21.049920900596906},
-      "odd_normal_total_ratio": 1.0126218060625252
+  "gap_cutoff_rad_ps": 54.48213218000001,
+  "transport_W_mK": {
+    "16": {
+      "three_only": 1101.570996,
+      "three_plus_four": 668.9404899
     },
-    "AlN": {
-      "normal": {"largest_sector_share": 0.07489282926998876, "effective_sector_count": 20.180704367893824},
-      "odd_umklapp": {"largest_sector_share": 0.06970912925294218, "effective_sector_count": 20.32738857153253},
-      "odd_normal_total_ratio": 1.0128922269504086
-    },
-    "ZnS": {
-      "normal": {"largest_sector_share": 0.06267054265857831, "effective_sector_count": 23.519386817469933},
-      "odd_umklapp": {"largest_sector_share": 0.06218598423687482, "effective_sector_count": 23.580202628195785},
-      "odd_normal_total_ratio": 1.0036113687750507
+    "20": {
+      "three_only": 1129.687672,
+      "three_plus_four": 678.6718036
     }
   },
-  "analysis": "The 6_3 screw operation constrains axial three-phonon couplings through a wave-vector-dependent representation condition. A screw-eigenmode basis resolves degenerate subspaces before the interaction strengths are grouped by character sector. The selected normal and odd-axial-Umklapp triplets show different strength distributions in the three supplied force models. The reported sector shares and effective counts are properties of these models, processes, and mesh; they do not by themselves quantify a bulk thermal-conductivity effect."
+  "modes": {
+    "three_phonon": {
+      "q": [
+        0.25,
+        0.0,
+        0.0
+      ],
+      "branch": 1,
+      "omega_rad_ps": 20.81480335,
+      "rates_ps_inverse": {
+        "16": {
+          "three": 0.004267745695,
+          "four": 0.0004204331602
+        },
+        "20": {
+          "three": 0.004312458067,
+          "four": 0.0004562633239
+        }
+      }
+    },
+    "four_phonon": {
+      "q": [
+        0.75,
+        0.5,
+        0.25
+      ],
+      "branch": 2,
+      "omega_rad_ps": 47.45643187,
+      "rates_ps_inverse": {
+        "16": {
+          "three": 0.0006431769621,
+          "four": 0.002605087183
+        },
+        "20": {
+          "three": 0.0006147710818,
+          "four": 0.002385167547
+        }
+      }
+    }
+  },
+  "gap_alone_predicts_dominant_order": false
 }

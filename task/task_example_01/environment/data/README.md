@@ -1,7 +1,12 @@
-# Scientific input data
+# BAs force-model input
 
-`nims/` contains eight original ZIP archives from Atsushi Togo's NIMS Materials Data Repository lattice-thermal-conductivity collection and a `catalog.json` with source links and checksums. The three same-composition polymorph pairs are GaN, AlN, and ZnS (wurtzite P6_3mc, 186; zincblende F-43m, 216). The two Si datasets are diamond Fd-3m, 227, and hexagonal P6_3/mmc, 194. These space-group labels are source metadata.
+`ba/` contains the original `Example-BAs/input` files from [FourPhonon](https://github.com/FourPhonon/FourPhonon) at commit `5b814b337e03e72907a15a2c953723171fba7102` (GPL-3.0). The files define one zincblende BAs harmonic, cubic, and quartic force model. They are model inputs, not experimental measurements.
 
-Each ZIP contains `phono3py_mlp_eval_fc3_disp.yaml.xz` (structure and cubic-force-constant displacements), `FORCES_FC3.xz` (corresponding forces), `phonopy_mlp_eval_fc2_dataset.yaml.xz` (harmonic displacements and forces), `phonopy_training_dataset.yaml.xz`, `polymlp.yaml.xz`, `vasp-settings.tar.xz`, `LTC-calc.log` (temperature-dependent conductivity calculation), and `band_pdos.png`. The ZIPs are not pre-extracted; `tools/inspect_nims.py` can inspect or extract any member.
+| File | SHA-256 |
+| --- | --- |
+| `CONTROL` | `0a4b417db4aa7a8dcfab5c03f1937ad14171cfb0a006cc56595cb12886cd8364` |
+| `FORCE_CONSTANTS_2ND` | `e16bb49f78686a3fbff7ff613e7bc90ee6ca79796049eb75521f93b412c78529` |
+| `FORCE_CONSTANTS_3RD` | `8af8615fd9ac954ce3e028c9595a5313b78aabc944c51d38081089391b18171c` |
+| `FORCE_CONSTANTS_4TH` | `25046429a7e5b3b8c3c4b1c30c134d660a9a9c8ae7fddc432cac91a846e58905` |
 
-Source index: https://github.com/atztogo/phonondb/blob/main/mdr/phonondb_LTC/README.md. Each source page, file size, and SHA-256 digest is recorded in `catalog.json`. The NIMS pages state CC BY 4.0; attribution is required. The archives contain computational data based on PBEsol and fitted potentials.
+The upstream `CONTROL` requests 300 K, 16³, and `scalebroad=0.1`. It is preserved for provenance. The present task uses 350 K and `scalebroad=1.0` on 16³ and 20³ meshes as stated in `problem.md`. The upstream repository publishes 300 K outputs; those are not the answer to this task. The installed solver is a pinned FourPhonon CPU build with a GNU Fortran port and a correction to six out-of-bounds sampling loops; its patch is in `environment/fourphonon.patch`.

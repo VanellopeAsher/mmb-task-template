@@ -1,0 +1,188 @@
+diff --git a/Src/ShengBTE.f90 b/Src/ShengBTE.f90
+index 3395952..52faad7 100644
+--- a/Src/ShengBTE.f90
++++ b/Src/ShengBTE.f90
+@@ -825,7 +825,7 @@ program ShengBTE
+                write(*,*) "Timing: End calculating 4ph processes on CPU, iterative solver: ", end_time - start_time, " s"
+             end if
+         end if
+-        if (four_phonon.and.four_phonon_iteration.eq. .false.) then
++        if (four_phonon.and.(four_phonon_iteration.eqv. .false.)) then
+           ! ----------- sampling method add -----------
+           if(myid.eq.0) then
+              if(num_sample_process_4ph.gt.0) write(*,*) "Info: num_sample_process_4ph = ", num_sample_process_4ph
+@@ -1051,7 +1051,7 @@ program ShengBTE
+             end do
+             close(1)
+             if (four_phonon) then
+-              if (four_phonon_iteration.eq. .false.) then
++              if ((four_phonon_iteration.eqv. .false.)) then
+                 write(*,*) "Info: four_phonon_iteration=.false., using RTA on 4ph calculations"
+               end if
+               open(1,file="BTE.WP4_plusplus",status="replace")
+diff --git a/Src/arch.make b/Src/arch.make
+index 717ae56..6697519 100644
+--- a/Src/arch.make
++++ b/Src/arch.make
+@@ -1,32 +1,6 @@
+-# arch.make
+-
+-# Compiler
+-export CPU_COMPILER = mpiifort
+-export GPU_COMPILER = nvfortran  # Or using `mpif90` wrapper
+-
+-# CPU and GPU FFLAGS
+-CPU_FFLAGS = -qopenmp -traceback -O2 -fpp -DCPU_VERSION  #-static_intel   -debug 
+-GPU_FFLAGS = -acc -Minfo=accel  -Mpreprocess -g -cuda -gpu=ptxinfo -mp -O2 -DGPU_VERSION
+-# Choose ONE of the following mutually exclusive options for GPU parallelization:
+-GPU_FFLAGS += -DGPU_ALL_MODE_PARALLELIZATION    # use this tag to use all-mode parallelization
+-#GPU_FFLAGS += -DGPU_MODE_BY_MODE_PARALLELIZATION # use this tag to use mode-by-mode parallelization
+-
+-# Linking
+-# Example paths - replace with your actual library paths:
+-# LDFLAGS = -L/path/to/your/lib -lsymspg
+-LDFLAGS = -lsymspg
+-LDFLAGS += -latomic
+-export LDFLAGS
+-
+-# Set MKLROOT manually if it's not in your environment:
+-# MKLROOT = /path/to/your/mkl
+-# You can find it with "echo $MKLROOT"
+-
+-MKL = $(MKLROOT)/lib/intel64/libmkl_lapack95_lp64.a -Wl,--start-group \
+-      $(MKLROOT)/lib/intel64/libmkl_intel_lp64.a \
+-      $(MKLROOT)/lib/intel64/libmkl_sequential.a \
+-      $(MKLROOT)/lib/intel64/libmkl_core.a -Wl,--end-group -lpthread -lm
+-
+-export LAPACK = $(MKL)
+-export LIBS = $(LAPACK)
+-
++CPU_COMPILER = mpifort
++CPU_FFLAGS = -fopenmp -O2 -cpp -DCPU_VERSION -ffree-line-length-none -fallow-argument-mismatch
++GPU_COMPILER = nvfortran
++GPU_FFLAGS =
++LDFLAGS = -lsymspg -latomic
++LIBS = -llapack -lblas
+diff --git a/Src/config.f90 b/Src/config.f90
+index 7e08d38..9273361 100644
+--- a/Src/config.f90
++++ b/Src/config.f90
+@@ -175,12 +175,12 @@ contains
+     four_phonon=.false.
+     four_phonon_iteration=.false.
+     read(1,nml=flags)
+-    if(four_phonon_iteration.and.convergence.eq. .false.) then
++    if(four_phonon_iteration.and.(convergence.eqv. .false.)) then
+       if(myid.eq.0)write(error_unit,*) "Error: four_phonon_iteration=.TRUE. but convergence=.FALSE."
+       call MPI_BARRIER(MPI_COMM_WORLD,ierr)
+       call MPI_FINALIZE(ierr)
+     end if
+-    if(four_phonon_iteration.and.four_phonon.eq. .false.) then
++    if(four_phonon_iteration.and.(four_phonon.eqv. .false.)) then
+       if(myid.eq.0)write(error_unit,*) "Error: four_phonon_iteration=.TRUE. but four_phonon=.FALSE."
+       call MPI_BARRIER(MPI_COMM_WORLD,ierr)
+       call MPI_FINALIZE(ierr)
+@@ -195,19 +195,19 @@ contains
+        call MPI_BARRIER(MPI_COMM_WORLD,ierr)
+        call MPI_FINALIZE(ierr)
+     end if
+-    if(tdep.eq. .false. .and. Ewald.ne.-1.0  )then
++    if((tdep.eqv. .false.) .and. Ewald.ne.-1.0  )then
+        if(myid.eq.0)write(error_unit,*) "Error: tdep=.FALSE. but Ewald parameter is given"
+        call MPI_BARRIER(MPI_COMM_WORLD,ierr)
+        call MPI_FINALIZE(ierr)
+     end if
+    ! ----------- sampling method add -----------
+-    if(((four_phonon.eq. .false.) .and. (num_sample_process_4ph.gt.0)) .or.((four_phonon.eq. .false.) .and. (num_sample_process_4ph_phase_space.gt.0)) ) then
++    if((((four_phonon.eqv. .false.)) .and. (num_sample_process_4ph.gt.0)) .or.(((four_phonon.eqv. .false.)) .and. (num_sample_process_4ph_phase_space.gt.0)) ) then
+       if(myid.eq.0)write(error_unit,*) "Error: four_phonon=.false. but num_sample_process_4ph.gt.0 or num_sample_process_4ph_phase_space.gt.0. "
+       call MPI_BARRIER(MPI_COMM_WORLD,ierr)
+       call MPI_FINALIZE(ierr)
+     end if
+ 
+-    if(((convergence.eq. .true.) .and. (num_sample_process_3ph.gt.0)) ) then
++    if((((convergence.eqv. .true.)) .and. (num_sample_process_3ph.gt.0)) ) then
+       if(myid.eq.0)write(error_unit,*) "Error: convergence=.true. but num_sample_process_3ph.gt.0. "
+       call MPI_BARRIER(MPI_COMM_WORLD,ierr)
+       call MPI_FINALIZE(ierr)
+@@ -215,19 +215,19 @@ contains
+ 
+     ! The sampled phase space only estimates N_plus/N_minus, which size the
+     ! scattering matrices used by the iterative solver, so it must be off too.
+-    if(((convergence.eq. .true.) .and. (num_sample_process_3ph_phase_space.gt.0)) ) then
++    if((((convergence.eqv. .true.)) .and. (num_sample_process_3ph_phase_space.gt.0)) ) then
+       if(myid.eq.0)write(error_unit,*) "Error: convergence=.true. but num_sample_process_3ph_phase_space.gt.0. "
+       call MPI_BARRIER(MPI_COMM_WORLD,ierr)
+       call MPI_FINALIZE(ierr)
+     end if
+ 
+-    if(((four_phonon_iteration.eq. .true.) .and. (num_sample_process_4ph.gt.0)) ) then
++    if((((four_phonon_iteration.eqv. .true.)) .and. (num_sample_process_4ph.gt.0)) ) then
+       if(myid.eq.0)write(error_unit,*) "Error: four_phonon_iteration=.true. but num_sample_process_4ph.gt.0. "
+       call MPI_BARRIER(MPI_COMM_WORLD,ierr)
+       call MPI_FINALIZE(ierr)
+     end if
+ 
+-    if(((four_phonon_iteration.eq. .true.) .and. (num_sample_process_4ph_phase_space.gt.0)) ) then
++    if((((four_phonon_iteration.eqv. .true.)) .and. (num_sample_process_4ph_phase_space.gt.0)) ) then
+       if(myid.eq.0)write(error_unit,*) "Error: four_phonon_iteration=.true. but num_sample_process_4ph_phase_space.gt.0. "
+       call MPI_BARRIER(MPI_COMM_WORLD,ierr)
+       call MPI_FINALIZE(ierr)
+diff --git a/Src/processes.f90 b/Src/processes.f90
+index 5f1128e..140f273 100644
+--- a/Src/processes.f90
++++ b/Src/processes.f90
+@@ -2522,7 +2522,7 @@ module processes
+  
+           call random_seed()
+           call random_number(rand_matrix)
+-          iter=0
++          iter=1
+           do while (iter<=num_sample_process_4ph_phase_space)
+              matrix_iter = (iter-1)*5
+              ii=1+FLOOR(INT(nptk+1-1)*rand_matrix(matrix_iter+1)) ! phonon2 momentum [1:nptk]
+@@ -2610,7 +2610,7 @@ module processes
+  
+           call random_seed()
+           call random_number(rand_matrix)
+-          iter=0
++          iter=1
+           do while (iter<=num_sample_process_4ph_phase_space)
+              matrix_iter = (iter-1)*5
+              ii=1+FLOOR(INT(nptk+1-1)*rand_matrix(matrix_iter+1)) ! phonon2 momentum [1:nptk]
+@@ -2699,7 +2699,7 @@ module processes
+  
+           call random_seed()
+           call random_number(rand_matrix)
+-          iter=0
++          iter=1
+           do while (iter<=num_sample_process_4ph_phase_space)
+              matrix_iter = (iter-1)*5
+              ii=1+FLOOR(INT(nptk+1-1)*rand_matrix(matrix_iter+1)) ! phonon2 momentum [1:nptk]
+@@ -4864,7 +4864,7 @@ module processes
+  
+        call random_seed()
+        call random_number(rand_matrix)
+-       iter=0
++       iter=1
+        do while (iter<=num_sample_process_4ph)
+           matrix_iter = (iter-1)*5
+           ii=1+FLOOR(INT(nptk+1-1)*rand_matrix(matrix_iter+1)) ! phonon2 momentum [1:nptk]
+@@ -4983,7 +4983,7 @@ module processes
+  
+        call random_seed()
+        call random_number(rand_matrix)
+-       iter=0
++       iter=1
+        do while (iter<=num_sample_process_4ph)
+           matrix_iter = (iter-1)*5
+           ii=1+FLOOR(INT(nptk+1-1)*rand_matrix(matrix_iter+1)) ! phonon2 momentum [1:nptk]
+@@ -5104,7 +5104,7 @@ module processes
+  
+        call random_seed()
+        call random_number(rand_matrix)
+-       iter=0
++       iter=1
+        do while (iter<=num_sample_process_4ph)
+           matrix_iter = (iter-1)*5
+           ii=1+FLOOR(INT(nptk+1-1)*rand_matrix(matrix_iter+1)) ! phonon2 momentum [1:nptk]
