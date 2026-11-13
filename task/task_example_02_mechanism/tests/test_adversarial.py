@@ -57,6 +57,14 @@ bad["mechanism_comparison"]["necessary_predictions"]["minority_surface_redistrib
 expect(bad, False)
 
 bad = copy.deepcopy(GOOD)
+bad["mechanism_comparison"]["necessary_predictions"]["minority_surface_redistribution"]["aucu_post_edge_reaction_similar"] = True
+expect(bad, False)
+
+bad = copy.deepcopy(GOOD)
+bad["mechanism_comparison"]["necessary_predictions"]["stable_reduced_sites_temperature_response"]["nonalloy_control_has_ms_sign"] = True
+expect(bad, False)
+
+bad = copy.deepcopy(GOOD)
 bad["mechanism_comparison"]["unique_rate_mechanism_identified"] = True
 expect(bad, False)
 

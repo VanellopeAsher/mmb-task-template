@@ -100,13 +100,13 @@
       },
       "stable_reduced_sites_temperature_response": {
         "large_bulk_redox": false,
-        "nonalloy_control_has_ms_sign": true,
+        "nonalloy_control_has_ms_sign": null,
         "aucu_post_edge_reaction_similar": true
       },
       "minority_surface_redistribution": {
         "large_bulk_redox": false,
         "nonalloy_control_has_ms_sign": null,
-        "aucu_post_edge_reaction_similar": true
+        "aucu_post_edge_reaction_similar": null
       }
     },
     "compatible_reaction_models": [
