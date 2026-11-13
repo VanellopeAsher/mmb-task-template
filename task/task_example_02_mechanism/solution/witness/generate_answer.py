@@ -53,7 +53,7 @@ def generate(xas_source, ms_source):
                 "stable_reduced_sites_temperature_response": {
                     "large_bulk_redox": False,
                     "nonalloy_control_has_ms_sign": None,
-                    "aucu_post_edge_reaction_similar": True,
+                    "aucu_post_edge_reaction_similar": None,
                 },
                 "minority_surface_redistribution": {
                     "large_bulk_redox": False,
