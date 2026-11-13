@@ -1,0 +1,14 @@
+{
+  "field": "predicted_recovery",
+  "targets": {
+    "a": 0.9684862469507719,
+    "c": 0.7986361579940373
+  },
+  "numeric_max": 15,
+  "error_scale": 0.25,
+  "expert_components": {
+    "evidence": 25,
+    "experiment_design": 40,
+    "interpretation_updates": 20
+  }
+}

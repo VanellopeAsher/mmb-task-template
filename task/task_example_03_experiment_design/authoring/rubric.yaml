@@ -1,11 +1,42 @@
-version: 1
-artifact: /workspace/results/answer.json
-reward:
-  range: [0, 1]
-  rule: Equal weights for measured recovery and matched XPS contrasts, discounted by prediction error under the stated budget.
-scored_outputs:
-  - name: experiments
-    units: fractional loss or recovery
-    reference_source: Published source workbook, Supplementary Figure 3 and Figure 3f.
-    tolerance: Full prediction credit within 0.05 absolute error, zero from 0.25.
-unscored_optional: [analysis]
+{
+  "version": 2,
+  "status": "initial_screening",
+  "artifact": "/workspace/results/answer.json",
+  "numeric": {
+    "max_points": 15,
+    "field": "predicted_recovery",
+    "error_scale": 0.25,
+    "units": "dimensionless"
+  },
+  "expert_components": {
+    "evidence": 25,
+    "experiment_design": 40,
+    "interpretation_updates": 20
+  },
+  "expert_detail": "rubric.md",
+  "pending_review": {
+    "reward": "numeric_points/100",
+    "full_score_available": false
+  },
+  "review_record": {
+    "trusted_location": "tests/manual_review.json",
+    "required": [
+      "answer_sha256",
+      "reviewer",
+      "rationale",
+      "scores"
+    ]
+  },
+  "selection": {
+    "field": "selected_experiment",
+    "allowed": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "exactly_one": true,
+    "fixed_choice_points": 0,
+    "comparison_min_unselected": 2
+  }
+}

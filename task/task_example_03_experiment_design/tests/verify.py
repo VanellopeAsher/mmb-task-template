@@ -1,66 +1,71 @@
-"""Score experimental designs against independently held measured endpoints."""
+"""Independent numeric verification with an explicit pending expert-review state."""
 import argparse
+import hashlib
 import json
 import math
 from pathlib import Path
 
-
-def ramp(value, low, high):
-    return min(1.0, max(0.0, (value - low) / (high - low)))
-
-
-def score(payload, data):
-    experiments = payload["experiments"]
-    if not isinstance(experiments, list):
-        raise ValueError("experiments must be an array")
-    recovery, chemistry, seen, cost = [], {}, set(), 0
-    for experiment in experiments:
-        prediction = experiment["predicted_fraction"]
-        if type(prediction) not in (int, float) or not math.isfinite(prediction):
-            raise ValueError("prediction must be finite")
-        assay = experiment["assay"]
-        if assay == "recovery":
-            bias, hours = experiment["bias_V"], experiment["dark_hours"]
-            panel = {-0.9: "a", -2.7: "c"}[bias]
-            if type(hours) is not int or hours not in (6, 12, 18, 24):
-                raise ValueError("unsupported recovery time")
-            key = assay, bias, hours
-            cost += 2
-            power = data["power"][panel]
-            actual = (power[f"{hours}h"] - power["0h"]) / (power["origin"] - power["0h"])
-            accuracy = 1 - ramp(abs(prediction - actual), 0.05, 0.25)
-            recovery.append(ramp(actual, 0.50, 0.90) * accuracy)
-        elif assay == "xps":
-            arm = experiment["arm"]
-            key = assay, arm
-            cost += 1
-            fresh, aged = data["iodine_ratio"][arm]
-            actual = 1 - aged / fresh
-            chemistry[arm] = actual, 1 - ramp(abs(prediction - actual), 0.05, 0.25)
-        else:
-            raise ValueError("unsupported assay")
-        if key in seen or cost > 4:
-            raise ValueError("duplicate experiment or budget exceeded")
-        seen.add(key)
-    chemical_score = 0.0
-    if set(chemistry) == {"control", "chelated"}:
-        control, control_accuracy = chemistry["control"]
-        chelated, chelated_accuracy = chemistry["chelated"]
-        chemical_score = min(ramp(control, 0.05, 0.15), ramp(control - chelated, 0.05, 0.12))
-        chemical_score *= min(control_accuracy, chelated_accuracy)
-    return (max(recovery, default=0.0) + chemical_score) / 2
-
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--answer", type=Path, default=Path("/workspace/results/answer.json"))
-    parser.add_argument("--reward", type=Path, default=Path("/logs/verifier/reward.txt"))
-    args = parser.parse_args()
-    data = json.loads(Path(__file__).with_name("measured_endpoints.json").read_text(encoding="utf-8"))
-    try:
-        reward = score(json.loads(args.answer.read_text(encoding="utf-8")), data)
-    except (OSError, ValueError, TypeError, KeyError) as error:
-        print(f"Invalid submission: {error}")
-        reward = 0.0
-    args.reward.parent.mkdir(parents=True, exist_ok=True)
-    args.reward.write_text(f"{reward:.9f}\n", encoding="utf-8")
+HERE = Path(__file__).resolve().parent
+parser = argparse.ArgumentParser()
+parser.add_argument("--answer",type=Path,default=Path("/workspace/results/answer.json"))
+parser.add_argument("--reward",type=Path,default=Path("/logs/verifier/reward.txt"))
+parser.add_argument("--review-file",type=Path,default=HERE/"manual_review.json")
+args = parser.parse_args()
+spec = json.loads((HERE/"targets.json").read_text(encoding="utf-8"))
+result = {"status":"invalid","numeric_points":0.0,"expert_points":None,"total_points":None}
+reward = 0.0
+valid = False
+try:
+    raw = args.answer.read_bytes()
+    payload = json.loads(raw)
+    if not isinstance(payload,dict) or set(payload)!={spec["field"],"scientific_report","selected_experiment"}:
+        raise ValueError("Wrong top-level fields")
+    choice = payload["selected_experiment"]
+    if not isinstance(choice, str) or choice not in ("A", "B", "C", "D"):
+        raise ValueError("Select exactly one experiment: A, B, C, or D")
+    result["selected_experiment"] = choice
+    report = payload["scientific_report"]
+    if not isinstance(report,str) or not report.strip():
+        raise ValueError("A nonempty scientific_report is required")
+    values = payload[spec["field"]]
+    if not isinstance(values,dict) or set(values)!=set(spec["targets"]):
+        raise ValueError("Wrong numeric keys")
+    points = 0.0
+    errors = {}
+    for key,target in spec["targets"].items():
+        value = values[key]
+        if type(value) not in (int,float) or not math.isfinite(value):
+            raise ValueError("Predictions must be finite numbers, excluding booleans")
+        error = abs(value-target)
+        errors[key] = error
+        effective_error = 0.0 if error<=1e-9 else error
+        points += spec["numeric_max"]/len(values)*max(0.0,1-effective_error/spec["error_scale"])
+    digest = hashlib.sha256(raw).hexdigest()
+    result.update(status="pending_expert_review",numeric_points=points,absolute_errors=errors,answer_sha256=digest)
+    reward = points/100
+    if args.review_file.exists():
+        review = json.loads(args.review_file.read_text(encoding="utf-8"))
+        if review.get("answer_sha256")!=digest:
+            raise ValueError("Expert review belongs to a different artifact")
+        if not isinstance(review.get("reviewer"),str) or not review["reviewer"].strip():
+            raise ValueError("Expert reviewer identity is required")
+        if not isinstance(review.get("rationale"),str) or not review["rationale"].strip():
+            raise ValueError("Evidence-based review rationale is required")
+        scores = review["scores"]
+        if not isinstance(scores,dict) or set(scores)!=set(spec["expert_components"]):
+            raise ValueError("Wrong expert score fields")
+        for key,maximum in spec["expert_components"].items():
+            score = scores[key]
+            if type(score) not in (int,float) or not math.isfinite(score) or not 0<=score<=maximum:
+                raise ValueError("Expert component outside its range")
+        expert_points = sum(scores.values())
+        result.update(status="reviewed",expert_points=expert_points,total_points=points+expert_points)
+        reward = (points+expert_points)/100
+    valid = True
+except (OSError,ValueError,TypeError,KeyError) as error:
+    reward = 0.0
+    result.update(status="invalid",error=str(error))
+args.reward.parent.mkdir(parents=True,exist_ok=True)
+args.reward.write_text(f"{reward:.9f}\n",encoding="utf-8")
+args.reward.with_suffix(".json").write_text(json.dumps(result,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
+raise SystemExit(0 if valid else 1)

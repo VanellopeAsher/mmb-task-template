@@ -1,0 +1,17 @@
+{
+  "parent": "MMB_logic_refined",
+  "allowed_experiments": [
+    "A",
+    "B",
+    "C",
+    "D"
+  ],
+  "reference_choice": "B",
+  "single_choice": true,
+  "new_observations": false,
+  "source_data_changed": false,
+  "environment_change": [
+    "data/answer_contract.json"
+  ],
+  "fourth_task_changed": false
+}

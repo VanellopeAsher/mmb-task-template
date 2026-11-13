@@ -1,70 +1,67 @@
-#!/usr/bin/env python3
-"""Validate the published five-candidate pilot against source-backed KPI ranges."""
-
-from __future__ import annotations
-
+"""Independent numeric verification with an explicit pending expert-review state."""
 import argparse
+import hashlib
 import json
 import math
 from pathlib import Path
 
-
-# The source paper's displayed table is rounded to two decimal places, except
-# energy to three. These intervals accept the underlying unrounded calculation.
-ROUNDED_VALUES = {
-    "purity": (0.80, 0.005),
-    "recovery": (0.58, 0.005),
-    "working_capacity_mol_kg": (1.68, 0.005),
-    "thermal_energy_MJ_mol": (0.060, 0.0005),
-}
-ENRICHMENT = {"x_ch4_0_5": (1.59, 0.005), "x_ch4_0_003": (1.87, 0.005)}
-CONSTRAINTS = {"purity", "recovery", "working_capacity", "thermal_energy", "dilute_feed_enrichment"}
-
-
-def within_rounding(value: object, rounded: float, half_unit: float, field: str) -> None:
-    if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value):
-        raise ValueError(f"{field}: expected a finite number")
-    if not rounded - half_unit <= value < rounded + half_unit:
-        raise ValueError(f"{field}: inconsistent with source precision")
-
-
-def verify(payload: object) -> None:
-    if not isinstance(payload, dict) or payload.get("selected_candidate") != "candidate_03":
-        raise ValueError("Incorrect selected candidate")
-    kpis = payload.get("process_kpis")
-    enrichment = payload.get("enrichment")
-    checks = payload.get("constraint_check")
-    if not all(isinstance(section, dict) for section in (kpis, enrichment, checks)):
-        raise ValueError("Missing KPI, enrichment, or constraint object")
-    if set(kpis) != set(ROUNDED_VALUES) or set(enrichment) != set(ENRICHMENT) or set(checks) != CONSTRAINTS:
-        raise ValueError("Invalid answer fields")
-    for field, (rounded, half_unit) in ROUNDED_VALUES.items():
-        within_rounding(kpis[field], rounded, half_unit, field)
-    for field, (rounded, half_unit) in ENRICHMENT.items():
-        within_rounding(enrichment[field], rounded, half_unit, field)
-    if any(value is not True for value in checks.values()):
-        raise ValueError("Incorrect constraint check")
-
-
-def main() -> int:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--answer", default="/workspace/results/answer.json")
-    parser.add_argument("--reward", default="/logs/verifier/reward.txt")
-    args = parser.parse_args()
-    passed = False
-    try:
-        payload = json.loads(Path(args.answer).read_text(encoding="utf-8"))
-        payload.pop("analysis", None)
-        verify(payload)
-        passed = True
-    except (OSError, ValueError, KeyError, TypeError, AttributeError) as exc:
-        print(f"Verifier rejected answer: {exc}")
-    reward = Path(args.reward)
-    reward.parent.mkdir(parents=True, exist_ok=True)
-    reward.write_text("1\n" if passed else "0\n", encoding="utf-8")
-    print("PASS" if passed else "FAIL")
-    return 0
-
-
-if __name__ == "__main__":
-    raise SystemExit(main())
+HERE = Path(__file__).resolve().parent
+parser = argparse.ArgumentParser()
+parser.add_argument("--answer",type=Path,default=Path("/workspace/results/answer.json"))
+parser.add_argument("--reward",type=Path,default=Path("/logs/verifier/reward.txt"))
+parser.add_argument("--review-file",type=Path,default=HERE/"manual_review.json")
+args = parser.parse_args()
+spec = json.loads((HERE/"targets.json").read_text(encoding="utf-8"))
+result = {"status":"invalid","numeric_points":0.0,"expert_points":None,"total_points":None}
+reward = 0.0
+valid = False
+try:
+    raw = args.answer.read_bytes()
+    payload = json.loads(raw)
+    if not isinstance(payload,dict) or set(payload)!={spec["field"],"scientific_report"}:
+        raise ValueError("Wrong top-level fields")
+    report = payload["scientific_report"]
+    if not isinstance(report,str) or not report.strip():
+        raise ValueError("A nonempty scientific_report is required")
+    values = payload[spec["field"]]
+    if not isinstance(values,dict) or set(values)!=set(spec["targets"]):
+        raise ValueError("Wrong numeric keys")
+    points = 0.0
+    errors = {}
+    for key,target in spec["targets"].items():
+        value = values[key]
+        if type(value) not in (int,float) or not math.isfinite(value):
+            raise ValueError("Predictions must be finite numbers, excluding booleans")
+        error = abs(value-target)
+        errors[key] = error
+        effective_error = 0.0 if error<=1e-9 else error
+        points += spec["numeric_max"]/len(values)*max(0.0,1-effective_error/spec["error_scale"])
+    digest = hashlib.sha256(raw).hexdigest()
+    result.update(status="pending_expert_review",numeric_points=points,absolute_errors=errors,answer_sha256=digest)
+    reward = points/100
+    if args.review_file.exists():
+        review = json.loads(args.review_file.read_text(encoding="utf-8"))
+        if review.get("answer_sha256")!=digest:
+            raise ValueError("Expert review belongs to a different artifact")
+        if not isinstance(review.get("reviewer"),str) or not review["reviewer"].strip():
+            raise ValueError("Expert reviewer identity is required")
+        if not isinstance(review.get("rationale"),str) or not review["rationale"].strip():
+            raise ValueError("Evidence-based review rationale is required")
+        scores = review["scores"]
+        if not isinstance(scores,dict) or set(scores)!=set(spec["expert_components"]):
+            raise ValueError("Wrong expert score fields")
+        for key,maximum in spec["expert_components"].items():
+            score = scores[key]
+            if type(score) not in (int,float) or not math.isfinite(score) or not 0<=score<=maximum:
+                raise ValueError("Expert component outside its range")
+        expert_points = sum(scores.values())
+        result.update(status="reviewed",expert_points=expert_points,total_points=points+expert_points)
+        reward = (points+expert_points)/100
+    valid = True
+except (OSError,ValueError,TypeError,KeyError) as error:
+    reward = 0.0
+    result.update(status="invalid",error=str(error))
+args.reward.parent.mkdir(parents=True,exist_ok=True)
+args.reward.write_text(f"{reward:.9f}\n",encoding="utf-8")
+args.reward.with_suffix(".json").write_text(json.dumps(result,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
+raise SystemExit(0 if valid else 1)

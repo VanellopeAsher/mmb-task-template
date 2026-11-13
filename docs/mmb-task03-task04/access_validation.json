@@ -1,0 +1,77 @@
+{
+  "file_level_checks": [
+    {
+      "task": "task_example_03_experiment_design",
+      "allowed_data_files": [
+        "answer_contract.json",
+        "observations.json"
+      ],
+      "released_files": 17,
+      "tools_skills_unchanged": true,
+      "scientific_input_bytes_unchanged": true,
+      "original_bootstrap_archived": [
+        "data/fetch_data.sh -> authoring/provenance/upstream_bootstrap/fetch_data.sh"
+      ],
+      "network_config": "no-network",
+      "docker_build": "not_run",
+      "live_network_isolation": "not_run",
+      "external_platform_tools": "requires_platform_configuration",
+      "training_contamination": "not_excludable",
+      "exact_release_allowlist_check": "passed",
+      "reference_recomputation_same_results": true,
+      "independent_numeric_verifier": "passed_pending_expert_review",
+      "numeric_points_reference_artifact": 8.436284041221404,
+      "reference_artifact_kind": "visible_forecast",
+      "injected_answer_file_rejected": true,
+      "probe_logic_simulations": [
+        "blocked_clean_accept",
+        "successful_connection_reject",
+        "unexpected_file_reject",
+        "authoring_directory_reject"
+      ],
+      "probe_logic_simulations_are_live_isolation_tests": false
+    },
+    {
+      "task": "task_example_04_inverse_design",
+      "allowed_data_files": [
+        "A_dilute.json",
+        "A_rich.json",
+        "B_dilute.json",
+        "B_rich.json",
+        "C_dilute.json",
+        "C_rich.json",
+        "D_dilute.json",
+        "D_rich.json",
+        "E_dilute.json",
+        "E_rich.json",
+        "answer_contract.json"
+      ],
+      "released_files": 23,
+      "tools_skills_unchanged": true,
+      "scientific_input_bytes_unchanged": true,
+      "original_bootstrap_archived": [],
+      "network_config": "no-network",
+      "docker_build": "not_run",
+      "live_network_isolation": "not_run",
+      "external_platform_tools": "requires_platform_configuration",
+      "training_contamination": "not_excludable",
+      "exact_release_allowlist_check": "passed",
+      "reference_recomputation_same_results": true,
+      "independent_numeric_verifier": "passed_pending_expert_review",
+      "numeric_points_reference_artifact": 25.0,
+      "reference_artifact_kind": "author_oracle_not_blind_prediction",
+      "injected_answer_file_rejected": true,
+      "probe_logic_simulations": [
+        "blocked_clean_accept",
+        "successful_connection_reject",
+        "unexpected_file_reject",
+        "authoring_directory_reject"
+      ],
+      "probe_logic_simulations_are_live_isolation_tests": false
+    }
+  ],
+  "runtime_isolation": "not_run",
+  "status": "file_checks_and_reference_recomputation_passed_runtime_pending",
+  "actual_runtime_probe": "not_run_no_docker_runtime_available_in_this_session",
+  "automatic_training_contamination_detection": false
+}

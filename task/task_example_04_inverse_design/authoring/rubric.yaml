@@ -1,23 +1,30 @@
-version: 1
-artifact: /workspace/results/answer.json
-reward:
-  pass: 1
-  fail: 0
-  rule: Select the unique candidate meeting all five process-level constraints and report its source KPI values within tolerance.
-scored_outputs:
-  - name: selected_candidate
-    units: anonymous MOF candidate identifier
-    tolerance: exact
-    reference_source: CoRE MOF TSA process trajectories, independently reconciled with Table 1, Granderath et al. 2026.
-    shortcut_audit: The five-row KPI table and source evaluation JSONs are author-only; the Agent receives source-derived cycle trajectories with anonymous IDs.
-  - name: process_kpis
-    units: mixed (dimensionless, mol kg-1, MJ mol-1)
-    tolerance: Published rounding intervals, half-width 0.005 for purity/recovery/capacity and 0.0005 for energy.
-    reference_source: Recomputed process trajectory mass balance, checked against source evaluations.
-    shortcut_audit: The Agent must derive product, recovery, working capacity and heat demand from the cycle balances.
-  - name: enrichment
-    units: dimensionless
-    tolerance: Published rounding interval, half-width 0.005.
-    reference_source: Recomputed methane product purity divided by feed mole fraction at 0.5 and 0.003.
-    shortcut_audit: Both feed values require analysis of separate cycle trajectories.
-unscored_optional: [analysis]
+{
+  "version": 1,
+  "status": "initial_screening",
+  "artifact": "/workspace/results/answer.json",
+  "numeric": {
+    "max_points": 25,
+    "field": "predicted_enrichment",
+    "error_scale": 0.2,
+    "units": "dimensionless"
+  },
+  "expert_components": {
+    "explanation": 35,
+    "process_decision": 30,
+    "limitations": 10
+  },
+  "expert_detail": "rubric.md",
+  "pending_review": {
+    "reward": "numeric_points/100",
+    "full_score_available": false
+  },
+  "review_record": {
+    "trusted_location": "tests/manual_review.json",
+    "required": [
+      "answer_sha256",
+      "reviewer",
+      "rationale",
+      "scores"
+    ]
+  }
+}

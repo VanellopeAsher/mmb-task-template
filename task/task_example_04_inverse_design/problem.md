@@ -1,22 +1,26 @@
-# Problem
+# 富集排名反转会怎样影响受约束的材料选择？
+甲烷/氮气温度摆动吸附循环中，A、B两种材料在等摩尔进料时B富集更高，甲烷进料摩尔分数降至0.003后A领先。哪些过程变化能够解释反转？这些证据能支持怎样的跨工况材料判断？
 
-面向甲烷/氮气混合物的温度摆动吸附（TSA）分离，选择一种能够同时满足产品纯度、甲烷回收率、工作容量和单位捕获甲烷热能需求约束的 MOF 候选材料。
+现有候选A至E在等摩尔进料下有完整轨迹，A、B在稀进料下有完整轨迹，C、D、E的稀进料脱附过程仅公开前25/50步。请解释A、B的差异并检验至少一种合理替代解释，预测C、D、E稀进料全周期的富集倍数。
 
-请基于五种匿名候选材料在两种进料组成下的 TSA 循环轨迹，完成多目标筛选。不得只按单一吸附量或选择性排序；需要同时考虑工艺层面的 purity、recovery、working capacity 和 thermal energy demand，并检查候选材料在稀甲烷进料下的 enrichment。
+本例沿用原候选题给定的应用规格：等摩尔进料下纯度≥0.78、回收率≥0.55、工作容量≥1 mol/kg、单位产品甲烷外加热耗≤0.070 MJ/mol；另要求稀进料全周期富集倍数≥1.85。它们是示例规格。请逐项判断候选的资格、给出有证据的推荐或保留判断，并指出什么补充观察可能改变结论。
+以脱附阶段各步的有符号净流出量定义产品边界，气体顺序为甲烷、氮气。纯度为产品甲烷摩尔分数，富集倍数为该纯度除以进料甲烷分数。工作容量沿用本数据的产品甲烷量/吸附剂质量定义，热耗采用脱附外加热量/产品甲烷量。回收率依据完整周期进料/产品/废气衡算，注明采用的边界。方法自选。
+提交answer.json中的predicted_enrichment（C、D、E）及scientific_report中的解释、约束核查和决策。35分评价解释及替代解释检验，25分评价预测，30分评价工艺判断，10分评价适用范围，详见下述公开计分规则。
 
-本样例采用以下硬约束：
 
-- methane purity ≥ 0.78；
-- methane recovery ≥ 0.55；
-- working capacity ≥ 1.00 mol kg⁻¹；
-- thermal energy demand ≤ 0.070 MJ mol⁻¹；
-- enrichment at methane feed fraction 0.003 ≥ 1.85。
 
-提交 `/workspace/results/answer.json`：
 
-- `selected_candidate`: 唯一满足全部约束的匿名候选 ID。
-- `process_kpis`: 该材料在等摩尔进料（x_CH4 = 0.5）下的四项 KPI。
-- `enrichment`: x_CH4 = 0.5 与 0.003 下的 methane enrichment。
-- `constraint_check`: 五项约束的布尔结果。
+## 标准提交格式
+提交 /workspace/results/answer.json。顶层只允许 predicted_enrichment 与 scientific_report 两个字段。predicted_enrichment 为对象，必需键为 C, D, E，各值为有限JSON数值（无量纲，布尔值不合格）。scientific_report 是非空UTF-8文本字符串，包含题面要求的完整研究论证。数据位于 /workspace/data/，类型契约见 answer_contract.json。
 
-`/workspace/data/process_trajectories.zip` 中每个候选有 x_CH4 = 0.5 和 0.003 两条循环轨迹。输出量的定义如下：产品为脱附阶段各步的有符号流出量之和；purity 为产品中的甲烷摩尔分数；recovery 为产品甲烷摩尔数除以进料甲烷摩尔分数乘以产品总摩尔数与吸附阶段废气摩尔数之和；working capacity 为产品甲烷摩尔数除以吸附剂质量，单位 mol kg⁻¹；thermal energy demand 为脱附阶段外加热量之和除以产品甲烷摩尔数，单位 MJ mol⁻¹；enrichment 为产品甲烷摩尔分数除以进料甲烷摩尔分数。`analysis` 可选且不计分。
+数值部分共25分，各目标等权。每项目标分数乘以 max(0,1−绝对误差/0.2)。误差≤1e−9仅视为计算精度内相同。误差刻度为初筛试用规则，尚未按实验噪声或模型难度校准。
+
+专家项目及上限为 {"explanation": 35, "process_decision": 30, "limitations": 10}。专家依据数据引用、竞争解释与结论边界评阅。自动程序先记录数值分，专家项目待人工评阅后合并。未评阅时不提供完整总分或完整通过结论。
+
+完整周期进料按吸附阶段流入加开放冷却净补气计算：F=−steps_adsorption[moles_feed [mol]]−Σsteps_cooling[moles_out [mol]]。回收率为净产品CH4/(进料CH4分数×F)。产品使用脱附带符号净流出量，保留源模型边界。
+
+## 资料使用与搜索限制
+
+本题采用离线评测。允许使用给定数据、本地工具及模型已有的通用领域知识；禁止外部搜索、浏览器、数据库/API 查询、运行期间下载资料，以及查阅本题的现成解答、源论文直接目标结果、完整保留数据或作者目录。不得通过材料身份或来源反查答案。预测必须依据可见数据，不能用已知目标结果倒填；若意识到记得本题具体答案或意外看到隐藏结果，请披露。不能以规则保证模型从未学过相关答案。
+
+完整规则见 `/workspace/ACCESS_POLICY.md`。组织者只部署 `agent_release/` 内的单题目录，运行期间禁用网络与外部搜索工具，隔离参考解答和保留数据。资料使用合规与科学得分分别核查；没有实际运行记录，不能声称隔离已经验证生效。

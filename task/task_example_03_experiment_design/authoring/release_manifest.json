@@ -1,0 +1,38 @@
+{
+  "task": "task_example_03_experiment_design",
+  "task_files": {
+    "environment/ACCESS_POLICY.md": "1682af75e8c17011c729f30dfda6abb7f90a338200909f5f6e6e8074f065f43c",
+    "environment/data/answer_contract.json": "686b731eff24a29704788c64e1b7721e3aeac507c435564e4f4d6fbc95a5aee5",
+    "environment/data/observations.json": "20e8bf0c33979e63c7dd822dce20151334c1a4e4dd27479f5f6c7dcc8518cf66",
+    "environment/Dockerfile": "6572308cbd12c6617dd21296b66d162c9a38a53ea698b35dbf4e46943c0fc925",
+    "environment/README.md": "a1a38e5885db1f9b8626fee5d2c63c944b5af55f60eeea50a41eb11804025c19",
+    "environment/requirements.txt": "b94103d4ddeb60edb7eaffbb2baa874f020b3fc7831aa5b488f27522649150b7",
+    "environment/skills/README.md": "50c133cbefeb08c8504d2544463a21e3abb8ac36ed3e89987d0441ff113d64fd",
+    "environment/tools/impedance.md": "8ea9f5a73273e41f27a76b9f2f0d177ce890ba61a991e9ee7bd86fc1b88058f3",
+    "environment/tools/inspect_transients.py": "6256b5574c83bacc5a68e5fbc8b04a7adc9705acdcb58551b754685d954c93cc",
+    "environment/tools/ionmonger.md": "b50c1e068debb80144580782061556fc9457ceb7a26f905f8fddd70de44f996b",
+    "environment/tools/lmfit.md": "bd32f31f684404658f0c6f08c8a0f94cf19ac3c82cca375c0768b2f4989f3623",
+    "environment/tools/openpyxl.md": "3cc41437098bd28c56417727fbd9345efef504bf5b374d808f1df0d513cda2b1",
+    "environment/tools/README.md": "1202d907c66894412a60e4caa53033fae3b6f024b7e5d85d241cb9d1452d98ca",
+    "environment/tools/scaps.md": "5e0e6b556f1951b1dff16eb4f6ec5789962664d498550327548c03c85ebac7d2",
+    "environment/tools/scipy.md": "60c0e0b857415eeb7911b7f9dd170441737a853c686dbdf9f7ec087d2e15bcd0",
+    "problem.md": "755c5cc83b9b0259bfe47d91ed9070b7644ce8fb38962332b0e8bea4244653ee",
+    "task.toml": "9234632a8fcd18deb1a088a93aad8569c9d8416773bf7f260543b1cd1ec1f468"
+  },
+  "workspace_files": {
+    "ACCESS_POLICY.md": "1682af75e8c17011c729f30dfda6abb7f90a338200909f5f6e6e8074f065f43c",
+    "data/answer_contract.json": "686b731eff24a29704788c64e1b7721e3aeac507c435564e4f4d6fbc95a5aee5",
+    "data/observations.json": "20e8bf0c33979e63c7dd822dce20151334c1a4e4dd27479f5f6c7dcc8518cf66",
+    "requirements.txt": "b94103d4ddeb60edb7eaffbb2baa874f020b3fc7831aa5b488f27522649150b7",
+    "skills/README.md": "50c133cbefeb08c8504d2544463a21e3abb8ac36ed3e89987d0441ff113d64fd",
+    "tools/impedance.md": "8ea9f5a73273e41f27a76b9f2f0d177ce890ba61a991e9ee7bd86fc1b88058f3",
+    "tools/inspect_transients.py": "6256b5574c83bacc5a68e5fbc8b04a7adc9705acdcb58551b754685d954c93cc",
+    "tools/ionmonger.md": "b50c1e068debb80144580782061556fc9457ceb7a26f905f8fddd70de44f996b",
+    "tools/lmfit.md": "bd32f31f684404658f0c6f08c8a0f94cf19ac3c82cca375c0768b2f4989f3623",
+    "tools/openpyxl.md": "3cc41437098bd28c56417727fbd9345efef504bf5b374d808f1df0d513cda2b1",
+    "tools/README.md": "1202d907c66894412a60e4caa53033fae3b6f024b7e5d85d241cb9d1452d98ca",
+    "tools/scaps.md": "5e0e6b556f1951b1dff16eb4f6ec5789962664d498550327548c03c85ebac7d2",
+    "tools/scipy.md": "60c0e0b857415eeb7911b7f9dd170441737a853c686dbdf9f7ec087d2e15bcd0"
+  },
+  "runtime_probe_status": "not_run"
+}

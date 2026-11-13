@@ -1,0 +1,13 @@
+{
+  "base": "MMB_preserved_environment",
+  "scope": "scientific reasoning, boundary checks, docs and reference reports",
+  "environment_tools_skills_dependencies": "unchanged",
+  "primary_source_04": "https://pmc.ncbi.nlm.nih.gov/articles/PMC13504625/",
+  "source_code_scope": "Inspected repository KPI recomputation code; published original process implementation not located. Sign/boundary interpretation checked independently against ten actual stage traces and column inventories.",
+  "known_limitations": [
+    "No independent human baseline",
+    "No new wet experiment",
+    "No frontier Agent difficulty trial",
+    "Docker/Harbor not executed"
+  ]
+}

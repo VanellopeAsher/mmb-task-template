@@ -1,0 +1,40 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "selected_experiment",
+    "predicted_recovery",
+    "scientific_report"
+  ],
+  "properties": {
+    "predicted_recovery": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "a",
+        "c"
+      ],
+      "properties": {
+        "a": {
+          "type": "number"
+        },
+        "c": {
+          "type": "number"
+        }
+      }
+    },
+    "scientific_report": {
+      "type": "string",
+      "minLength": 1
+    },
+    "selected_experiment": {
+      "type": "string",
+      "enum": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ]
+    }
+  }
+}
