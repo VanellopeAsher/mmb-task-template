@@ -32,19 +32,30 @@ expect(dict(GOOD, analysis="Hydrogen spillover is uniquely proven"), False)
 expect({}, False)
 
 alternative = copy.deepcopy(GOOD)
-alternative["discriminating_experiment"] = {
-    "perturbation": "Cycle butadiene feed at constant bed temperature while acquiring surface spectra",
-    "held_constant": ["Bed temperature", "H2 partial pressure", "Flow", "Photon dose"],
-    "readout": "Reversible change in surface Cu fraction paired with a calibrated rate change",
-    "units": "percentage points",
-    "resolution": 1,
-    "contrasting_predictions": {
-        "stable_reduced_sites_temperature_response": [0, 0.5],
-        "minority_surface_redistribution": [2, 4],
-    },
-    "rationale": "Planning ranges for a gas-responsive redistribution model. Establish precision with replicate cycles and monitor the rate concurrently.",
-}
+alternative["discriminating_experiment"] = {'factor': 'reactant_partial_pressure',
+ 'contrast': 'feed_cycle',
+ 'controls': ['bed_temperature_history',
+              'hydrogen_feed',
+              'sample_preparation',
+              'total_flow',
+              'total_pressure',
+              'matched_readout_exposure'],
+ 'endpoint': 'reversible_surface_cu_population',
+ 'assay': 'operando_surface_xps',
+ 'context_readouts': ['calibrated_product_rate'],
+ 'predictions': {'minority_surface_redistribution': 'detectable_response',
+                 'stable_reduced_sites_temperature_response': 'no_systematic_response'},
+ 'scope': 'gas_responsive_cu_population_above_detection_limit',
+ 'detection_check': 'calibrate_with_matched_replicates',
+ 'null_interpretation': 'bounds_only_the_tested_effect'}
 expect(alternative, True)
+
+equivalent = copy.deepcopy(GOOD)
+equivalent["discriminating_experiment"].update(
+    contrast="dose_series", endpoint="cu_reduction_extent_at_matched_time",
+    assay="quench_and_cu_speciation",
+)
+expect(equivalent, True)
 
 bad = copy.deepcopy(GOOD)
 del bad["mechanism_comparison"]
@@ -94,12 +105,21 @@ bad = copy.deepcopy(GOOD)
 bad["post_edge_fingerprint_correlation"]["au_vs_aucu_reduced_correlation"] = 0.97
 expect(bad, False)
 
-bad = copy.deepcopy(GOOD)
-bad["discriminating_experiment"]["resolution"] = 4
-expect(bad, False)
+for invalid in (
+    {"assay": "uncalibrated_ms"},
+    {"controls": ["hydrogen_feed"]},
+    {"contrast": "feed_cycle"},
+    {"predictions": {"beam_or_temperature_bias": "no_systematic_response",
+                     "hydrogen_spillover": "detectable_response"}},
+    {"null_interpretation": "rules_out_all_beam_or_temperature_bias"},
+    {"resolution": 0.001, "contrasting_predictions": {"a": [0, 1], "b": [9, 10]}},
+):
+    bad = copy.deepcopy(GOOD)
+    bad["discriminating_experiment"].update(invalid)
+    expect(bad, False)
 
-bad = copy.deepcopy(GOOD)
-bad["discriminating_experiment"]["held_constant"] = []
+bad = copy.deepcopy(alternative)
+bad["discriminating_experiment"]["context_readouts"] = []
 expect(bad, False)
 
 for value in (float("nan"), float("inf"), True, "3.746"):

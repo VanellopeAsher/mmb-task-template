@@ -63,36 +63,71 @@ def compare_control_block(reported, expected, tolerance, label):
         compare_numeric_block(groups, expected_groups, tolerance, f"{label}.{sample}")
 
 
+# Reference causal contrasts. Techniques can vary independently of the protocol.
+EXPERIMENTS = {
+    "xray_exposure": {
+        "contrasts": {"dose_series", "beam_on_off"},
+        "controls": {"bed_temperature_history", "hydrogen_feed", "sample_preparation",
+                     "reactor_geometry", "matched_readout_exposure", "fresh_replicates"},
+        "endpoints": {
+            "cu_reduction_midpoint": {"cu_edge_xas"},
+            "cu_reduction_extent_at_matched_time": {"cu_edge_xas", "quench_and_cu_speciation"},
+        },
+        "context": set(),
+        "response_model": "beam_or_temperature_bias",
+        "null_models": {"hydrogen_spillover", "Cu_dispersion_or_precursor_bonding"},
+        "scope": "beam_component_at_matched_temperature",
+    },
+    "reactant_partial_pressure": {
+        "contrasts": {"feed_cycle", "matched_feed_switches"},
+        "controls": {"bed_temperature_history", "hydrogen_feed", "sample_preparation",
+                     "total_flow", "total_pressure", "matched_readout_exposure"},
+        "endpoints": {
+            "reversible_surface_cu_population": {"operando_surface_xps", "validated_surface_site_probe"},
+        },
+        "context": {"calibrated_product_rate"},
+        "response_model": "minority_surface_redistribution",
+        "null_models": {"stable_reduced_sites_temperature_response"},
+        "scope": "gas_responsive_cu_population_above_detection_limit",
+    },
+}
+
+
 def check_experiment(value, comparison):
-    design = require_map(value, {"perturbation", "held_constant", "readout", "units",
-                                 "resolution", "contrasting_predictions", "rationale"},
+    design = require_map(value, {"factor", "contrast", "controls", "endpoint", "assay",
+                                 "context_readouts", "predictions", "scope",
+                                 "detection_check", "null_interpretation"},
                          "discriminating_experiment")
-    for field in ("perturbation", "readout", "units", "rationale"):
-        if not isinstance(design[field], str) or not design[field].strip():
-            raise ValueError(f"Missing experiment description: {field}")
-    controls = design["held_constant"]
-    if not isinstance(controls, list) or not controls or any(
-        not isinstance(control, str) or not control.strip() for control in controls
-    ):
-        raise ValueError("Describe the matched experimental controls")
-    predictions = design["contrasting_predictions"]
-    if not isinstance(predictions, dict) or len(predictions) != 2 or not any(
-        set(predictions) <= set(comparison[group])
-        for group in ("compatible_reaction_models", "compatible_early_Cu_explanations")
-    ):
-        raise ValueError("Compare two compatible explanations from the same group")
-    resolution = design["resolution"]
-    if type(resolution) not in (int, float) or not math.isfinite(resolution) or resolution <= 0:
-        raise ValueError("Resolution must be positive and finite")
-    for interval in predictions.values():
-        if (not isinstance(interval, list) or len(interval) != 2
-                or any(type(x) not in (int, float) or not math.isfinite(x) for x in interval)
-                or interval[0] > interval[1]):
-            raise ValueError("Predictions require finite, ordered interval endpoints")
-    first, second = sorted(predictions.values())
-    separation = second[0] - first[1]
-    if not math.isfinite(separation) or separation <= resolution:
-        raise ValueError("Predictions are indistinguishable at the reported resolution")
+    for key in ("factor", "contrast", "endpoint", "assay", "scope",
+                "detection_check", "null_interpretation"):
+        if not isinstance(design[key], str):
+            raise ValueError(f"Expected a category for {key}")
+    rule = EXPERIMENTS.get(design["factor"])
+    if rule is None or design["contrast"] not in rule["contrasts"]:
+        raise ValueError("Intervention does not isolate a reference causal contrast")
+    if design["assay"] not in rule["endpoints"].get(design["endpoint"], set()):
+        raise ValueError("Assay does not measure the discriminating endpoint")
+    for key, required in (("controls", rule["controls"]),
+                          ("context_readouts", rule["context"])):
+        values = design[key]
+        if (not isinstance(values, list) or not all(isinstance(v, str) for v in values)
+                or not required <= set(values)):
+            raise ValueError(f"Missing experimental {key}")
+        if key == "controls" and design["factor"] in values:
+            raise ValueError("The manipulated factor cannot also be held fixed")
+    predictions = design["predictions"]
+    response = rule["response_model"]
+    if (not isinstance(predictions, dict) or len(predictions) != 2
+            or predictions.get(response) != "detectable_response"
+            or not any(predictions.get(model) == "no_systematic_response"
+                       for model in rule["null_models"])
+            or not any(set(predictions) <= set(comparison[group])
+                       for group in ("compatible_reaction_models", "compatible_early_Cu_explanations"))):
+        raise ValueError("Predictions must follow from the competing causal models")
+    if (design["scope"] != rule["scope"]
+            or design["detection_check"] != "calibrate_with_matched_replicates"
+            or design["null_interpretation"] != "bounds_only_the_tested_effect"):
+        raise ValueError("Limit inference to the tested effect and establish measurement sensitivity")
 
 
 def verify(payload):
