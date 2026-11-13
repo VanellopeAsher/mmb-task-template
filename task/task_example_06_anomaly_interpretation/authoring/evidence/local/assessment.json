@@ -1,0 +1,17 @@
+{
+  "reward": 1,
+  "sections": {
+    "defect_identification": {
+      "passed": true
+    },
+    "spatial_repetition": {
+      "passed": true
+    },
+    "periodic_connectivity": {
+      "passed": true
+    },
+    "counterexample_selection": {
+      "passed": true
+    }
+  }
+}

@@ -1,0 +1,163 @@
+{
+  "sample_01": [
+    [
+      true,
+      true,
+      true
+    ]
+  ],
+  "sample_02": [
+    [
+      false,
+      true,
+      true
+    ]
+  ],
+  "sample_03": [
+    [
+      true,
+      true,
+      true
+    ]
+  ],
+  "sample_04": [
+    [
+      true,
+      true,
+      true
+    ]
+  ],
+  "sample_05": [
+    [
+      true,
+      true,
+      true
+    ]
+  ],
+  "sample_06": [
+    [
+      true,
+      true,
+      true
+    ]
+  ],
+  "sample_07": [
+    [
+      true,
+      true,
+      true
+    ]
+  ],
+  "sample_08": [
+    [
+      false,
+      true,
+      true
+    ]
+  ],
+  "sample_09": [
+    [
+      true,
+      true,
+      true
+    ]
+  ],
+  "sample_10": [
+    [
+      true,
+      true,
+      true
+    ]
+  ],
+  "sample_11": [
+    [
+      true,
+      true,
+      true
+    ]
+  ],
+  "sample_12": [
+    [
+      false,
+      false,
+      true
+    ]
+  ],
+  "sample_13": [
+    [
+      false,
+      false,
+      false
+    ],
+    [
+      false,
+      false,
+      false
+    ],
+    [
+      false,
+      false,
+      false
+    ],
+    [
+      false,
+      false,
+      false
+    ],
+    [
+      false,
+      false,
+      false
+    ],
+    [
+      false,
+      false,
+      false
+    ],
+    [
+      false,
+      false,
+      false
+    ],
+    [
+      false,
+      false,
+      false
+    ],
+    [
+      false,
+      false,
+      false
+    ],
+    [
+      false,
+      false,
+      false
+    ],
+    [
+      false,
+      false,
+      false
+    ],
+    [
+      false,
+      false,
+      false
+    ],
+    [
+      false,
+      false,
+      false
+    ],
+    [
+      false,
+      false,
+      false
+    ],
+    [
+      true,
+      true,
+      true
+    ]
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "reward": 1,
+  "sections": {
+    "baseline": {
+      "passed": true
+    },
+    "coverage_and_nominal_comparisons": {
+      "passed": true
+    },
+    "robustness": {
+      "passed": true
+    }
+  }
+}

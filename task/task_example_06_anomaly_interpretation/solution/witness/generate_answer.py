@@ -1,67 +1,48 @@
-"""Generate the UiO-66 oracle directly from the nine anonymous CIFs."""
-
-from __future__ import annotations
-
+"""Diagnose periodic connectivity and select a control from the public CIFs."""
 import argparse
+from itertools import combinations
 import json
 from pathlib import Path
 
 from structure_metrics import inspect_cif
 
 
-NOMINAL_LEVELS = (1, 10, 20)
+def agreement(a, b):
+    if (a['defect_type'], a['missing_site_count']) != (b['defect_type'], b['missing_site_count']):
+        return 0
+    if a['nearest_missing_pairs'] != b['nearest_missing_pairs']:
+        return 1
+    if sum(a['overlap_counts']) != sum(b['overlap_counts']):
+        return 2
+    return 4 if a['overlap_counts'] == b['overlap_counts'] else 3
 
 
-def generate(data_dir: Path) -> dict[str, object]:
-    samples: dict[str, dict[str, object]] = {}
-    structural_metrics: dict[str, dict[str, float | int]] = {}
-    for index in range(1, 10):
-        sample_id = f"sample_{index:02d}"
-        metrics = inspect_cif(data_dir / f"{sample_id}.cif")
-        if metrics["missing_cluster_count"]:
-            defect_type = "missing_cluster"
-            fraction = float(metrics["missing_cluster_fraction_pct"])
-        elif metrics["missing_linker_count_from_carbon"]:
-            defect_type = "missing_linker"
-            fraction = float(metrics["missing_linker_fraction_pct"])
-        else:
-            raise ValueError(f"{sample_id}: no supported defect detected")
-        topology = metrics.get("topology_from_graph")
-        if topology is None:
-            distribution = "random"
-            nominal = min(NOMINAL_LEVELS, key=lambda level: abs(fraction - level))
-            if abs(fraction - nominal) > 0.6:
-                raise ValueError(f"{sample_id}: fraction outside nominal levels")
-        else:
-            distribution = "correlated"
-            nominal = None
-        degrees = metrics["cluster_linker_degree_sequence"]
-        samples[sample_id] = {
-            "defect_type": defect_type,
-            "distribution": distribution,
-            "nominal_fraction_pct": nominal,
-            "topology": topology,
-        }
-        structural_metrics[sample_id] = {
-            "measured_fraction_pct": fraction,
-            "intact_linker_count": int(metrics["intact_linker_count"]),
-            "primitive_translation_overlap": metrics["primitive_translation_overlap"],
-            "cluster_degree_min": min(degrees),
-            "cluster_degree_max": max(degrees),
-            "cluster_degree_mean": sum(degrees) / len(degrees),
-        }
-    return {"samples": samples, "structural_metrics": structural_metrics}
+def generate(data_dir):
+    metrics = {path.stem: inspect_cif(path, data_dir / 'reference.cif')
+               for path in sorted((data_dir / 'structures').glob('sample_*.cif'))}
+    samples = {}
+    for name, row in metrics.items():
+        ranks = row['component_winding_ranks']
+        status = 'no_3d_network'
+        if 3 in ranks:
+            status = 'single_3d_network' if len(ranks) == 1 else 'partial_3d_network'
+        samples[name] = dict(defect_type=row['defect_type'], missing_site_count=row['missing_site_count'],
+                             spatial={'overlap_counts': row['overlap_counts']},
+                             connectivity={'method': 'winding_rank', 'components': ranks},
+                             network_status=status)
+    candidates = [(agreement(metrics[a], metrics[b]), a, b) for a, b in combinations(metrics, 2)
+                  if max(metrics[a]['component_winding_ranks']) != max(metrics[b]['component_winding_ranks'])]
+    score, left, right = max(candidates)
+    if not score:
+        raise ValueError('No concentration-matched periodic contrast')
+    grades = ('concentration', 'nearest_pairs', 'mean_repeat', 'axis_profile')
+    return {'samples': samples, 'counterexample': {'samples': [left, right], 'agreement': grades[score - 1]}}
 
 
-def main() -> None:
+if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument("--data-dir", type=Path, default=Path("/workspace/data/structures"))
-    parser.add_argument("--output", type=Path, default=Path("/workspace/results/answer.json"))
+    parser.add_argument('--data-dir', type=Path, default=Path('/workspace/data'))
+    parser.add_argument('--output', type=Path, default=Path('/workspace/results/answer.json'))
     args = parser.parse_args()
-    answer = generate(args.data_dir)
     args.output.parent.mkdir(parents=True, exist_ok=True)
-    args.output.write_text(json.dumps(answer, indent=2) + "\n", encoding="utf-8")
-
-
-if __name__ == "__main__":
-    main()
+    args.output.write_text(json.dumps(generate(args.data_dir), indent=2) + '\n', encoding='utf-8', newline='\n')

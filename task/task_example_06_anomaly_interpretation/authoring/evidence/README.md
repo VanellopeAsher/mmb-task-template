@@ -1,3 +1,3 @@
-# Independent evidence
+# Independent scientific evidence
 
-Contains the reference answer and source-derived evidence used to calibrate the objective verifier. Keep this directory unavailable to evaluated Agents.
+Reference targets are recomputed by independent_reference.py. verifier_cases.json records actual CLI rewards. Validation scope and limitations are documented in validation_notes.md and ../scientific_brief.md. Keep this directory private during evaluation.

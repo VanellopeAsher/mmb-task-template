@@ -1,0 +1,539 @@
+{
+  "scenarios": {
+    "reading_0.04_effect_0.30_dex": {
+      "matched_methane": {
+        "b_left_1": "outside_support",
+        "b_left_2": "outside_support",
+        "b_left_3": "outside_support",
+        "b_left_4": "outside_support",
+        "b_left_5": "outside_support",
+        "b_right_1": "higher",
+        "b_right_2": "higher",
+        "b_right_3": "outside_support",
+        "b_right_4": "outside_support",
+        "b_right_5": "outside_support",
+        "b_right_6": "outside_support"
+      },
+      "pooled_methane": {
+        "b_left_1": "higher",
+        "b_left_2": "higher",
+        "b_left_3": "higher",
+        "b_left_4": "outside_support",
+        "b_left_5": "outside_support",
+        "b_right_1": "higher",
+        "b_right_2": "higher",
+        "b_right_3": "outside_support",
+        "b_right_4": "outside_support",
+        "b_right_5": "outside_support",
+        "b_right_6": "outside_support"
+      },
+      "matched_potential": {
+        "b_left_1": "outside_support",
+        "b_left_2": "outside_support",
+        "b_left_3": "unresolved",
+        "b_left_4": "outside_support",
+        "b_left_5": "outside_support",
+        "b_right_1": "outside_support",
+        "b_right_2": "unresolved",
+        "b_right_3": "unresolved",
+        "b_right_4": "higher",
+        "b_right_5": "outside_support",
+        "b_right_6": "outside_support"
+      }
+    },
+    "reading_0.08_effect_0.30_dex": {
+      "matched_methane": {
+        "b_left_1": "outside_support",
+        "b_left_2": "outside_support",
+        "b_left_3": "outside_support",
+        "b_left_4": "outside_support",
+        "b_left_5": "outside_support",
+        "b_right_1": "higher",
+        "b_right_2": "unresolved",
+        "b_right_3": "outside_support",
+        "b_right_4": "outside_support",
+        "b_right_5": "outside_support",
+        "b_right_6": "outside_support"
+      },
+      "pooled_methane": {
+        "b_left_1": "higher",
+        "b_left_2": "higher",
+        "b_left_3": "higher",
+        "b_left_4": "outside_support",
+        "b_left_5": "outside_support",
+        "b_right_1": "higher",
+        "b_right_2": "higher",
+        "b_right_3": "outside_support",
+        "b_right_4": "outside_support",
+        "b_right_5": "outside_support",
+        "b_right_6": "outside_support"
+      },
+      "matched_potential": {
+        "b_left_1": "outside_support",
+        "b_left_2": "outside_support",
+        "b_left_3": "unresolved",
+        "b_left_4": "outside_support",
+        "b_left_5": "outside_support",
+        "b_right_1": "outside_support",
+        "b_right_2": "unresolved",
+        "b_right_3": "unresolved",
+        "b_right_4": "higher",
+        "b_right_5": "outside_support",
+        "b_right_6": "outside_support"
+      }
+    },
+    "reading_0.12_effect_0.30_dex": {
+      "matched_methane": {
+        "b_left_1": "outside_support",
+        "b_left_2": "outside_support",
+        "b_left_3": "outside_support",
+        "b_left_4": "outside_support",
+        "b_left_5": "outside_support",
+        "b_right_1": "higher",
+        "b_right_2": "unresolved",
+        "b_right_3": "outside_support",
+        "b_right_4": "outside_support",
+        "b_right_5": "outside_support",
+        "b_right_6": "outside_support"
+      },
+      "pooled_methane": {
+        "b_left_1": "higher",
+        "b_left_2": "higher",
+        "b_left_3": "higher",
+        "b_left_4": "outside_support",
+        "b_left_5": "outside_support",
+        "b_right_1": "higher",
+        "b_right_2": "higher",
+        "b_right_3": "outside_support",
+        "b_right_4": "outside_support",
+        "b_right_5": "outside_support",
+        "b_right_6": "outside_support"
+      },
+      "matched_potential": {
+        "b_left_1": "outside_support",
+        "b_left_2": "outside_support",
+        "b_left_3": "unresolved",
+        "b_left_4": "outside_support",
+        "b_left_5": "outside_support",
+        "b_right_1": "outside_support",
+        "b_right_2": "unresolved",
+        "b_right_3": "unresolved",
+        "b_right_4": "higher",
+        "b_right_5": "outside_support",
+        "b_right_6": "outside_support"
+      }
+    },
+    "reading_0.08_effect_0.25_dex": {
+      "matched_methane": {
+        "b_left_1": "outside_support",
+        "b_left_2": "outside_support",
+        "b_left_3": "outside_support",
+        "b_left_4": "outside_support",
+        "b_left_5": "outside_support",
+        "b_right_1": "higher",
+        "b_right_2": "higher",
+        "b_right_3": "outside_support",
+        "b_right_4": "outside_support",
+        "b_right_5": "outside_support",
+        "b_right_6": "outside_support"
+      },
+      "pooled_methane": {
+        "b_left_1": "higher",
+        "b_left_2": "higher",
+        "b_left_3": "higher",
+        "b_left_4": "outside_support",
+        "b_left_5": "outside_support",
+        "b_right_1": "higher",
+        "b_right_2": "higher",
+        "b_right_3": "outside_support",
+        "b_right_4": "outside_support",
+        "b_right_5": "outside_support",
+        "b_right_6": "outside_support"
+      },
+      "matched_potential": {
+        "b_left_1": "outside_support",
+        "b_left_2": "outside_support",
+        "b_left_3": "unresolved",
+        "b_left_4": "outside_support",
+        "b_left_5": "outside_support",
+        "b_right_1": "outside_support",
+        "b_right_2": "unresolved",
+        "b_right_3": "unresolved",
+        "b_right_4": "higher",
+        "b_right_5": "outside_support",
+        "b_right_6": "outside_support"
+      }
+    },
+    "reading_0.08_effect_0.35_dex": {
+      "matched_methane": {
+        "b_left_1": "outside_support",
+        "b_left_2": "outside_support",
+        "b_left_3": "outside_support",
+        "b_left_4": "outside_support",
+        "b_left_5": "outside_support",
+        "b_right_1": "higher",
+        "b_right_2": "unresolved",
+        "b_right_3": "outside_support",
+        "b_right_4": "outside_support",
+        "b_right_5": "outside_support",
+        "b_right_6": "outside_support"
+      },
+      "pooled_methane": {
+        "b_left_1": "higher",
+        "b_left_2": "higher",
+        "b_left_3": "higher",
+        "b_left_4": "outside_support",
+        "b_left_5": "outside_support",
+        "b_right_1": "higher",
+        "b_right_2": "higher",
+        "b_right_3": "outside_support",
+        "b_right_4": "outside_support",
+        "b_right_5": "outside_support",
+        "b_right_6": "outside_support"
+      },
+      "matched_potential": {
+        "b_left_1": "outside_support",
+        "b_left_2": "outside_support",
+        "b_left_3": "unresolved",
+        "b_left_4": "outside_support",
+        "b_left_5": "outside_support",
+        "b_right_1": "outside_support",
+        "b_right_2": "unresolved",
+        "b_right_3": "unresolved",
+        "b_right_4": "higher",
+        "b_right_5": "outside_support",
+        "b_right_6": "outside_support"
+      }
+    }
+  },
+  "leave_one_control_out": {
+    "a_left_1": {
+      "matched_methane": {
+        "b_left_1": "outside_support",
+        "b_left_2": "outside_support",
+        "b_left_3": "outside_support",
+        "b_left_4": "outside_support",
+        "b_left_5": "outside_support",
+        "b_right_1": "higher",
+        "b_right_2": "unresolved",
+        "b_right_3": "outside_support",
+        "b_right_4": "outside_support",
+        "b_right_5": "outside_support",
+        "b_right_6": "outside_support"
+      },
+      "pooled_methane": {
+        "b_left_1": "higher",
+        "b_left_2": "higher",
+        "b_left_3": "higher",
+        "b_left_4": "outside_support",
+        "b_left_5": "outside_support",
+        "b_right_1": "higher",
+        "b_right_2": "higher",
+        "b_right_3": "outside_support",
+        "b_right_4": "outside_support",
+        "b_right_5": "outside_support",
+        "b_right_6": "outside_support"
+      },
+      "matched_potential": {
+        "b_left_1": "outside_support",
+        "b_left_2": "outside_support",
+        "b_left_3": "outside_support",
+        "b_left_4": "outside_support",
+        "b_left_5": "outside_support",
+        "b_right_1": "outside_support",
+        "b_right_2": "unresolved",
+        "b_right_3": "unresolved",
+        "b_right_4": "higher",
+        "b_right_5": "outside_support",
+        "b_right_6": "outside_support"
+      }
+    },
+    "a_left_2": {
+      "matched_methane": {
+        "b_left_1": "outside_support",
+        "b_left_2": "outside_support",
+        "b_left_3": "outside_support",
+        "b_left_4": "outside_support",
+        "b_left_5": "outside_support",
+        "b_right_1": "higher",
+        "b_right_2": "unresolved",
+        "b_right_3": "outside_support",
+        "b_right_4": "outside_support",
+        "b_right_5": "outside_support",
+        "b_right_6": "outside_support"
+      },
+      "pooled_methane": {
+        "b_left_1": "higher",
+        "b_left_2": "higher",
+        "b_left_3": "higher",
+        "b_left_4": "outside_support",
+        "b_left_5": "outside_support",
+        "b_right_1": "higher",
+        "b_right_2": "higher",
+        "b_right_3": "outside_support",
+        "b_right_4": "outside_support",
+        "b_right_5": "outside_support",
+        "b_right_6": "outside_support"
+      },
+      "matched_potential": {
+        "b_left_1": "outside_support",
+        "b_left_2": "outside_support",
+        "b_left_3": "unresolved",
+        "b_left_4": "outside_support",
+        "b_left_5": "outside_support",
+        "b_right_1": "outside_support",
+        "b_right_2": "unresolved",
+        "b_right_3": "unresolved",
+        "b_right_4": "higher",
+        "b_right_5": "outside_support",
+        "b_right_6": "outside_support"
+      }
+    },
+    "a_left_3": {
+      "matched_methane": {
+        "b_left_1": "outside_support",
+        "b_left_2": "outside_support",
+        "b_left_3": "outside_support",
+        "b_left_4": "outside_support",
+        "b_left_5": "outside_support",
+        "b_right_1": "higher",
+        "b_right_2": "unresolved",
+        "b_right_3": "outside_support",
+        "b_right_4": "outside_support",
+        "b_right_5": "outside_support",
+        "b_right_6": "outside_support"
+      },
+      "pooled_methane": {
+        "b_left_1": "higher",
+        "b_left_2": "higher",
+        "b_left_3": "unresolved",
+        "b_left_4": "outside_support",
+        "b_left_5": "outside_support",
+        "b_right_1": "higher",
+        "b_right_2": "unresolved",
+        "b_right_3": "outside_support",
+        "b_right_4": "outside_support",
+        "b_right_5": "outside_support",
+        "b_right_6": "outside_support"
+      },
+      "matched_potential": {
+        "b_left_1": "outside_support",
+        "b_left_2": "outside_support",
+        "b_left_3": "outside_support",
+        "b_left_4": "outside_support",
+        "b_left_5": "outside_support",
+        "b_right_1": "outside_support",
+        "b_right_2": "unresolved",
+        "b_right_3": "unresolved",
+        "b_right_4": "higher",
+        "b_right_5": "outside_support",
+        "b_right_6": "outside_support"
+      }
+    },
+    "a_right_1": {
+      "matched_methane": {
+        "b_left_1": "outside_support",
+        "b_left_2": "outside_support",
+        "b_left_3": "outside_support",
+        "b_left_4": "outside_support",
+        "b_left_5": "outside_support",
+        "b_right_1": "higher",
+        "b_right_2": "unresolved",
+        "b_right_3": "outside_support",
+        "b_right_4": "outside_support",
+        "b_right_5": "outside_support",
+        "b_right_6": "outside_support"
+      },
+      "pooled_methane": {
+        "b_left_1": "higher",
+        "b_left_2": "higher",
+        "b_left_3": "higher",
+        "b_left_4": "outside_support",
+        "b_left_5": "outside_support",
+        "b_right_1": "higher",
+        "b_right_2": "higher",
+        "b_right_3": "outside_support",
+        "b_right_4": "outside_support",
+        "b_right_5": "outside_support",
+        "b_right_6": "outside_support"
+      },
+      "matched_potential": {
+        "b_left_1": "outside_support",
+        "b_left_2": "outside_support",
+        "b_left_3": "unresolved",
+        "b_left_4": "outside_support",
+        "b_left_5": "outside_support",
+        "b_right_1": "outside_support",
+        "b_right_2": "outside_support",
+        "b_right_3": "unresolved",
+        "b_right_4": "higher",
+        "b_right_5": "outside_support",
+        "b_right_6": "outside_support"
+      }
+    },
+    "a_right_2": {
+      "matched_methane": {
+        "b_left_1": "outside_support",
+        "b_left_2": "outside_support",
+        "b_left_3": "outside_support",
+        "b_left_4": "outside_support",
+        "b_left_5": "outside_support",
+        "b_right_1": "higher",
+        "b_right_2": "unresolved",
+        "b_right_3": "outside_support",
+        "b_right_4": "outside_support",
+        "b_right_5": "outside_support",
+        "b_right_6": "outside_support"
+      },
+      "pooled_methane": {
+        "b_left_1": "higher",
+        "b_left_2": "higher",
+        "b_left_3": "higher",
+        "b_left_4": "outside_support",
+        "b_left_5": "outside_support",
+        "b_right_1": "unresolved",
+        "b_right_2": "higher",
+        "b_right_3": "outside_support",
+        "b_right_4": "outside_support",
+        "b_right_5": "outside_support",
+        "b_right_6": "outside_support"
+      },
+      "matched_potential": {
+        "b_left_1": "outside_support",
+        "b_left_2": "outside_support",
+        "b_left_3": "unresolved",
+        "b_left_4": "outside_support",
+        "b_left_5": "outside_support",
+        "b_right_1": "outside_support",
+        "b_right_2": "unresolved",
+        "b_right_3": "unresolved",
+        "b_right_4": "higher",
+        "b_right_5": "outside_support",
+        "b_right_6": "outside_support"
+      }
+    },
+    "a_right_3": {
+      "matched_methane": {
+        "b_left_1": "outside_support",
+        "b_left_2": "outside_support",
+        "b_left_3": "outside_support",
+        "b_left_4": "outside_support",
+        "b_left_5": "outside_support",
+        "b_right_1": "higher",
+        "b_right_2": "unresolved",
+        "b_right_3": "outside_support",
+        "b_right_4": "outside_support",
+        "b_right_5": "outside_support",
+        "b_right_6": "outside_support"
+      },
+      "pooled_methane": {
+        "b_left_1": "higher",
+        "b_left_2": "higher",
+        "b_left_3": "higher",
+        "b_left_4": "outside_support",
+        "b_left_5": "outside_support",
+        "b_right_1": "higher",
+        "b_right_2": "higher",
+        "b_right_3": "outside_support",
+        "b_right_4": "outside_support",
+        "b_right_5": "outside_support",
+        "b_right_6": "outside_support"
+      },
+      "matched_potential": {
+        "b_left_1": "outside_support",
+        "b_left_2": "outside_support",
+        "b_left_3": "unresolved",
+        "b_left_4": "outside_support",
+        "b_left_5": "outside_support",
+        "b_right_1": "outside_support",
+        "b_right_2": "unresolved",
+        "b_right_3": "unresolved",
+        "b_right_4": "unresolved",
+        "b_right_5": "outside_support",
+        "b_right_6": "outside_support"
+      }
+    },
+    "a_right_4": {
+      "matched_methane": {
+        "b_left_1": "outside_support",
+        "b_left_2": "outside_support",
+        "b_left_3": "outside_support",
+        "b_left_4": "outside_support",
+        "b_left_5": "outside_support",
+        "b_right_1": "higher",
+        "b_right_2": "unresolved",
+        "b_right_3": "outside_support",
+        "b_right_4": "outside_support",
+        "b_right_5": "outside_support",
+        "b_right_6": "outside_support"
+      },
+      "pooled_methane": {
+        "b_left_1": "higher",
+        "b_left_2": "higher",
+        "b_left_3": "outside_support",
+        "b_left_4": "outside_support",
+        "b_left_5": "outside_support",
+        "b_right_1": "higher",
+        "b_right_2": "higher",
+        "b_right_3": "outside_support",
+        "b_right_4": "outside_support",
+        "b_right_5": "outside_support",
+        "b_right_6": "outside_support"
+      },
+      "matched_potential": {
+        "b_left_1": "outside_support",
+        "b_left_2": "outside_support",
+        "b_left_3": "unresolved",
+        "b_left_4": "outside_support",
+        "b_left_5": "outside_support",
+        "b_right_1": "outside_support",
+        "b_right_2": "unresolved",
+        "b_right_3": "unresolved",
+        "b_right_4": "higher",
+        "b_right_5": "outside_support",
+        "b_right_6": "outside_support"
+      }
+    },
+    "a_right_5": {
+      "matched_methane": {
+        "b_left_1": "outside_support",
+        "b_left_2": "outside_support",
+        "b_left_3": "outside_support",
+        "b_left_4": "outside_support",
+        "b_left_5": "outside_support",
+        "b_right_1": "higher",
+        "b_right_2": "unresolved",
+        "b_right_3": "outside_support",
+        "b_right_4": "outside_support",
+        "b_right_5": "outside_support",
+        "b_right_6": "outside_support"
+      },
+      "pooled_methane": {
+        "b_left_1": "higher",
+        "b_left_2": "higher",
+        "b_left_3": "higher",
+        "b_left_4": "outside_support",
+        "b_left_5": "outside_support",
+        "b_right_1": "higher",
+        "b_right_2": "higher",
+        "b_right_3": "outside_support",
+        "b_right_4": "outside_support",
+        "b_right_5": "outside_support",
+        "b_right_6": "outside_support"
+      },
+      "matched_potential": {
+        "b_left_1": "outside_support",
+        "b_left_2": "outside_support",
+        "b_left_3": "unresolved",
+        "b_left_4": "outside_support",
+        "b_left_5": "outside_support",
+        "b_right_1": "outside_support",
+        "b_right_2": "unresolved",
+        "b_right_3": "unresolved",
+        "b_right_4": "outside_support",
+        "b_right_5": "outside_support",
+        "b_right_6": "outside_support"
+      }
+    }
+  }
+}

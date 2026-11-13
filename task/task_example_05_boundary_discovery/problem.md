@@ -1,17 +1,21 @@
-# Problem
+# CO₂ 电还原经验关系的证据边界
 
-CO₂ 电还原中，CH₄ 与 C₂₊ 产物的分电流密度之间是否存在稳定的 scaling relationship？这种关系会因改变铜合金组成而失效，还是只有当电极表面微环境被有机分子膜改变时才会失效？
+在 1-Br₂ 条件下，哪些 Cu–Mn 观测足以质疑无添加剂时的 CH₄–C₂₊ 经验关系？跨组成汇总会把哪些证据不足的观测变成表面反例？如果比较的是同电位下的 C₂₊ 分电流，结论会怎样改变？
 
-请分析提供的高通量 Cu–M 合金与有机添加剂实验数据，确定 scaling relationship 的适用范围及其失效条件。重点区分 bulk alloying 与 hybrid inorganic–organic interface 两种调控方式。
+`/workspace/data/observations.csv` 包含 19 个图像读数。电流为按几何面积归一化的阴极分电流密度绝对值，单位 mA cm⁻²。电位为 iR 补偿后的 V vs RHE。两组均用 0.1 M KHCO₃，有添加剂组的 1-Br₂ 浓度为 0.1 mM。不同处理组没有逐行配对。点位来源及条件见 `/workspace/data/README.md`。
 
-提交 `/workspace/results/answer.json`：
+这里的证据针对可观测的局部比较。设 `y = log10(j_C2plus)`。比较轴可为 `log10(j_CH4)` 或电位，对应读数半宽分别为 0.08 dex 和 0.015 V。C₂₊ 的读数半宽为 0.08 dex。实验间变异未知。
 
-- `scaling_analysis.pure_cu_no_additive_pearson_r`：无添加剂纯 Cu 上 CH₄/C₂₊ 分电流密度对数分电流密度的 Pearson 相关系数。
-- `scaling_analysis.alloy_pearson_r_lower_bound`：无添加剂 Cu–M 合金体系中相关系数的论文报告下界。
-- `scaling_analysis.alloy_elements`：纳入的合金元素。
-- `scaling_analysis.unique_experiment_count`：实验条件总数。
-- `scaling_analysis.bulk_alloying_breaks_relation`：合金化是否打破关系。
-- `scaling_analysis.organic_film_breaks_relation`：有机分子膜是否打破关系。
-- `scaling_analysis.c2plus_partial_current_enhanced`：有机膜是否促进 C₂₊ 生成。
+一个可复核的局部对照窗口由两条无添加剂观测界定。低侧端点的整个读数范围须位于待检点读数范围的下方或与其边界相接，高侧端点同理。参考范围取窗口内所有可能落入的合格对照的 C₂₊ 读数上下界。端点或内部对照的比较轴读数范围只要可能与窗口相交，就计入参考范围。此约定对应局部比较中不超出所纳入对照的观测包络的假设，并不确定真实曲线的形状。若待检 C₂₊ 的整个读数范围与参考范围间的有向间隔严格超过 0.30 dex，可判为方向明确的偏离。0.30 dex 是约两倍的实用效应门槛。可选择任意满足要求的窗口，无需拟合特定曲线或求最大间隔。
 
-所有定量值均按论文报告；`alloy_pearson_r_lower_bound` 是下界而不是某个合金的精确对数分电流密度的 Pearson 相关系数。`analysis` 可选且不计分。
+在 `/workspace/results/answer.json` 提交三个对象，每个均以全部 11 个添加剂条件 ID 为键：
+
+| 对象 | 比较轴 | 合格对照 |
+|---|---|---|
+| `matched_methane` | log₁₀(CH₄ 分电流密度) | 同组成无添加剂 |
+| `pooled_methane` | log₁₀(CH₄ 分电流密度) | 两种组成的无添加剂点。这一比较用于审查汇总的影响 |
+| `matched_potential` | 电位 | 同组成无添加剂 |
+
+每个条件提交 `status`。存在能支持方向的窗口时，填 `higher` 或 `lower`，并附 `controls`（低侧、高侧无添加剂 ID，依次排列）及 `margin_dex`（两读数范围的有向间隔绝对值，容差 0.02 dex，且须大于 0.30）。有合格窗口却无法支持方向时填 `unresolved`。没有合格窗口时填 `outside_support`。后两种情况仅提交 `status`。
+
+`analysis` 可选，且不计客观分。这里的局部偏离适用于给定的比较定义和读数范围。真实实验变异、窗内未测行为和添加剂因果机制超出这些数据的证据范围。

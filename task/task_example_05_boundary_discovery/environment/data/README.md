@@ -1,5 +1,9 @@
-# Input data
+# Observations and measurement context
 
-Primary source: Lai et al., *Breaking Scaling Relationships in CO2 Reduction on Copper Alloys with Organic Additives*, ACS Central Science 2021, DOI: 10.1021/acscentsci.1c00860.
+`observations.csv` contains 19 approximate point readings from Lai et al., *ACS Central Science* 2021, DOI 10.1021/acscentsci.1c00860, Figure 2b/c. Source: https://authors.library.caltech.edu/records/sahhv-ks850 . These are factual numerical transcriptions; no modified paper or image is bundled.
 
-The environment bootstrap downloads the published Supporting Information PDF from CaltechAUTHORS and verifies its MD5. The SI contains raw-data tables and pairwise product-distribution analysis. The main article is available from ACS/PMC. The task does not redistribute the SI PDF in this ZIP.
+Two sputtered Cu–Mn compositions; ANEC recirculating electrochemical batch reactor, geometric working area 0.32 cm², CO₂-saturated 0.1 M KHCO₃, with/without 0.1 mM N,N′-ethylene-phenanthrolinium dibromide (1-Br₂). Reference was Ag/AgCl converted to RHE; plotted potentials are resistance-corrected (SI pp.2–3). The approximate potentials are not identical applied-potential pairs. Typical electrolysis durations vary 5–15 minutes; per-row duration and replicate IDs are unavailable, not inferred.
+
+`j_CH4_mA_cm2`, `j_C2plus_mA_cm2` are magnitudes of geometric partial currents; C₂₊ is the published aggregate of multicarbon products, not just ethylene or a molar production rate. `log10_reading_bound` is a conservative ±0.08 dex reading/analytical sensitivity range, not total experimental uncertainty. SI reports relative analytical errors of 2.7% for methane and 2–7% for C₂₊; other variability is unquantified. `potential_V_RHE` is approximate (±0.015 V). Near-axis-bottom currents are not an independently established limit of detection. `source_locator` identifies the paired scatter panel for baseline rows and current–potential panel for film rows.
+
+The supplied table is an explicitly limited subset. No claim about all 137 source experiments, all alloys, adsorption energies, local pH, or mechanism follows from it alone. Original publications retain their CC BY-NC-ND 4.0 terms; bibliographic attribution is retained and original PDFs are retrieved separately for author review.

@@ -1,10 +1,8 @@
-FROM python:3.11-slim
+FROM python:3.11.11-slim-bookworm@sha256:081075da77b2b55c23c088251026fb69a7b2bf92471e491ff5fd75c192fd38e5
 WORKDIR /workspace
-RUN apt-get update && apt-get install -y --no-install-recommends curl unzip ca-certificates git poppler-utils && rm -rf /var/lib/apt/lists/*
-COPY requirements.txt /workspace/requirements.txt
-RUN pip install --no-cache-dir -r /workspace/requirements.txt
+COPY requirements.txt requirements.lock /workspace/
+RUN pip install --no-cache-dir --require-hashes -r /workspace/requirements.lock
 COPY data/ /workspace/data/
 COPY tools/ /workspace/tools/
 COPY skills/ /workspace/skills/
-RUN if [ -f /workspace/data/fetch_data.sh ]; then bash /workspace/data/fetch_data.sh; fi
 CMD ["bash"]

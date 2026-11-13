@@ -1,3 +1,5 @@
-# Shortcut audit
+# 最短得分路径审计
 
-The output distinguishes a reported lower bound from an exact per-alloy correlation coefficient. A correct answer must preserve the contrast: bulk alloying across Co, In, Mn, and Zn does not meaningfully break the CH4/C2+ relationship, while the molecular film does. Before live evaluation, parse the full SI raw-data tables and independently recompute the correlation matrix rather than relying only on the article narrative.
+改前，求解者可按题面指定回归、覆盖内缩和删点端点枚举生成全部评分字段。改后，可见输入仍为 19 个 CSV 图读点及条件、单位和读数约定，题面公开局部证据定义。求解者要找出支持各方向的对照窗口，并判断跨组成或更换比较轴是否改变可比性。旧版回归系数不足以完成作答。
+
+最短通用路线是比较两个轴的区间、寻找最近合格端点，再检查局部 C₂₊ 包络。独立程序还验证了不同窗口可得分。合并组窗口错误升级到同组成、把同甲烷电流证据当作同电位证据、把不足 0.30 dex 的观测升级为反例均得 0。此有限表格仍允许用通用区间算法求解，现定位为受限的证据边界样例。实测案例见 verifier_cases.json。

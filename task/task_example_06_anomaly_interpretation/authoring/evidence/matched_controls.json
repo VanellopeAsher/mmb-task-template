@@ -1,0 +1,214 @@
+{
+  "strongest_agreement": "mean_repeat",
+  "eligible_pairs": [
+    [
+      "sample_02",
+      "sample_07"
+    ],
+    [
+      "sample_02",
+      "sample_11"
+    ]
+  ],
+  "same_rank_decoys": [
+    [
+      "sample_07",
+      "sample_11"
+    ]
+  ],
+  "contrasts_by_exact_level": {
+    "concentration": [
+      [
+        "sample_01",
+        "sample_02"
+      ],
+      [
+        "sample_01",
+        "sample_12"
+      ],
+      [
+        "sample_02",
+        "sample_05"
+      ],
+      [
+        "sample_02",
+        "sample_13"
+      ],
+      [
+        "sample_05",
+        "sample_12"
+      ],
+      [
+        "sample_07",
+        "sample_12"
+      ],
+      [
+        "sample_11",
+        "sample_12"
+      ],
+      [
+        "sample_12",
+        "sample_13"
+      ]
+    ],
+    "mean_repeat": [
+      [
+        "sample_02",
+        "sample_07"
+      ],
+      [
+        "sample_02",
+        "sample_11"
+      ]
+    ],
+    "axis_profile": []
+  },
+  "oblique_samples": [
+    "sample_12"
+  ],
+  "signatures": {
+    "sample_01": {
+      "defect_type": "missing_linker",
+      "missing_site_count": 216,
+      "nearest_missing_pairs": 289,
+      "total_overlap": 199,
+      "overlap_counts": [
+        60,
+        61,
+        78
+      ]
+    },
+    "sample_02": {
+      "defect_type": "missing_linker",
+      "missing_site_count": 216,
+      "nearest_missing_pairs": 333,
+      "total_overlap": 277,
+      "overlap_counts": [
+        55,
+        106,
+        116
+      ]
+    },
+    "sample_03": {
+      "defect_type": "missing_linker",
+      "missing_site_count": 1,
+      "nearest_missing_pairs": 0,
+      "total_overlap": 0,
+      "overlap_counts": [
+        0,
+        0,
+        0
+      ]
+    },
+    "sample_04": {
+      "defect_type": "missing_cluster",
+      "missing_site_count": 27,
+      "nearest_missing_pairs": 40,
+      "total_overlap": 20,
+      "overlap_counts": [
+        5,
+        7,
+        8
+      ]
+    },
+    "sample_05": {
+      "defect_type": "missing_linker",
+      "missing_site_count": 216,
+      "nearest_missing_pairs": 0,
+      "total_overlap": 648,
+      "overlap_counts": [
+        216,
+        216,
+        216
+      ]
+    },
+    "sample_06": {
+      "defect_type": "missing_cluster",
+      "missing_site_count": 1,
+      "nearest_missing_pairs": 0,
+      "total_overlap": 0,
+      "overlap_counts": [
+        0,
+        0,
+        0
+      ]
+    },
+    "sample_07": {
+      "defect_type": "missing_linker",
+      "missing_site_count": 216,
+      "nearest_missing_pairs": 333,
+      "total_overlap": 277,
+      "overlap_counts": [
+        83,
+        91,
+        103
+      ]
+    },
+    "sample_08": {
+      "defect_type": "missing_cluster",
+      "missing_site_count": 36,
+      "nearest_missing_pairs": 144,
+      "total_overlap": 72,
+      "overlap_counts": [
+        0,
+        36,
+        36
+      ]
+    },
+    "sample_09": {
+      "defect_type": "missing_linker",
+      "missing_site_count": 65,
+      "nearest_missing_pairs": 29,
+      "total_overlap": 19,
+      "overlap_counts": [
+        4,
+        6,
+        9
+      ]
+    },
+    "sample_10": {
+      "defect_type": "missing_cluster",
+      "missing_site_count": 27,
+      "nearest_missing_pairs": 0,
+      "total_overlap": 81,
+      "overlap_counts": [
+        27,
+        27,
+        27
+      ]
+    },
+    "sample_11": {
+      "defect_type": "missing_linker",
+      "missing_site_count": 216,
+      "nearest_missing_pairs": 333,
+      "total_overlap": 277,
+      "overlap_counts": [
+        85,
+        95,
+        97
+      ]
+    },
+    "sample_12": {
+      "defect_type": "missing_linker",
+      "missing_site_count": 216,
+      "nearest_missing_pairs": 347,
+      "total_overlap": 269,
+      "overlap_counts": [
+        64,
+        66,
+        139
+      ]
+    },
+    "sample_13": {
+      "defect_type": "missing_linker",
+      "missing_site_count": 216,
+      "nearest_missing_pairs": 681,
+      "total_overlap": 332,
+      "overlap_counts": [
+        106,
+        110,
+        116
+      ]
+    }
+  }
+}

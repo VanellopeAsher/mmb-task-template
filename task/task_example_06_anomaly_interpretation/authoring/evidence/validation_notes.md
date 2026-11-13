@@ -1,3 +1,14 @@
-# Validation notes
+# 精进版验证记录
 
-The nominal concentration labels and topology names came from the upstream source repository's file organization. The task bootstrap hides those labels by renaming files and repeats the three primitive-cell sources 3×3×3, matching the cell scale of the random samples. `solution/witness/structure_metrics.py` checks Zr6 connectivity under periodic boundaries, groups carbon atoms into complete eight-carbon linkers and one-carbon caps, and builds a Zr6-linker multigraph from all nine anonymous CIFs. The three random missing-linker structures have 7/648, 65/648 and 130/648 missing full linkers (1.080%, 10.031%, 20.062%); the three random missing-cluster structures have 1/108, 11/108 and 22/108 missing Zr6 clusters (0.926%, 10.185%, 20.370%). The repeated ordered structures have 324, 216 and 432 intact linkers respectively. Folding their graphs to the primitive motif yields three nodes with a triangle of fourfold edges (reo), three nodes with a two-edge path of fourfold edges (scu), and four nodes with a four-edge cycle of fourfold edges (bcu). These graph signatures support the three labels within this supplied candidate set. Full periodic-net equivalence and quantitative spatial-correlation classification are not yet independently checked. Public use still requires an explicit licence or permission for the upstream structures.
+本版在固定版本 Python 3.11.11 下完成独立目标生成、Oracle 与独立目标比较、工具烟雾测试，以及 57 项 CLI 评分检查（含普通和 -O 模式）。本地 `solve.sh` → `test.sh` 的实际 reward.txt 为 1，assessment.json 全部分项通过。另通过 25 项原点、原子顺序、轴置换、超胞及周期图检查。 本地 Harbor 0.25.0 lint 通过。
+
+仓库的既有 Harbor 记录位于本目录 harbor/，对应旧提交 `936dff399eb25d3eb572cd0559f896d65d2dfa1d` 及旧评分契约，历史 Oracle reward 为 1.0。当前主机上的 Harbor 容器试跑报错 `Docker is not installed or not on PATH`，因此本版镜像构建和 Harbor 容器隔离运行待验证。暂存包已核对题面一致、无 authoring，Agent 环境文件中也无答案或评分文件。专家和 Agent 独立盲测尚无实测结果。 [历史 CI](https://github.com/VanellopeAsher/mmb-task-template/actions/runs/43408462164)
+
+在任务目录复现：
+
+```bash
+python authoring/evidence/independent_reference.py
+python solution/witness/check_reference.py --data-dir environment/data
+python tests/test_adversarial.py
+python authoring/evidence/check_invariance.py
+```

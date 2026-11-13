@@ -1,0 +1,20 @@
+condition_id,composition,additive,electrolyte_M,potential_V_RHE,j_CH4_mA_cm2,j_C2plus_mA_cm2,log10_reading_bound,source_locator
+a_left_1,Cu0.98Mn0.02,none,0.1,-1.0743,2.5711451,2.4770764,0.08,Figure 2c currents; Figure 2a_left potential
+a_left_2,Cu0.98Mn0.02,none,0.1,-1.0478,1.1704542,1.4677993,0.08,Figure 2c currents; Figure 2a_left potential
+a_left_3,Cu0.98Mn0.02,none,0.1,-1.0084,0.1680028,0.1841414,0.08,Figure 2c currents; Figure 2a_left potential
+a_right_1,Cu0.84Mn0.16,none,0.1,-1.0405,1.1302241,1.2766169,0.08,Figure 2c currents; Figure 2a_right potential
+a_right_2,Cu0.84Mn0.16,none,0.1,-0.9995,0.356368,0.624388,0.08,Figure 2c currents; Figure 2a_right potential
+a_right_3,Cu0.84Mn0.16,none,0.1,-0.9576,0.0137797,0.0215443,0.08,Figure 2c currents; Figure 2a_right potential
+a_right_4,Cu0.84Mn0.16,none,0.1,-0.8901,0.0054539,0.0086975,0.08,Figure 2c currents; Figure 2a_right potential
+a_right_5,Cu0.84Mn0.16,none,0.1,-0.8185,0.0088995,0.0123285,0.08,Figure 2c currents; Figure 2a_right potential
+b_left_1,Cu0.98Mn0.02,1-Br2,0.1,-1.0984,0.1640122,5.4392271,0.08,Figure 2b_left
+b_left_2,Cu0.98Mn0.02,1-Br2,0.1,-1.0582,0.0609711,3.5786482,0.08,Figure 2b_left
+b_left_3,Cu0.98Mn0.02,1-Br2,0.1,-1.039,0.0118681,1.0998218,0.08,Figure 2b_left
+b_left_4,Cu0.98Mn0.02,1-Br2,0.1,-0.9763,0.0025895,0.0543923,0.08,Figure 2b_left
+b_left_5,Cu0.98Mn0.02,1-Br2,0.1,-0.8904,0.0011644,0.0101921,0.08,Figure 2b_left
+b_right_1,Cu0.84Mn0.16,1-Br2,0.1,-1.0139,0.1640122,4.1671076,0.08,Figure 2b_right
+b_right_2,Cu0.84Mn0.16,1-Br2,0.1,-0.9971,0.0218194,1.7364785,0.08,Figure 2b_right
+b_right_3,Cu0.84Mn0.16,1-Br2,0.1,-0.9488,0.0027944,0.6965867,0.08,Figure 2b_right
+b_right_4,Cu0.84Mn0.16,1-Br2,0.1,-0.8965,0.0019098,0.1578873,0.08,Figure 2b_right
+b_right_5,Cu0.84Mn0.16,1-Br2,0.1,-0.8394,0.0017698,0.0826714,0.08,Figure 2b_right
+b_right_6,Cu0.84Mn0.16,1-Br2,0.1,-0.8137,0.0010791,0.0543923,0.08,Figure 2b_right

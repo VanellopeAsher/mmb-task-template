@@ -1,0 +1,49 @@
+﻿2026-11-13T10:23:07.1680705Z ##[group]Run uvx --python 3.12 harbor==0.25.0 run --path "$RUNNER_TEMP/mmb-harbor-task" --agent oracle --env docker --jobs-dir "$RUNNER_TEMP/mmb-jobs" --job-name scientific-check
+2026-11-13T10:23:07.1681657Z [36;1muvx --python 3.12 harbor==0.25.0 run --path "$RUNNER_TEMP/mmb-harbor-task" --agent oracle --env docker --jobs-dir "$RUNNER_TEMP/mmb-jobs" --job-name scientific-check[0m
+2026-11-13T10:23:07.1682335Z [36;1mpython - <<'PY'[0m
+2026-11-13T10:23:07.1682535Z [36;1mimport json,os[0m
+2026-11-13T10:23:07.1682732Z [36;1mfrom pathlib import Path[0m
+2026-11-13T10:23:07.1683031Z [36;1mjob=Path(os.environ['RUNNER_TEMP'])/'mmb-jobs'/'scientific-check'[0m
+2026-11-13T10:23:07.1683410Z [36;1mtrials=[p for p in job.rglob('result.json') if p.parent!=job][0m
+2026-11-13T10:23:07.1683790Z [36;1mif len(trials)!=1: raise RuntimeError(f'Expected one trial, found {trials}')[0m
+2026-11-13T10:23:07.1684286Z [36;1mresult=json.loads(trials[0].read_text());reward=result.get('verifier_result',{}).get('rewards',{}).get('reward')[0m
+2026-11-13T10:23:07.1684749Z [36;1mprint('ACTUAL HARBOR REWARD:',reward)[0m
+2026-11-13T10:23:07.1685008Z [36;1mif reward!=1.0: raise RuntimeError(result)[0m
+2026-11-13T10:23:07.1685368Z [36;1mif not list(job.rglob('reward.txt')): raise RuntimeError('No verifier reward artifact')[0m
+2026-11-13T10:23:07.1685748Z [36;1mdiagnostics = list(job.rglob('assessment.json'))[0m
+2026-11-13T10:23:07.1686104Z [36;1mif len(diagnostics) != 1: raise RuntimeError('Expected one verifier assessment')[0m
+2026-11-13T10:23:07.1686476Z [36;1massessment = json.loads(diagnostics[0].read_text())[0m
+2026-11-13T10:23:07.1686939Z [36;1mif assessment['reward'] != 1 or not assessment['sections'] or not all(row['passed'] for row in assessment['sections'].values()):[0m
+2026-11-13T10:23:07.1687384Z [36;1m    raise RuntimeError(assessment)[0m
+2026-11-13T10:23:07.1687604Z [36;1mPY[0m
+2026-11-13T10:23:07.1717229Z shell: /usr/bin/bash -e {0}
+2026-11-13T10:23:07.1717462Z env:
+2026-11-13T10:23:07.1717669Z   TASK: task/task_example_06_anomaly_interpretation
+2026-11-13T10:23:07.1717975Z   UV_CACHE_DIR: /home/runner/work/_temp/setup-uv-cache
+2026-11-13T10:23:07.1718211Z ##[endgroup]
+2026-11-13T10:23:08.8932066Z Tip: There are many benchmarks available in Harbor's registry.
+2026-11-13T10:23:08.8932952Z Run `harbor datasets list` to see all available datasets.
+2026-11-13T10:23:08.8933329Z
+2026-11-13T10:23:18.9492293Z Agent 'oracle' exposes no native web search or fetch tools for Harbor to disable; continuing. Sandbox network policy still applies.
+2026-11-13T10:23:56.6317160Z   1/1 Mean: 1.000 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 0:00:47 0:00:00
+2026-11-13T10:23:56.6477325Z adhoc • oracle
+2026-11-13T10:23:56.6484500Z ┏━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━┓
+2026-11-13T10:23:56.6484993Z ┃ Trials ┃ Exceptions ┃  Mean ┃
+2026-11-13T10:23:56.6485387Z ┡━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━┩
+2026-11-13T10:23:56.6485803Z │      1 │          0 │ 1.000 │
+2026-11-13T10:23:56.6486224Z └────────┴────────────┴───────┘
+2026-11-13T10:23:56.6494437Z
+2026-11-13T10:23:56.6499136Z ┏━━━━━━━━┳━━━━━━━┓
+2026-11-13T10:23:56.6499556Z ┃ Reward ┃ Count ┃
+2026-11-13T10:23:56.6500002Z ┡━━━━━━━━╇━━━━━━━┩
+2026-11-13T10:23:56.6500353Z │ 1.0    │     1 │
+2026-11-13T10:23:56.6500679Z └────────┴───────┘
+2026-11-13T10:23:56.6500831Z
+2026-11-13T10:23:56.6503052Z Job Info
+2026-11-13T10:23:56.6503324Z Total runtime: 47s
+2026-11-13T10:23:56.6505624Z Results written to /home/runner/work/_temp/mmb-jobs/scientific-check/result.json
+2026-11-13T10:23:56.6507840Z Inspect results by running `harbor view /home/runner/work/_temp/mmb-jobs`
+2026-11-13T10:23:56.6509992Z Share results by running `harbor upload
+2026-11-13T10:23:56.6510538Z /home/runner/work/_temp/mmb-jobs/scientific-check`
+2026-11-13T10:23:56.6510825Z
+2026-11-13T10:24:01.3561577Z ACTUAL HARBOR REWARD: 1.0

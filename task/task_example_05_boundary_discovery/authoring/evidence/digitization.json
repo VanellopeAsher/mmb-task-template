@@ -1,0 +1,519 @@
+{
+  "source_pdf_sha256": "37ef0d91b27b2d3b433826ea0f650c58ed3f863f39de8f9d140e7e06b161bdba",
+  "image_sha256": "608f431c8f20bdc041094d4580813b0cc05e8cc6fbe8529de477b12fde53e25d",
+  "image_size": [
+    1950,
+    1888
+  ],
+  "cross_panel_match_limit_dex": 0.08,
+  "calibration": {
+    "a_left": {
+      "x0": 201,
+      "x1": 450,
+      "E0": -1.1,
+      "E1": -0.9,
+      "y0": 302,
+      "y1": 60
+    },
+    "a_right": {
+      "x0": 618,
+      "x1": 991,
+      "E0": -1.1,
+      "E1": -0.8,
+      "y0": 302,
+      "y1": 60
+    },
+    "b_left": {
+      "x0": 201,
+      "x1": 450,
+      "E0": -1.1,
+      "E1": -0.9,
+      "y0": 575,
+      "y1": 333
+    },
+    "b_right": {
+      "x0": 618,
+      "x1": 991,
+      "E0": -1.1,
+      "E1": -0.8,
+      "y0": 575,
+      "y1": 333
+    },
+    "panel_c": {
+      "x_minus3": 1423,
+      "x_zero": 1818,
+      "y_minus3": 506,
+      "y_zero": 110
+    }
+  },
+  "readings": [
+    {
+      "condition_id": "a_left_1",
+      "composition": "Cu0.98Mn0.02",
+      "additive": "none",
+      "panel": "a_left",
+      "x": 233,
+      "ch4_y": 96,
+      "c2plus_y": 94,
+      "cross_panel_identity": {
+        "panel_a_approximate_log10": {
+          "ch4_y": 0.4049586776859506,
+          "c2plus_y": 0.43801652892561993
+        },
+        "panel_c_log10": {
+          "ch4_y": 0.4101265822784814,
+          "c2plus_y": 0.3939393939393936
+        },
+        "absolute_log10_difference": {
+          "ch4_y": 0.005167904592530803,
+          "c2plus_y": 0.04407713498622634
+        }
+      },
+      "paired_panel_c_pixel": [
+        1872,
+        58
+      ],
+      "second_read_y": {
+        "x": 1874.0,
+        "y": 57.0
+      },
+      "absolute_log10_disagreement": {
+        "ch4_y": 0.01518987341772152,
+        "c2plus_y": 0.007575757575757576
+      }
+    },
+    {
+      "condition_id": "a_left_2",
+      "composition": "Cu0.98Mn0.02",
+      "additive": "none",
+      "panel": "a_left",
+      "x": 266,
+      "ch4_y": 115,
+      "c2plus_y": 109,
+      "cross_panel_identity": {
+        "panel_a_approximate_log10": {
+          "ch4_y": 0.09090909090909083,
+          "c2plus_y": 0.1900826446280992
+        },
+        "panel_c_log10": {
+          "ch4_y": 0.06835443037974631,
+          "c2plus_y": 0.16666666666666696
+        },
+        "absolute_log10_difference": {
+          "ch4_y": 0.022554660529344517,
+          "c2plus_y": 0.023415977961432244
+        }
+      },
+      "paired_panel_c_pixel": [
+        1827,
+        88
+      ],
+      "second_read_y": {
+        "x": 1831.0,
+        "y": 87.0
+      },
+      "absolute_log10_disagreement": {
+        "ch4_y": 0.03037974683544304,
+        "c2plus_y": 0.007575757575757576
+      }
+    },
+    {
+      "condition_id": "a_left_3",
+      "composition": "Cu0.98Mn0.02",
+      "additive": "none",
+      "panel": "a_left",
+      "x": 315,
+      "ch4_y": 164,
+      "c2plus_y": 164,
+      "cross_panel_identity": {
+        "panel_a_approximate_log10": {
+          "ch4_y": -0.71900826446281,
+          "c2plus_y": -0.71900826446281
+        },
+        "panel_c_log10": {
+          "ch4_y": -0.7746835443037976,
+          "c2plus_y": -0.7348484848484849
+        },
+        "absolute_log10_difference": {
+          "ch4_y": 0.055675279840987635,
+          "c2plus_y": 0.015840220385674897
+        }
+      },
+      "paired_panel_c_pixel": [
+        1716,
+        207
+      ],
+      "second_read_y": {
+        "x": 1718.0,
+        "y": 207.0
+      },
+      "absolute_log10_disagreement": {
+        "ch4_y": 0.01518987341772152,
+        "c2plus_y": 0.0
+      }
+    },
+    {
+      "condition_id": "a_right_1",
+      "composition": "Cu0.84Mn0.16",
+      "additive": "none",
+      "panel": "a_right",
+      "x": 692,
+      "ch4_y": 120,
+      "c2plus_y": 112,
+      "cross_panel_identity": {
+        "panel_a_approximate_log10": {
+          "ch4_y": 0.00826446280991755,
+          "c2plus_y": 0.14049586776859524
+        },
+        "panel_c_log10": {
+          "ch4_y": 0.0531645569620256,
+          "c2plus_y": 0.10606060606060552
+        },
+        "absolute_log10_difference": {
+          "ch4_y": 0.04490009415210805,
+          "c2plus_y": 0.03443526170798972
+        }
+      },
+      "paired_panel_c_pixel": [
+        1825,
+        96
+      ],
+      "second_read_y": {
+        "x": 1826.0,
+        "y": 95.5
+      },
+      "absolute_log10_disagreement": {
+        "ch4_y": 0.00759493670886076,
+        "c2plus_y": 0.003787878787878788
+      }
+    },
+    {
+      "condition_id": "a_right_2",
+      "composition": "Cu0.84Mn0.16",
+      "additive": "none",
+      "panel": "a_right",
+      "x": 743,
+      "ch4_y": 147,
+      "c2plus_y": 132,
+      "cross_panel_identity": {
+        "panel_a_approximate_log10": {
+          "ch4_y": -0.43801652892561993,
+          "c2plus_y": -0.1900826446280992
+        },
+        "panel_c_log10": {
+          "ch4_y": -0.448101265822785,
+          "c2plus_y": -0.20454545454545459
+        },
+        "absolute_log10_difference": {
+          "ch4_y": 0.010084736897165048,
+          "c2plus_y": 0.01446280991735538
+        }
+      },
+      "paired_panel_c_pixel": [
+        1759,
+        137
+      ],
+      "second_read_y": {
+        "x": 1761.0,
+        "y": 138.0
+      },
+      "absolute_log10_disagreement": {
+        "ch4_y": 0.01518987341772152,
+        "c2plus_y": 0.007575757575757576
+      }
+    },
+    {
+      "condition_id": "a_right_3",
+      "composition": "Cu0.84Mn0.16",
+      "additive": "none",
+      "panel": "a_right",
+      "x": 795,
+      "ch4_y": 234,
+      "c2plus_y": 222,
+      "cross_panel_identity": {
+        "panel_a_approximate_log10": {
+          "ch4_y": -1.8760330578512396,
+          "c2plus_y": -1.677685950413223
+        },
+        "panel_c_log10": {
+          "ch4_y": -1.860759493670886,
+          "c2plus_y": -1.6666666666666667
+        },
+        "absolute_log10_difference": {
+          "ch4_y": 0.015273564180353638,
+          "c2plus_y": 0.011019283746556363
+        }
+      },
+      "paired_panel_c_pixel": [
+        1573,
+        330
+      ],
+      "second_read_y": {
+        "x": 1575.0,
+        "y": 331.0
+      },
+      "absolute_log10_disagreement": {
+        "ch4_y": 0.01518987341772152,
+        "c2plus_y": 0.007575757575757576
+      }
+    },
+    {
+      "condition_id": "a_right_4",
+      "composition": "Cu0.84Mn0.16",
+      "additive": "none",
+      "panel": "a_right",
+      "x": 879,
+      "ch4_y": 257,
+      "c2plus_y": 246,
+      "cross_panel_identity": {
+        "panel_a_approximate_log10": {
+          "ch4_y": -2.2561983471074383,
+          "c2plus_y": -2.074380165289256
+        },
+        "panel_c_log10": {
+          "ch4_y": -2.2632911392405064,
+          "c2plus_y": -2.0606060606060606
+        },
+        "absolute_log10_difference": {
+          "ch4_y": 0.0070927921330681265,
+          "c2plus_y": 0.01377410468319562
+        }
+      },
+      "paired_panel_c_pixel": [
+        1520,
+        382
+      ],
+      "second_read_y": {
+        "x": 1522.0,
+        "y": 381.0
+      },
+      "absolute_log10_disagreement": {
+        "ch4_y": 0.01518987341772152,
+        "c2plus_y": 0.007575757575757576
+      }
+    },
+    {
+      "condition_id": "a_right_5",
+      "composition": "Cu0.84Mn0.16",
+      "additive": "none",
+      "panel": "a_right",
+      "x": 968,
+      "ch4_y": 245,
+      "c2plus_y": 236,
+      "cross_panel_identity": {
+        "panel_a_approximate_log10": {
+          "ch4_y": -2.0578512396694215,
+          "c2plus_y": -1.9090909090909092
+        },
+        "panel_c_log10": {
+          "ch4_y": -2.050632911392405,
+          "c2plus_y": -1.9090909090909092
+        },
+        "absolute_log10_difference": {
+          "ch4_y": 0.007218328277016628,
+          "c2plus_y": 0.0
+        }
+      },
+      "paired_panel_c_pixel": [
+        1548,
+        362
+      ],
+      "second_read_y": {
+        "x": 1550.0,
+        "y": 361.0
+      },
+      "absolute_log10_disagreement": {
+        "ch4_y": 0.01518987341772152,
+        "c2plus_y": 0.007575757575757576
+      }
+    },
+    {
+      "condition_id": "b_left_1",
+      "composition": "Cu0.98Mn0.02",
+      "additive": "1-Br2",
+      "panel": "b_left",
+      "x": 203,
+      "ch4_y": 441,
+      "c2plus_y": 349,
+      "second_read_y": {
+        "ch4_y": 441.0,
+        "c2plus_y": 349.0
+      },
+      "absolute_log10_disagreement": {
+        "ch4_y": 0.0,
+        "c2plus_y": 0.0
+      }
+    },
+    {
+      "condition_id": "b_left_2",
+      "composition": "Cu0.98Mn0.02",
+      "additive": "1-Br2",
+      "panel": "b_left",
+      "x": 253,
+      "ch4_y": 467,
+      "c2plus_y": 360,
+      "second_read_y": {
+        "ch4_y": 467.0,
+        "c2plus_y": 360.0
+      },
+      "absolute_log10_disagreement": {
+        "ch4_y": 0.0,
+        "c2plus_y": 0.0
+      }
+    },
+    {
+      "condition_id": "b_left_3",
+      "composition": "Cu0.98Mn0.02",
+      "additive": "1-Br2",
+      "panel": "b_left",
+      "x": 277,
+      "ch4_y": 510,
+      "c2plus_y": 391,
+      "second_read_y": {
+        "ch4_y": 510.0,
+        "c2plus_y": 391.0
+      },
+      "absolute_log10_disagreement": {
+        "ch4_y": 0.0,
+        "c2plus_y": 0.0
+      }
+    },
+    {
+      "condition_id": "b_left_4",
+      "composition": "Cu0.98Mn0.02",
+      "additive": "1-Br2",
+      "panel": "b_left",
+      "x": 355,
+      "ch4_y": 550,
+      "c2plus_y": 470,
+      "second_read_y": {
+        "ch4_y": 550.0,
+        "c2plus_y": 470.0
+      },
+      "absolute_log10_disagreement": {
+        "ch4_y": 0.0,
+        "c2plus_y": 0.0
+      }
+    },
+    {
+      "condition_id": "b_left_5",
+      "composition": "Cu0.98Mn0.02",
+      "additive": "1-Br2",
+      "panel": "b_left",
+      "x": 462,
+      "ch4_y": 571,
+      "c2plus_y": 514,
+      "second_read_y": {
+        "ch4_y": 569.0,
+        "c2plus_y": 514.0
+      },
+      "absolute_log10_disagreement": {
+        "ch4_y": 0.03305785123966942,
+        "c2plus_y": 0.0
+      }
+    },
+    {
+      "condition_id": "b_right_1",
+      "composition": "Cu0.84Mn0.16",
+      "additive": "1-Br2",
+      "panel": "b_right",
+      "x": 725,
+      "ch4_y": 441,
+      "c2plus_y": 356,
+      "second_read_y": {
+        "ch4_y": 441.0,
+        "c2plus_y": 356.0
+      },
+      "absolute_log10_disagreement": {
+        "ch4_y": 0.0,
+        "c2plus_y": 0.0
+      }
+    },
+    {
+      "condition_id": "b_right_2",
+      "composition": "Cu0.84Mn0.16",
+      "additive": "1-Br2",
+      "panel": "b_right",
+      "x": 746,
+      "ch4_y": 494,
+      "c2plus_y": 379,
+      "second_read_y": {
+        "ch4_y": 494.0,
+        "c2plus_y": 379.0
+      },
+      "absolute_log10_disagreement": {
+        "ch4_y": 0.0,
+        "c2plus_y": 0.0
+      }
+    },
+    {
+      "condition_id": "b_right_3",
+      "composition": "Cu0.84Mn0.16",
+      "additive": "1-Br2",
+      "panel": "b_right",
+      "x": 806,
+      "ch4_y": 548,
+      "c2plus_y": 403,
+      "second_read_y": {
+        "ch4_y": 548.0,
+        "c2plus_y": 403.0
+      },
+      "absolute_log10_disagreement": {
+        "ch4_y": 0.0,
+        "c2plus_y": 0.0
+      }
+    },
+    {
+      "condition_id": "b_right_4",
+      "composition": "Cu0.84Mn0.16",
+      "additive": "1-Br2",
+      "panel": "b_right",
+      "x": 871,
+      "ch4_y": 558,
+      "c2plus_y": 442,
+      "second_read_y": {
+        "ch4_y": 558.0,
+        "c2plus_y": 442.0
+      },
+      "absolute_log10_disagreement": {
+        "ch4_y": 0.0,
+        "c2plus_y": 0.0
+      }
+    },
+    {
+      "condition_id": "b_right_5",
+      "composition": "Cu0.84Mn0.16",
+      "additive": "1-Br2",
+      "panel": "b_right",
+      "x": 942,
+      "ch4_y": 560,
+      "c2plus_y": 459,
+      "second_read_y": {
+        "ch4_y": 560.0,
+        "c2plus_y": 459.0
+      },
+      "absolute_log10_disagreement": {
+        "ch4_y": 0.0,
+        "c2plus_y": 0.0
+      }
+    },
+    {
+      "condition_id": "b_right_6",
+      "composition": "Cu0.84Mn0.16",
+      "additive": "1-Br2",
+      "panel": "b_right",
+      "x": 974,
+      "ch4_y": 573,
+      "c2plus_y": 470,
+      "second_read_y": {
+        "ch4_y": 570.0,
+        "c2plus_y": 470.0
+      },
+      "absolute_log10_disagreement": {
+        "ch4_y": 0.049586776859504134,
+        "c2plus_y": 0.0
+      }
+    }
+  ],
+  "max_log10_disagreement": 0.049586776859504134
+}

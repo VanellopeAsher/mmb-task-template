@@ -1,3 +1,3 @@
-# Reference solution
+# Private reference solution
 
-`answer.json` is the frozen author-side reference output. `solve.sh` runs `witness/generate_answer.py` against the nine anonymous CIFs to compute `/workspace/results/answer.json`, then runs `witness/check_reference.py`. `witness/structure_metrics.py` reconstructs defect fractions, linker counts, degree statistics and folded cluster-linker motifs from atom sites. Keep this directory unavailable to evaluated Agents.
+`solve.sh` recomputes answer.json from `/workspace/data`. It does not copy a stored answer. For local execution use `python solution/witness/generate_answer.py --data-dir environment/data --output <path>`. Reference targets are constructed independently in `authoring/evidence/independent_reference.py`. Never mount this directory into an evaluated Agent.

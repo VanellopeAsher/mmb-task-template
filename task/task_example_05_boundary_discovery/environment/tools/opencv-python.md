@@ -1,6 +1,6 @@
 # OpenCV
 
-External interface. Check availability in the shared sandbox before use.
+Installed: `opencv-python-headless==4.10.0.84` (Python `cv2`, no GUI).
 
 Official source or manual: https://docs.opencv.org/4.x/
 

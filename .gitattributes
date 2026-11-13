@@ -3,3 +3,8 @@
 Dockerfile text eol=lf
 *.toml text eol=lf
 *.yaml text eol=lf
+
+# Stable bytes for scientific input hashes across Windows/Linux.
+task/task_example_05_boundary_discovery/** text eol=lf
+task/task_example_06_anomaly_interpretation/** text eol=lf
+.github/workflows/example_06.yml text eol=lf

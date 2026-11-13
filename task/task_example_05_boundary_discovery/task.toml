@@ -3,9 +3,9 @@ artifacts = ["/workspace/results/"]
 
 [task]
 name = "mattermysterybench/task_example_05_boundary_discovery"
-description = "Determine when bulk Cu alloying preserves the CH4/C2+ scaling relation and when a molecular film breaks it."
+description = "Evaluate in-support counterexamples and extrapolation limits in a digitized Cu-Mn/organic-film observation subset."
 authors = []
-keywords = ["CO2-electroreduction", "partial-current-density", "Pearson-correlation", "organic-additive"]
+keywords = ["CO2-electroreduction", "partial-current-density", "evidence-boundary", "organic-additive"]
 
 [metadata]
 task_id = "task_example_05_boundary_discovery"
@@ -36,4 +36,4 @@ cpus = 4
 memory_mb = 8192
 storage_mb = 10240
 gpus = 0
-network_mode = "public"
+network_mode = "no-network"

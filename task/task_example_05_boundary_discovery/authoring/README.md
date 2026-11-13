@@ -1,3 +1,3 @@
-# Private authoring materials
+# Private authoring record
 
-This directory is author-only and must not be mounted into the evaluated Agent image. It contains the scientific brief, provenance, reference evidence, scoring rubric, shortcut audit, and human-baseline protocol.
+Scientific scope: scientific_brief.md. Frozen sources and reproducible preparation: provenance/. Independent numerical evidence, rejection tests and validation results: evidence/. Human baseline is an unexecuted five-expert protocol. Do not mount authoring into the evaluated Agent.

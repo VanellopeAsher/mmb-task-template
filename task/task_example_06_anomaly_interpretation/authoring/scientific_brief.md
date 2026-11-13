@@ -1,10 +1,9 @@
-# Scientific brief
+# 科学范围与取舍
 
-## Original candidate
-2.2 MOF 缺陷浓度、类型与空间关联。
+原问题从 UiO-66 结构异常辨别缺陷、空间组织与周期连通。本版采用 MIT 许可的参考 CIF 和 13 份已有匿名未弛豫删除模型。输入支持空缺识别、特定平移下的精确重复与周期图分析。实验结构、化学稳定性、完整晶体网同构和生成过程的随机性都需要额外证据。 [参考结构来源](https://github.com/WilmerLab/mofun)
 
-## Task interpretation
-选取 UiO-66 作为具体体系，利用 CIF 结构识别 missing-linker 与 missing-cluster 两类缺陷，区分随机缺陷浓度系列与空间相关的 reo/scu/bcu 缺陷网络。该任务对应结构异常识别，而不是从理想结构做简单的元素计数。
+求解者需判断摘要能控制到何种粒度，以及三维分量是否覆盖全部剩余簇。sample_02 与 sample_07、sample_11 的缺陷类型、空缺数、最近邻空缺对数及平均重合率分别相同，但最大周期秩为 2 对 3。三者的逐轴重合位点数分别为 [55,106,116]、[83,91,103]、[85,95,97]。独立核查发现整组中没有逐轴谱相同且异秩的反例。本结论限于给定模型集，对逐轴谱能否一般决定周期秩保持开放。sample_07 和 sample_11 是同摘要同秩负例。
 
-## Evidence basis
-Islamov et al., Chemical Science 2023, DOI: 10.1039/D2SC06120A. The paper's data availability statement points to the `defective-UiO-66` repository containing pristine, random-defect, and correlated-defect CIF structures.
+sample_13 有一个三维分量和 14 个孤立簇，因此判为部分三维贯通。sample_12 的实际秩是 2，但只有一个坐标轴属于周期张成空间。空缺精确重复、汇总统计与周期连通分别回答不同的问题。没有完整重合的样本仍可能有聚集等组织。
+
+Oracle 对模型的实际构件重建边并追踪闭合路径位移。独立参考从 pristine CIF 获取理想位点，以原子占位识别构件，再对带整数位移的关联矩阵作增广秩计算。两者均从实际 CIF 出发。评分接受两种重复证据、能恢复秩的逐轴表示以及任意符合最高等级的反例对。
