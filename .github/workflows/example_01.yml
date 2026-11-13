@@ -56,5 +56,8 @@ jobs:
           result = json.loads(trials[0].read_text(encoding="utf-8"))
           reward = (result.get("verifier_result") or {}).get("rewards", {}).get("reward")
           print(f"Oracle reward: {reward}")
+          for name in ("assessment.json", "answer.json", "reward.txt"):
+              for artifact in trials[0].parent.rglob(name):
+                  print(f"{artifact}: {artifact.read_text(encoding='utf-8')[:5000]}")
           assert reward == 1.0, result
           PY
