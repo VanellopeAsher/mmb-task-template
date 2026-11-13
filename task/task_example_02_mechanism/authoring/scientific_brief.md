@@ -11,13 +11,9 @@ Nassereddine et al., ChemCatChem 2025, DOI: 10.1002/cctc.202500379. The paper re
 
 This is a mechanism-discrimination example, not an empirically established human-hard task.
 
-## Current evidence-limited pilot
+## Scoring boundary
 
-The defensible central question is which parts of the proposed activation-to-reaction mechanism survive direct reanalysis of the supplied observations, and which remain unidentifiable. The current answer contract scores six raw XANES transition temperatures, six reaction-state contrasts, and six AuCu mass-channel summaries, together with judgments tied to those observations and explicit limits. Published component counts, fitted coordination numbers, and molecule-level selectivity have been removed from scoring because the Oracle does not independently reproduce them.
-
-The scored conclusions are that the Cu midpoint occurs earlier in both bimetallic runs, reaction-stage Au/Cu spectra show only small changes relative to activation, and m/z 54 and 56 trends oppose one another. A unique nanoparticle morphology, calibrated molecular selectivity, and a causal site-population/rate law are not identified. The numeric fields deliberately give a precise, fair comparison; they also constrain method choice. This remains a limitation against the full research-taste ambition and needs an Agent trial and expert review before claiming scientific-task acceptance.
-
-The scientific gate is stronger than having a real answer and a deterministic verifier. An independent researcher must be able to infer the requested result from the same visible observations and available methods as the Agent. The current contract specifies nearly every XANES projection and mass-signal window, so most reward measures execution of a supplied analysis route. Its three negative identifiability labels are important safeguards, but they do not by themselves establish an open mechanism-discrimination task. Before promotion to a benchmark case, test whether the raw observations support a scored comparison of at least two competing explanations through genuinely selectable evidence and methods. If no such comparison survives uncertainty and alternative-model checks, keep this as an engineering pilot or obtain a new dataset with discriminating perturbations; do not score a hidden causal or structural truth that the visible data cannot determine.
+The numerical XANES, post-edge and raw mass-channel fields check evidence provenance. The main score checks rival mechanisms against necessary predictions derived from these observations, retains mechanisms the data cannot separate, and evaluates a controlled experiment with contrasting predictions. The verifier never compares the response with a published preferred mechanism or fitted coordination number. The task still provides operational definitions and a structured response vocabulary, so an Agent trial and expert review remain necessary to measure its actual research difficulty and possible schema shortcuts.
 
 ## Limits of the supplied evidence
 
