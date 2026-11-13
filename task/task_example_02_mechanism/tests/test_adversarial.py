@@ -52,8 +52,8 @@ expect(alternative, True)
 
 equivalent = copy.deepcopy(GOOD)
 equivalent["discriminating_experiment"].update(
-    contrast="dose_series", endpoint="cu_reduction_extent_at_matched_time",
-    assay="quench_and_cu_speciation",
+    contrast="Vary multiple X-ray doses", endpoint="Reduced Cu fraction at the same time",
+    assay="Quench matched aliquots and quantify Cu oxidation states",
 )
 expect(equivalent, True)
 
@@ -107,6 +107,8 @@ expect(bad, False)
 
 for invalid in (
     {"assay": "uncalibrated_ms"},
+    {"assay": "Do not use Cu K-edge XANES"},
+    {"controls": GOOD["discriminating_experiment"]["controls"] + ["Vary bed temperature"]},
     {"controls": ["hydrogen_feed"]},
     {"contrast": "feed_cycle"},
     {"predictions": {"beam_or_temperature_bias": "no_systematic_response",

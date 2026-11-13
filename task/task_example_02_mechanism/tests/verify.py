@@ -4,6 +4,8 @@
 import argparse
 import json
 import math
+import re
+import unicodedata
 from pathlib import Path
 
 
@@ -93,15 +95,59 @@ EXPERIMENTS = {
 }
 
 
+# Match entire clauses so mentions inside negated or unrelated statements do not count.
+PHRASES = {
+    "xray_exposure": r"x ray (?:exposure|dose|fluence)|incident photon dose",
+    "reactant_partial_pressure": r"(?:reactant|butadiene) partial pressure",
+    "dose_series": r"(?:compare|vary) (?:low and high|multiple) (?:x ray )?doses|dose series",
+    "beam_on_off": r"compare (?:irradiated and dark|beam on and beam off) runs",
+    "feed_cycle": r"cycle (?:the )?(?:reactant|butadiene) partial pressure",
+    "matched_feed_switches": r"switch between matched feeds with different butadiene partial pressures",
+    "bed_temperature_history": r"match (?:the )?(?:measured )?(?:catalyst )?bed temperature (?:history|profile|and ramp rate)",
+    "hydrogen_feed": r"match (?:h2|hydrogen) (?:feed|flow|partial pressure)",
+    "sample_preparation": r"match (?:catalyst|sample) preparation|aliquots from the same catalyst batch",
+    "reactor_geometry": r"match (?:sample packing and )?reactor geometry",
+    "matched_readout_exposure": r"(?:use )?(?:a )?(?:common|identical) (?:low dose )?(?:readout exposure|probe dose)",
+    "fresh_replicates": r"(?:use )?fresh (?:matched )?(?:replicates|aliquots) for each (?:arm|run)",
+    "total_flow": r"(?:match|hold fixed) total (?:gas )?flow",
+    "total_pressure": r"(?:match|hold fixed) total (?:reactor )?pressure",
+    "cu_reduction_midpoint": r"(?:temperature|t50) (?:at|for) (?:50 percent|half) cu reduction",
+    "cu_reduction_extent_at_matched_time": r"(?:reduced cu fraction|cu reduction extent) at (?:the )?same (?:reaction )?time",
+    "reversible_surface_cu_population": r"reversible (?:change in )?(?:surface cu population|surface copper site density)",
+    "cu_edge_xas": r"cu k edge (?:xas|xanes|absorption spectroscopy)",
+    "quench_and_cu_speciation": r"quench (?:matched aliquots|samples) and quantify cu oxidation states",
+    "operando_surface_xps": r"operando (?:surface sensitive |ambient pressure )?xps|operando ap xps",
+    "validated_surface_site_probe": r"validated probe of surface cu site population",
+    "calibrated_product_rate": r"calibrated (?:product formation rate|product rate|gc product rate)",
+    "detectable_response": r"(?:predicts? )?(?:a )?(?:detectable|resolvable) (?:change|response)",
+    "no_systematic_response": r"(?:predicts? )?no systematic (?:change|response)",
+    "beam_component_at_matched_temperature": r"(?:only )?(?:the )?beam (?:contribution|effect) at matched (?:bed )?temperature",
+    "gas_responsive_cu_population_above_detection_limit": r"(?:only )?gas responsive cu redistribution above the detection limit",
+    "calibrate_with_matched_replicates": r"(?:estimate|calibrate|measure) (?:the )?(?:detection limit|measurement sensitivity) (?:with|using) matched (?:replicates|repeats)",
+    "bounds_only_the_tested_effect": r"(?:a )?null result (?:only bounds|bounds only) the tested effect",
+}
+
+
+def canonical_phrase(value):
+    if not isinstance(value, str):
+        raise ValueError("Expected an experimental description")
+    normalized = unicodedata.normalize("NFKC", value).casefold()
+    normalized = re.sub(r"[^\w]+|_", " ", normalized).strip()
+    for concept, pattern in PHRASES.items():
+        if normalized == concept.replace("_", " ") or re.fullmatch(pattern, normalized):
+            return concept
+    return normalized
+
+
 def check_experiment(value, comparison):
     design = require_map(value, {"factor", "contrast", "controls", "endpoint", "assay",
                                  "context_readouts", "predictions", "scope",
                                  "detection_check", "null_interpretation"},
                          "discriminating_experiment")
+    design = dict(design)
     for key in ("factor", "contrast", "endpoint", "assay", "scope",
                 "detection_check", "null_interpretation"):
-        if not isinstance(design[key], str):
-            raise ValueError(f"Expected a category for {key}")
+        design[key] = canonical_phrase(design[key])
     rule = EXPERIMENTS.get(design["factor"])
     if rule is None or design["contrast"] not in rule["contrasts"]:
         raise ValueError("Intervention does not isolate a reference causal contrast")
@@ -110,12 +156,16 @@ def check_experiment(value, comparison):
     for key, required in (("controls", rule["controls"]),
                           ("context_readouts", rule["context"])):
         values = design[key]
-        if (not isinstance(values, list) or not all(isinstance(v, str) for v in values)
-                or not required <= set(values)):
-            raise ValueError(f"Missing experimental {key}")
-        if key == "controls" and design["factor"] in values:
-            raise ValueError("The manipulated factor cannot also be held fixed")
+        if not isinstance(values, list):
+            raise ValueError(f"Expected a list for {key}")
+        recognized = {canonical_phrase(v) for v in values}
+        supported = set().union(*(candidate["context" if key == "context_readouts" else key]
+                                  for candidate in EXPERIMENTS.values()))
+        if not required <= recognized <= supported:
+            raise ValueError(f"Missing or unsupported experimental {key}")
     predictions = design["predictions"]
+    if isinstance(predictions, dict):
+        predictions = {model: canonical_phrase(value) for model, value in predictions.items()}
     response = rule["response_model"]
     if (not isinstance(predictions, dict) or len(predictions) != 2
             or predictions.get(response) != "detectable_response"
