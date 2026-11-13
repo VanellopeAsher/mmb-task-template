@@ -31,6 +31,7 @@ jobs:
           python -O task/task_example_03_experiment_design/tests/test_adversarial.py
       - name: Recompute evidence and check the Agent release
         run: |
+          python task/task_example_03_experiment_design/authoring/test_release_integrity.py
           python task/task_example_03_experiment_design/authoring/evidence/recompute_baseline.py
           python task/task_example_03_experiment_design/authoring/check_release.py \
             --release-root agent_release/task_example_03_experiment_design \

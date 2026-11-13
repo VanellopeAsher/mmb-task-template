@@ -2,11 +2,11 @@
 This is a smoke check, not a proof against every route of data exfiltration.
 """
 import argparse
-import hashlib
 import json
 import socket
 import sys
 from pathlib import Path
+from release_hash import content_sha256, validate_policy
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--workspace', type=Path, default=Path('/workspace'))
@@ -14,6 +14,7 @@ parser.add_argument('--manifest', type=Path, required=True)
 parser.add_argument('--output', type=Path, required=True)
 args = parser.parse_args()
 spec = json.loads(args.manifest.read_text(encoding='utf-8'))
+validate_policy(spec)
 workspace = args.workspace
 checks = {}
 expected = spec['workspace_files']
@@ -22,7 +23,7 @@ for name, digest in expected.items():
     path = workspace/name
     if not path.is_file():
         missing.append(name)
-    elif path.is_symlink() or hashlib.sha256(path.read_bytes()).hexdigest()!=digest:
+    elif path.is_symlink() or content_sha256(path)!=digest:
         altered.append(name)
 for folder in ('data','tools','skills'):
     root = workspace/folder
