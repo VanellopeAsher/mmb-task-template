@@ -1,19 +1,96 @@
-import json, subprocess, sys, tempfile
+"""Test alternative valid experiments and mechanism-specific failure cases."""
+
+import copy
+import json
 from pathlib import Path
+import subprocess
+import sys
+import tempfile
+
+
 HERE = Path(__file__).resolve().parent
-GOOD = json.loads((HERE.parent / "solution" / "answer.json").read_text())
+GOOD = json.loads((HERE.parent / "solution" / "answer.json").read_text(encoding="utf-8"))
+
+
 def run(payload):
-    with tempfile.TemporaryDirectory() as d:
-        p = Path(d) / "answer.json"
-        reward = Path(d) / "reward.txt"
-        p.write_text(json.dumps(payload))
-        subprocess.run([sys.executable, str(HERE / "verify.py"), "--answer", str(p), "--reward", str(reward)], check=True)
-        return reward.read_text().strip() == "1"
-assert run(GOOD)
-with_analysis = dict(GOOD, analysis="")
-assert run(with_analysis)
-bad = json.loads(json.dumps(GOOD))
-bad["xanes_state_change"]["Cu"]["150"] = bad["xanes_state_change"]["Au"]["150"]
-assert not run(bad)
-assert not run({})
-print("adversarial verifier smoke test passed")
+    with tempfile.TemporaryDirectory() as folder:
+        answer = Path(folder) / "answer.json"
+        reward = Path(folder) / "reward.txt"
+        answer.write_text(json.dumps(payload), encoding="utf-8")
+        subprocess.run([sys.executable, str(HERE / "verify.py"), "--answer", str(answer),
+                        "--reward", str(reward)], check=True, capture_output=True)
+        return reward.read_text(encoding="utf-8").strip() == "1"
+
+
+def expect(payload, accepted):
+    if run(payload) is not accepted:
+        raise AssertionError(f"Expected accepted={accepted}")
+
+
+expect(GOOD, True)
+expect(dict(GOOD, analysis="Evidence summary"), True)
+expect({}, False)
+
+alternative = copy.deepcopy(GOOD)
+alternative["discriminating_experiment"] = {
+    "rival_pair": "chemical_reduction_vs_beam_assistance",
+    "perturbation": "beam_dose_series",
+    "held_constant": ["actual_bed_temperature", "H2_flow", "sample_geometry"],
+    "readouts": ["Cu_reduction_midpoint"],
+    "contrasting_predictions": {
+        "chemical_reduction": "dose_independent_midpoint",
+        "beam_assistance": "dose_dependent_midpoint",
+    },
+}
+expect(alternative, True)
+
+bad = copy.deepcopy(GOOD)
+del bad["mechanism_comparison"]
+expect(bad, False)
+
+bad = copy.deepcopy(GOOD)
+bad["mechanism_comparison"]["observed_signature"]["large_bulk_redox"] = True
+expect(bad, False)
+
+bad = copy.deepcopy(GOOD)
+bad["mechanism_comparison"]["necessary_predictions"]["minority_surface_redistribution"]["large_bulk_redox"] = True
+expect(bad, False)
+
+bad = copy.deepcopy(GOOD)
+bad["mechanism_comparison"]["unique_rate_mechanism_identified"] = True
+expect(bad, False)
+
+bad = copy.deepcopy(GOOD)
+bad["mechanism_comparison"]["unique_early_Cu_cause_identified"] = True
+expect(bad, False)
+
+bad = copy.deepcopy(GOOD)
+bad["mechanism_comparison"]["compatible_reaction_models"] = ["stable_reduced_sites_temperature_response"]
+expect(bad, False)
+
+bad = copy.deepcopy(GOOD)
+bad["mechanism_comparison"]["observed_signature"]["nonalloy_control_has_ms_sign"] = False
+expect(bad, False)
+
+bad = copy.deepcopy(GOOD)
+bad["control_ms_signal_median"]["Au"]["150"]["54"] = bad["control_ms_signal_median"]["Au"]["130"]["54"] + 1
+expect(bad, False)
+
+bad = copy.deepcopy(GOOD)
+bad["post_edge_fingerprint_correlation"]["au_vs_aucu_reduced_correlation"] = 0.97
+expect(bad, False)
+
+bad = copy.deepcopy(GOOD)
+bad["discriminating_experiment"]["readouts"] = ["calibrated_product_rate"]
+expect(bad, False)
+
+bad = copy.deepcopy(GOOD)
+bad["discriminating_experiment"]["held_constant"] = ["total_flow", "beam_dose"]
+expect(bad, False)
+
+for value in (float("nan"), float("inf"), True, "3.746"):
+    bad = copy.deepcopy(GOOD)
+    bad["aucu_ms_signal_median"]["130"]["56"] = value
+    expect(bad, False)
+
+print("mechanism-discrimination verifier checks passed")

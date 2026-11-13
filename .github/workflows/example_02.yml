@@ -1,0 +1,57 @@
+name: Validate example_02 operando evidence
+
+on:
+  push:
+    paths:
+      - "task/task_example_02_mechanism/**"
+      - "scripts/build_harbor_task.py"
+      - ".github/workflows/example_02.yml"
+  workflow_dispatch:
+
+jobs:
+  solution-and-verifier:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - name: Check evidence scoring and rejection cases
+        run: |
+          python task/task_example_02_mechanism/tests/test_adversarial.py
+          python -O task/task_example_02_mechanism/tests/test_adversarial.py
+      - name: Build scientific image and regenerate answer from released inputs
+        run: |
+          docker build -t mmb-example02-environment task/task_example_02_mechanism/environment
+          docker run --rm \
+            -v "$PWD/task/task_example_02_mechanism/solution:/solution:ro" \
+            mmb-example02-environment bash /solution/solve.sh
+      - name: Check Harbor-compatible staging task
+        run: |
+          python scripts/build_harbor_task.py \
+            --source task/task_example_02_mechanism \
+            --output "$RUNNER_TEMP/mmb-example02-harbor"
+          uvx harbor==0.25.0 lint "$RUNNER_TEMP/mmb-example02-harbor"
+      - name: Run oracle and isolated verifier in Harbor
+        run: |
+          python scripts/build_harbor_task.py \
+            --source task/task_example_02_mechanism \
+            --output "$RUNNER_TEMP/mmb-example02-answer-harbor"
+          uvx harbor==0.25.0 run \
+            --path "$RUNNER_TEMP/mmb-example02-answer-harbor" \
+            --agent oracle \
+            --env docker \
+            --jobs-dir "$RUNNER_TEMP/mmb-example02-jobs" \
+            --job-name example02-answer
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          job = Path(os.environ["RUNNER_TEMP"]) / "mmb-example02-jobs" / "example02-answer"
+          trials = [path for path in job.rglob("result.json") if path.parent != job]
+          assert len(trials) == 1, trials
+          result = json.loads(trials[0].read_text(encoding="utf-8"))
+          reward = result.get("verifier_result", {}).get("rewards", {}).get("reward")
+          print(f"Oracle reward: {reward}")
+          assert reward == 1.0, result
+          PY

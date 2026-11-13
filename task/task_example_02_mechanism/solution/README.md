@@ -1,3 +1,3 @@
 # Reference solution
 
-`answer.json` is the author-side reference output. `solve.sh` writes the reference artifact to `/workspace/results/answer.json`. `witness/` contains the reference-generation or evidence-reconstruction notes. Keep this directory unavailable to evaluated Agents.
+`answer.json` is the frozen author-side reference output. `solve.sh` recomputes it from `/workspace/data/raw` with `witness/generate_answer.py` and checks the result before writing `/workspace/results/answer.json`. The witness reads both source ZIPs or their extracted directory form. It now compares AuCu against Au and AuCu₃ mass-channel controls, Au/Cu reaction XANES controls, and a model-free Au-edge post-edge fingerprint. The resulting mechanism comparison rejects two necessary predictions contradicted by the observations, retains compatible alternatives, and gives a controlled test with divergent predictions. Keep this directory unavailable to evaluated Agents.

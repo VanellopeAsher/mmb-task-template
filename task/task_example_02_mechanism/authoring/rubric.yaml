@@ -1,34 +1,33 @@
-version: 1
+version: 3
 artifact: /workspace/results/answer.json
 reward:
   pass: 1
   fail: 0
-  rule: Correct alloy-site assignment, EXAFS coordination values within source uncertainties, reduced metallic states, and reaction-product interpretation.
-scored_outputs:
-  - name: active_site_model
-    units: categorical
-    tolerance: exact
-    reference_source: Nassereddine et al., ChemCatChem 2025, Table 1 and operando XAS discussion.
-    shortcut_audit: Must agree with both Au-Cu and Au-Au coordination numbers; an Au-only or core-shell assignment fails.
-  - name: au_cu_coordination_number
-    units: coordination_number
-    tolerance: 0.6
-    reference_source: Au L3-edge EXAFS fit.
-    shortcut_audit: Perturbed numeric values are rejected.
-  - name: au_au_coordination_number
-    units: coordination_number
-    tolerance: 0.7
-    reference_source: Au L3-edge EXAFS fit.
-    shortcut_audit: Perturbed numeric values are rejected.
-  - name: product_selectivity
-    units: categorical
-    tolerance: exact
-    reference_source: Operando mass spectrometry discussion.
-    shortcut_audit: Overhydrogenation claims are rejected.
+  rule: Raw evidence, rival-mechanism comparison, and a falsifiable controlled test must all pass.
+core_assessment:
+  representation: Observed Boolean signature, necessary-prediction matrix with nullable entries, and the resulting compatible-model set.
+  observed_signature:
+    large_bulk_redox: max reaction XANES contrast >= 0.1
+    nonalloy_control_has_ms_sign: Au-only m/z 54 decreases and 56 increases from 130 to 150 C
+    aucu_post_edge_reaction_similar: within-AuCu post-edge correlation > 0.9
+  rejection_logic: Reject a model only if a non-null necessary prediction conflicts with a source-derived observation.
+  compatible_models: [stable_reduced_sites_temperature_response, minority_surface_redistribution]
+  reduction_explanations: [hydrogen_spillover, Cu_dispersion_or_precursor_bonding, beam_or_temperature_bias]
+  identifiability_limits: [rate_mechanism, early_Cu_cause, unique_morphology, molecular_selectivity]
+discriminating_experiments:
+  accepted_rival_pairs:
+    - stable_sites_vs_surface_redistribution
+    - chemical_reduction_vs_beam_assistance
+  requirement: A controlled intervention, joint independent readouts, and opposite model predictions.
+evidence_gates:
+  activation_midpoint_C: {units: resistor_temperature_C, absolute_tolerance: 2.0}
+  reaction_xanes_change: {units: dimensionless, absolute_tolerance: 0.002}
+  control_reaction_xanes_change: {units: dimensionless, absolute_tolerance: 0.005}
+  aucu_ms_signal_median: {units: raw_signal, tolerance: {mz54: 0.2, mz56: 0.1}}
+  control_ms_signal_median: {units: raw_signal, tolerance: {mz54: 0.3, mz56: 0.2}}
+  post_edge_fingerprint_correlation: {units: Pearson_r, tolerance: {between_sample: 0.08, within_sample: 0.025}}
+shortcut_audit:
+  - Numerical reductions alone fail without mechanism comparison and a valid discriminating test.
+  - Published coordination numbers, MCR components, and morphology labels earn no score.
+  - Treating correlation, uncalibrated mass peaks, or an earlier Cu midpoint as unique causal identification fails.
 unscored_optional: [analysis]
-
-  - name: mcr_component_counts
-    units: component_count
-    tolerance: exact
-    reference_source: Nassereddine et al. 2025, MCR-ALS analysis of time-resolved Au L3 and Cu K-edge XANES.
-    shortcut_audit: Both edge-specific component counts are checked.

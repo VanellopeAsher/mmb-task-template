@@ -1,7 +1,7 @@
 """Check the published operando mass-spectrometer archive without inferring products.
 
 Usage: python inspect_mass_spectrometer.py MassSpectrometer.zip
-The instrument export contains 80 mass channels and annotations in each run.
+The instrument export contains 80 mass channels; some runs have annotations.
 Signals are reported as instrument values; calibration and fragment deconvolution
 are required before assigning molecular conversion or selectivity.
 """
@@ -21,9 +21,14 @@ import zipfile
 EXPECTED_MD5 = "6ea7054361b23d8bb6022dd3d0761b86"
 CHANNELS = [f"Mass {mass}" for mass in range(1, 81)]
 MONITORED_MASSES = (42, 44, 54, 56, 58)
+AUCU_STAGE_WINDOWS = {
+    "100_C": ("2020-11-27T18:45:00", "2020-11-27T19:05:00"),
+    "130_C": ("2020-11-27T19:50:00", "2020-11-27T20:10:00"),
+    "150_C": ("2020-11-27T20:55:00", "2020-11-27T21:15:00"),
+}
 
 
-def parse_export(data: bytes) -> dict[str, object]:
+def parse_export(data: bytes, stage_windows: dict[str, tuple[str, str]] | None = None) -> dict[str, object]:
     # The source export uses a Western single-byte code page and CR-CR-LF.
     lines = data.decode("latin-1").splitlines()
     marker = lines.index('"[Scan Data (Pressures in mbar)]"')
@@ -64,6 +69,19 @@ def parse_export(data: bytes) -> dict[str, object]:
                     continue
                 notes.append({"time": timestamp.isoformat(), "note": row[1]})
     tail = max(1, len(times) // 10)
+    stage_signals = {}
+    for stage, (start, end) in (stage_windows or {}).items():
+        first, last = datetime.fromisoformat(start), datetime.fromisoformat(end)
+        indices = [i for i, timestamp in enumerate(times) if first <= timestamp < last]
+        if not indices:
+            raise ValueError(f"No scans in stage {stage}")
+        stage_signals[stage] = {
+            "scans": len(indices),
+            "raw_signal_median": {
+                str(mass): statistics.median(values[mass][i] for i in indices)
+                for mass in MONITORED_MASSES
+            },
+        }
     return {
         "scans": len(times),
         "first_scan": scans[0],
@@ -73,6 +91,7 @@ def parse_export(data: bytes) -> dict[str, object]:
         "median_interval_s": statistics.median((right - left).total_seconds() for left, right in zip(times, times[1:])),
         "tail_10pct_raw_signal_median": {str(mass): statistics.median(readings[-tail:]) for mass, readings in values.items()},
         "annotations": notes,
+        "stage_windows_raw_signal": stage_signals,
     }
 
 
@@ -81,7 +100,10 @@ def inspect(path: Path) -> dict[str, object]:
         raise ValueError("Source archive MD5 mismatch")
     with zipfile.ZipFile(path) as archive:
         records = {
-            name: parse_export(archive.read(name))
+            name: parse_export(
+                archive.read(name),
+                AUCU_STAGE_WINDOWS if name == "MassSpectrometer/AuCuANS56c2_000001.txt" else None,
+            )
             for name in sorted(archive.namelist())
             if name.endswith(".txt")
         }
