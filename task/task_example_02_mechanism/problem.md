@@ -30,4 +30,4 @@ TiO₂ 负载 Au–Cu 催化剂在 H₂ 活化后进行 1,3-丁二烯加氢。�
 
 `discriminating_experiment` 从 `stable_sites_vs_surface_redistribution` 或 `chemical_reduction_vs_beam_assistance` 中选择一个机制对，给出 `rival_pair`、`perturbation`、`held_constant`、`readouts` 和 `contrasting_predictions`。可用干预标识为 `isothermal_feed_cycle`、`beam_dose_series`；控制量标识为 `actual_bed_temperature`、`total_flow`、`beam_dose`、`H2_flow`、`sample_geometry`；读出标识为 `surface_Cu_fraction`、`calibrated_product_rate`、`Cu_reduction_midpoint`。预测必须说明所选两机制在该干预下对读出的**相反结果**，可用 `no_reversible_surface_Cu_fraction_change`、`reversible_surface_Cu_fraction_change`、`dose_independent_midpoint`、`dose_dependent_midpoint`。请自行选择能区分所选机制对的干预、匹配控制量和联合读出；单测未经标定的质谱峰或只重复温度梯度不构成区分实验。
 
-这是受资源限制的可评分实验设计，不要求猜测尚未实施实验的结果。`analysis` 可选，用于说明其他合理机制和误差来源，不计分。顶层仅允许上述观测量、`mechanism_comparison`、`discriminating_experiment` 及可选 `analysis`；所有数值必须有限，机制判断必须与提交的观测量一致。
+这是受资源限制的可评分实验设计，不要求猜测尚未实施实验的结果。顶层仅允许上述观测量、`mechanism_comparison` 和 `discriminating_experiment`；所有数值必须有限，机制判断必须与提交的观测量一致。

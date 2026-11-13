@@ -30,4 +30,3 @@ shortcut_audit:
   - Numerical reductions alone fail without mechanism comparison and a valid discriminating test.
   - Published coordination numbers, MCR components, and morphology labels earn no score.
   - Treating correlation, uncalibrated mass peaks, or an earlier Cu midpoint as unique causal identification fails.
-unscored_optional: [analysis]

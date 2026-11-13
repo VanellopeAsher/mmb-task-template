@@ -28,7 +28,7 @@ def expect(payload, accepted):
 
 
 expect(GOOD, True)
-expect(dict(GOOD, analysis="Evidence summary"), True)
+expect(dict(GOOD, analysis="Hydrogen spillover is uniquely proven"), False)
 expect({}, False)
 
 alternative = copy.deepcopy(GOOD)

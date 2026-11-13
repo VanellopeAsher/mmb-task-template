@@ -203,7 +203,6 @@ def main():
     accepted = False
     try:
         payload = json.loads(Path(args.answer).read_text(encoding="utf-8"))
-        payload.pop("analysis", None)
         verify(payload)
         accepted = True
     except (OSError, ValueError, TypeError, KeyError, json.JSONDecodeError) as exc:
