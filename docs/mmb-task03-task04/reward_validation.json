@@ -1,0 +1,39 @@
+{
+  "upstream_parser_url": "https://github.com/harbor-framework/harbor/blob/v0.25.0/src/harbor/verifier/verifier.py",
+  "tested_upstream_source_sha256": "c8c044113ae2fa6bbe27704b469dae9c0868390efdd48206d56b3e8888bf102c",
+  "checks": [
+    {
+      "task": "task_example_03_experiment_design",
+      "ordinary_regression": "10_methods_passed",
+      "optimized_regression": "10_methods_passed",
+      "exact_harbor_v025_parser_old_failure_reproduced": true,
+      "exact_harbor_v025_parser_new_json_and_txt_accepted": true,
+      "numeric_reward": {
+        "reward": 0.08436284
+      },
+      "details_status": "pending_expert_review",
+      "ci_details_and_synthetic_harbor_layout": "passed",
+      "staged_reference_and_verifier": "passed",
+      "workflow_yaml_bash_and_release_checks": "passed",
+      "full_docker_harbor_run": "not_run_locally"
+    },
+    {
+      "task": "task_example_04_inverse_design",
+      "ordinary_regression": "10_methods_passed_one_inapplicable_skip",
+      "optimized_regression": "10_methods_passed_one_inapplicable_skip",
+      "exact_harbor_v025_parser_old_failure_reproduced": true,
+      "exact_harbor_v025_parser_new_json_and_txt_accepted": true,
+      "numeric_reward": {
+        "reward": 0.25
+      },
+      "details_status": "pending_expert_review",
+      "ci_details_and_synthetic_harbor_layout": "passed",
+      "staged_reference_and_verifier": "passed",
+      "workflow_yaml_bash_and_release_checks": "passed",
+      "full_docker_harbor_run": "not_run_locally"
+    }
+  ],
+  "scientific_scoring_unchanged": true,
+  "expert_review": "pending_not_fabricated",
+  "remote_github_run": "pending_after_upload"
+}

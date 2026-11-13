@@ -62,6 +62,12 @@ except (OSError,ValueError,TypeError,KeyError) as error:
     reward = 0.0
     result.update(status="invalid",error=str(error))
 args.reward.parent.mkdir(parents=True,exist_ok=True)
-args.reward.write_text(f"{reward:.9f}\n",encoding="utf-8")
-args.reward.with_suffix(".json").write_text(json.dumps(result,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
+# Harbor reserves reward.json for a flat numeric reward mapping.
+# Keep review status, hashes and nested error details in a separate artifact.
+numeric_reward = round(reward, 9)
+args.reward.write_text(f"{numeric_reward:.9f}\n",encoding="utf-8")
+args.reward.with_suffix(".json").write_text(
+    json.dumps({"reward":numeric_reward},allow_nan=False)+"\n",encoding="utf-8")
+args.reward.with_name(args.reward.stem+"_details.json").write_text(
+    json.dumps(result,ensure_ascii=False,indent=2,allow_nan=False)+"\n",encoding="utf-8")
 raise SystemExit(0 if valid else 1)

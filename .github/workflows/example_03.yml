@@ -56,7 +56,7 @@ jobs:
           python task/task_example_03_experiment_design/tests/check_ci_artifacts.py \
             --answer "$RUNNER_TEMP/mmb-example03-artifacts/answer.json" \
             --reward "$RUNNER_TEMP/mmb-example03-artifacts/reward.txt" \
-            --status "$RUNNER_TEMP/mmb-example03-artifacts/reward.json"
+            --status "$RUNNER_TEMP/mmb-example03-artifacts/reward_details.json"
       - name: Check Harbor-compatible staging task
         run: |
           python scripts/build_harbor_task.py \

@@ -46,7 +46,14 @@ class ContractChecks(unittest.TestCase):
             command += [str(HERE/'verify.py'),'--answer',str(answer),'--reward',str(reward),'--review-file',str(review_file)]
             proc=subprocess.run(command,capture_output=True,text=True)
             self.assertTrue(reward.exists(),proc.stderr)
-            return proc.returncode,float(reward.read_text()),json.loads(reward.with_suffix('.json').read_text(encoding='utf-8'))
+            numeric=json.loads(reward.with_suffix('.json').read_text(encoding='utf-8'))
+            self.assertEqual(set(numeric),{'reward'})
+            self.assertIn(type(numeric['reward']),(int,float))
+            self.assertTrue(math.isfinite(numeric['reward']))
+            self.assertEqual(numeric['reward'],float(reward.read_text()))
+            details=reward.with_name(reward.stem+'_details.json')
+            self.assertTrue(details.exists())
+            return proc.returncode,float(reward.read_text()),json.loads(details.read_text(encoding='utf-8'))
 
     def reject(self,payload,review=None):
         code,reward,result=self.execute(payload,review)
