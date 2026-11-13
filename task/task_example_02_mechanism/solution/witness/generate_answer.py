@@ -73,16 +73,19 @@ def generate(xas_source, ms_source):
             "unique_alloy_morphology_identified": False,
             "molecular_selectivity_quantified": False,
         },
-        "discriminating_experiment": {
-            "rival_pair": "stable_sites_vs_surface_redistribution",
-            "perturbation": "isothermal_feed_cycle",
-            "held_constant": ["actual_bed_temperature", "total_flow", "beam_dose"],
-            "readouts": ["surface_Cu_fraction", "calibrated_product_rate"],
-            "contrasting_predictions": {
-                "stable_sites": "no_reversible_surface_Cu_fraction_change",
-                "surface_redistribution": "reversible_surface_Cu_fraction_change",
-            },
-        },
+        "discriminating_experiment": {'contrasting_predictions': {'beam_or_temperature_bias': [5, 15],
+                                     'hydrogen_spillover': [-1, 1]},
+         'held_constant': ['Measured bed temperature and ramp rate', 'H2 flow and sample geometry'],
+         'perturbation': 'Repeat the H2 ramp on fresh matched aliquots at low and high incident '
+                         'X-ray dose, including dark intervals and a common low-dose readout.',
+         'rationale': 'Conditional planning intervals: a beam-driven acceleration of at least 5 degC '
+                      'would shift the high-dose midpoint down. Pure spillover at fixed bed '
+                      'temperature predicts no systematic dose response. Calibrate resolution in '
+                      'replicate ramps. A null result does not exclude thermal bias or smaller beam '
+                      'effects.',
+         'readout': 'Low-dose minus high-dose Cu reduction midpoint',
+         'resolution': 2,
+         'units': 'degC'},
     }
 
 

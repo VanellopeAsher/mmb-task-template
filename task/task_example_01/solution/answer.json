@@ -10,8 +10,8 @@
       "three_plus_four": 678.6718036
     }
   },
-  "modes": {
-    "three_phonon": {
+  "modes": [
+    {
       "q": [
         0.25,
         0.0,
@@ -30,7 +30,7 @@
         }
       }
     },
-    "four_phonon": {
+    {
       "q": [
         0.75,
         0.5,
@@ -49,6 +49,6 @@
         }
       }
     }
-  },
+  ],
   "gap_alone_predicts_dominant_order": false
 }

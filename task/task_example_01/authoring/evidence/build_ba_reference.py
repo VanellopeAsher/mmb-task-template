@@ -56,29 +56,7 @@ def build(runs: dict[str, Path], kappa_3only: dict[str, Path]) -> dict:
                 rows.append((float(item["omega"][i, branch]),
                              float(item["w3"][i, branch]),
                              float(item["w4"][i, branch])))
-            if any(freq <= 1e-6 or freq >= loaded["20_100k"]["cutoff"] - 0.1
-                   for freq, _, _ in rows):
-                continue
-            if any(w3 <= 1e-8 for _, w3, _ in rows):
-                continue
-            ratios = [w4 / w3 for _, w3, w4 in rows]
-            if max(ratios) <= 0.4:
-                dominant = "three_phonon"
-            elif min(ratios) >= 2.0:
-                dominant = "four_phonon"
-            else:
-                continue
-            modes.append({
-                "q": list(q), "branch": branch + 1, "dominant": dominant,
-                "omega_rad_ps": rows[1][0],
-                "rates_ps_inverse": {
-                    "16": {"three": rows[0][1], "four": rows[0][2]},
-                    "20": {"three": rows[1][1], "four": rows[1][2]},
-                },
-                "sample_ratio_range": [min(ratios), max(ratios)],
-            })
-    if {m["dominant"] for m in modes} != {"three_phonon", "four_phonon"}:
-        raise ValueError("Missing robust opposing mechanisms")
+            modes.append({"q": list(q), "branch": branch + 1, "samples": rows})
     transport = {}
     for mesh in ("16", "20"):
         three_path = kappa_3only[mesh] / "T350K" / "BTE.kappa_scalar"
@@ -87,9 +65,9 @@ def build(runs: dict[str, Path], kappa_3only: dict[str, Path]) -> dict:
             raise ValueError(f"Invalid three-only RTA conductivity: {three_path}")
         transport[mesh] = {"three_only": float(three[1]),
                            "three_plus_four": loaded[f"{mesh}_100k"]["kappa"]}
-    return {"temperature_C": 350, "scalebroad": 1.0,
+    return {"temperature_K": 350, "scalebroad": 1.0,
             "gap_cutoff_rad_ps": loaded["20_100k"]["cutoff"],
-            "transport_W_mK": transport, "accepted_modes": modes}
+            "transport_W_mK": transport, "modes": modes}
 
 
 if __name__ == "__main__":
@@ -103,4 +81,4 @@ if __name__ == "__main__":
     kappa = {mesh: getattr(args, f"run_{mesh}_3only") for mesh in ("16", "20")}
     result = build(runs, kappa)
     args.output.write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
-    print(f"Accepted robust modes: {len(result['accepted_modes'])}")
+    print(f"Common-grid acoustic modes: {len(result['modes'])}")

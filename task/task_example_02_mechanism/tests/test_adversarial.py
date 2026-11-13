@@ -33,14 +33,16 @@ expect({}, False)
 
 alternative = copy.deepcopy(GOOD)
 alternative["discriminating_experiment"] = {
-    "rival_pair": "chemical_reduction_vs_beam_assistance",
-    "perturbation": "beam_dose_series",
-    "held_constant": ["actual_bed_temperature", "H2_flow", "sample_geometry"],
-    "readouts": ["Cu_reduction_midpoint"],
+    "perturbation": "Cycle butadiene feed at constant bed temperature while acquiring surface spectra",
+    "held_constant": ["Bed temperature", "H2 partial pressure", "Flow", "Photon dose"],
+    "readout": "Reversible change in surface Cu fraction paired with a calibrated rate change",
+    "units": "percentage points",
+    "resolution": 1,
     "contrasting_predictions": {
-        "chemical_reduction": "dose_independent_midpoint",
-        "beam_assistance": "dose_dependent_midpoint",
+        "stable_reduced_sites_temperature_response": [0, 0.5],
+        "minority_surface_redistribution": [2, 4],
     },
+    "rationale": "Planning ranges for a gas-responsive redistribution model. Establish precision with replicate cycles and monitor the rate concurrently.",
 }
 expect(alternative, True)
 
@@ -93,11 +95,11 @@ bad["post_edge_fingerprint_correlation"]["au_vs_aucu_reduced_correlation"] = 0.9
 expect(bad, False)
 
 bad = copy.deepcopy(GOOD)
-bad["discriminating_experiment"]["readouts"] = ["calibrated_product_rate"]
+bad["discriminating_experiment"]["resolution"] = 4
 expect(bad, False)
 
 bad = copy.deepcopy(GOOD)
-bad["discriminating_experiment"]["held_constant"] = ["total_flow", "beam_dose"]
+bad["discriminating_experiment"]["held_constant"] = []
 expect(bad, False)
 
 for value in (float("nan"), float("inf"), True, "3.746"):

@@ -33,28 +33,6 @@ MODEL_PREDICTIONS = {
 REDUCTION_RIVALS = {
     "hydrogen_spillover", "Cu_dispersion_or_precursor_bonding", "beam_or_temperature_bias",
 }
-TEST_DESIGNS = {
-    "stable_sites_vs_surface_redistribution": {
-        "perturbation": "isothermal_feed_cycle",
-        "held_constant": {"actual_bed_temperature", "total_flow", "beam_dose"},
-        "readouts": {"surface_Cu_fraction", "calibrated_product_rate"},
-        "contrasting_predictions": {
-            "stable_sites": "no_reversible_surface_Cu_fraction_change",
-            "surface_redistribution": "reversible_surface_Cu_fraction_change",
-        },
-    },
-    "chemical_reduction_vs_beam_assistance": {
-        "perturbation": "beam_dose_series",
-        "held_constant": {"actual_bed_temperature", "H2_flow", "sample_geometry"},
-        "readouts": {"Cu_reduction_midpoint"},
-        "contrasting_predictions": {
-            "chemical_reduction": "dose_independent_midpoint",
-            "beam_assistance": "dose_dependent_midpoint",
-        },
-    },
-}
-
-
 def require_map(value, keys, label):
     if not isinstance(value, dict) or set(value) != set(keys):
         raise ValueError(f"Incorrect fields in {label}")
@@ -85,25 +63,36 @@ def compare_control_block(reported, expected, tolerance, label):
         compare_numeric_block(groups, expected_groups, tolerance, f"{label}.{sample}")
 
 
-def check_experiment(value):
-    design = require_map(value, {"rival_pair", "perturbation", "held_constant",
-                                 "readouts", "contrasting_predictions"},
+def check_experiment(value, comparison):
+    design = require_map(value, {"perturbation", "held_constant", "readout", "units",
+                                 "resolution", "contrasting_predictions", "rationale"},
                          "discriminating_experiment")
-    pair = design["rival_pair"]
-    if type(pair) is not str or pair not in TEST_DESIGNS:
-        raise ValueError("Experiment does not distinguish a supported rival pair")
-    expected = TEST_DESIGNS[pair]
-    if design["perturbation"] != expected["perturbation"]:
-        raise ValueError("Intervention does not separate the rival predictions")
-    for field in ("held_constant", "readouts"):
-        values = design[field]
-        allowed = set().union(*(candidate[field] for candidate in TEST_DESIGNS.values()))
-        if (not isinstance(values, list) or any(type(item) is not str for item in values)
-                or len(values) != len(set(values)) or not expected[field].issubset(set(values))
-                or not set(values).issubset(allowed)):
-            raise ValueError(f"Missing controlled variable or independent readout in {field}")
-    if design["contrasting_predictions"] != expected["contrasting_predictions"]:
-        raise ValueError("Experiment has no validated contrasting predictions")
+    for field in ("perturbation", "readout", "units", "rationale"):
+        if not isinstance(design[field], str) or not design[field].strip():
+            raise ValueError(f"Missing experiment description: {field}")
+    controls = design["held_constant"]
+    if not isinstance(controls, list) or not controls or any(
+        not isinstance(control, str) or not control.strip() for control in controls
+    ):
+        raise ValueError("Describe the matched experimental controls")
+    predictions = design["contrasting_predictions"]
+    if not isinstance(predictions, dict) or len(predictions) != 2 or not any(
+        set(predictions) <= set(comparison[group])
+        for group in ("compatible_reaction_models", "compatible_early_Cu_explanations")
+    ):
+        raise ValueError("Compare two compatible explanations from the same group")
+    resolution = design["resolution"]
+    if type(resolution) not in (int, float) or not math.isfinite(resolution) or resolution <= 0:
+        raise ValueError("Resolution must be positive and finite")
+    for interval in predictions.values():
+        if (not isinstance(interval, list) or len(interval) != 2
+                or any(type(x) not in (int, float) or not math.isfinite(x) for x in interval)
+                or interval[0] > interval[1]):
+            raise ValueError("Predictions require finite, ordered interval endpoints")
+    first, second = sorted(predictions.values())
+    separation = second[0] - first[1]
+    if not math.isfinite(separation) or separation <= resolution:
+        raise ValueError("Predictions are indistinguishable at the reported resolution")
 
 
 def verify(payload):
@@ -192,7 +181,7 @@ def verify(payload):
             raise ValueError(f"Unsupported unique identification: {key}")
     if len(compatible) != 2 or not compatible.issubset(MODEL_PREDICTIONS):
         raise ValueError("Mechanism set has not been resolved to the supported equivalence class")
-    check_experiment(payload["discriminating_experiment"])
+    check_experiment(payload["discriminating_experiment"], comparison)
 
 
 def main():

@@ -124,20 +124,24 @@
     "molecular_selectivity_quantified": false
   },
   "discriminating_experiment": {
-    "rival_pair": "stable_sites_vs_surface_redistribution",
-    "perturbation": "isothermal_feed_cycle",
+    "perturbation": "Repeat the H2 ramp on fresh matched aliquots at low and high incident X-ray dose, including dark intervals and a common low-dose readout.",
     "held_constant": [
-      "actual_bed_temperature",
-      "total_flow",
-      "beam_dose"
+      "Measured bed temperature and ramp rate",
+      "H2 flow and sample geometry"
     ],
-    "readouts": [
-      "surface_Cu_fraction",
-      "calibrated_product_rate"
-    ],
+    "readout": "Low-dose minus high-dose Cu reduction midpoint",
+    "units": "degC",
+    "resolution": 2,
     "contrasting_predictions": {
-      "stable_sites": "no_reversible_surface_Cu_fraction_change",
-      "surface_redistribution": "reversible_surface_Cu_fraction_change"
-    }
+      "beam_or_temperature_bias": [
+        5,
+        15
+      ],
+      "hydrogen_spillover": [
+        -1,
+        1
+      ]
+    },
+    "rationale": "Conditional planning intervals: a beam-driven acceleration of at least 5 degC would shift the high-dose midpoint down. Pure spillover at fixed bed temperature predicts no systematic dose response. Calibrate resolution in replicate ramps. A null result does not exclude thermal bias or smaller beam effects."
   }
 }

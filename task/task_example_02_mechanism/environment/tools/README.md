@@ -1,8 +1,6 @@
 # Scientific software
 
 - [XrayLarch](xraylarch.md)
-- [Demeter (Athena and Artemis)](demeter.md)
-- [Fastosh](fastosh.md)
 - [pyMCR](pymcr.md)
 - [scikit-learn](scikit-learn.md)
 - [SciPy](scipy.md)

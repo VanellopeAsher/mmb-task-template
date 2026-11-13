@@ -74,7 +74,7 @@ def assemble(full16: Path, full20: Path, only16: Path, only20: Path) -> dict:
         transport[mesh] = {"three_only": float(kappa[1]),
                            "three_plus_four": full[mesh]["kappa"]}
     return {"gap_cutoff_rad_ps": gap, "transport_W_mK": transport,
-            "modes": chosen, "gap_alone_predicts_dominant_order": False}
+            "modes": list(chosen.values()), "gap_alone_predicts_dominant_order": False}
 
 
 if __name__ == "__main__":
@@ -85,4 +85,4 @@ if __name__ == "__main__":
     args = parser.parse_args()
     result = assemble(args.full16, args.full20, args.only16, args.only20)
     args.output.write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
-    print(json.dumps({k: (v["q"], v["branch"]) for k, v in result["modes"].items()}))
+    print(json.dumps([(v["q"], v["branch"]) for v in result["modes"]]))

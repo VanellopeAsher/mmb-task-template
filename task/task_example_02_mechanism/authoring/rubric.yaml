@@ -15,10 +15,8 @@ core_assessment:
   reduction_explanations: [hydrogen_spillover, Cu_dispersion_or_precursor_bonding, beam_or_temperature_bias]
   identifiability_limits: [rate_mechanism, early_Cu_cause, unique_morphology, molecular_selectivity]
 discriminating_experiments:
-  accepted_rival_pairs:
-    - stable_sites_vs_surface_redistribution
-    - chemical_reduction_vs_beam_assistance
-  requirement: A controlled intervention, joint independent readouts, and opposite model predictions.
+  automatic: Two compatible explanations predict intervals separated by more than the reported resolution on one readout.
+  scientific_review: Check that the intervention, controls, feasible resolution, and justified prediction bounds distinguish the two explanations under stated assumptions.
 evidence_gates:
   activation_midpoint_C: {units: resistor_temperature_C, absolute_tolerance: 2.0}
   reaction_xanes_change: {units: dimensionless, absolute_tolerance: 0.002}

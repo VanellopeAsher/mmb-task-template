@@ -30,7 +30,7 @@ def shape(value: object, keys: set[str], name: str) -> dict:
     return value
 
 
-def check_mode(value: object, label: str, gap: float) -> None:
+def check_mode(value: object, label: str, gap: float) -> int:
     item = shape(value, {"q", "branch", "omega_rad_ps", "rates_ps_inverse"}, label)
     q = item["q"]
     if not isinstance(q, list) or len(q) != 3:
@@ -39,32 +39,42 @@ def check_mode(value: object, label: str, gap: float) -> None:
     branch = item["branch"]
     if type(branch) is not int or branch not in (1, 2, 3):
         raise ValueError(f"Invalid {label}/branch")
-    candidates = [m for m in REFERENCE["accepted_modes"]
-                  if m["dominant"] == label and m["branch"] == branch
+    candidates = [m for m in REFERENCE["modes"]
+                  if m["branch"] == branch
                   and all(abs(a - b) <= 1e-6 for a, b in zip(coords, m["q"]))]
     if len(candidates) != 1:
-        raise ValueError(f"{label} mode is not a validated common-grid counterexample")
+        raise ValueError(f"{label} mode is absent from the common-grid data")
     expected = candidates[0]
-    frequency = close(item["omega_rad_ps"], expected["omega_rad_ps"], 0.1,
-                      f"{label}/omega_rad_ps")
-    if frequency >= gap:
+    samples = expected["samples"]
+    cutoff = min(gap, REFERENCE["gap_cutoff_rad_ps"])
+    if any(not (1e-6 < freq < cutoff - 0.1 and three > 1e-8 and four > 0)
+           for freq, three, four in samples):
+        raise ValueError(f"{label} is not a positive-frequency below-gap mode")
+    ratios = [four / three for _, three, four in samples]
+    order = 3 if max(ratios) < 0.5 else 4 if min(ratios) > 1.5 else None
+    if order is None:
+        raise ValueError(f"{label} does not retain a clear dominant order across runs")
+    frequency = close(item["omega_rad_ps"], samples[1][0], 0.1, f"{label}/omega_rad_ps")
+    if not 0 < frequency < gap:
         raise ValueError(f"{label} mode must be below the reported gap threshold")
     rates = shape(item["rates_ps_inverse"], {"16", "20"}, f"{label}/rates")
-    for mesh in ("16", "20"):
+    for index, mesh in enumerate(("16", "20")):
         pair = shape(rates[mesh], {"three", "four"}, f"{label}/{mesh}")
-        ref = expected["rates_ps_inverse"][mesh]
-        three = close(pair["three"], ref["three"], max(1e-5, 0.05 * ref["three"]),
+        _, ref_three, ref_four = samples[index]
+        three = close(pair["three"], ref_three, max(1e-5, 0.05 * ref_three),
                       f"{label}/{mesh}/three")
-        four_tolerance = 0.45 if label == "three_phonon" else 0.35
-        four = close(pair["four"], ref["four"], max(1e-5, four_tolerance * ref["four"]),
+        four_tolerance = 0.45 if order == 3 else 0.35
+        four = close(pair["four"], ref_four, max(1e-5, four_tolerance * ref_four),
                      f"{label}/{mesh}/four")
         if three <= 0 or four <= 0:
             raise ValueError(f"{label}/{mesh} rates must be positive")
         ratio = four / three
-        if label == "three_phonon" and ratio >= 0.5:
+        if order == 3 and ratio >= 0.5:
             raise ValueError(f"{label}/{mesh} loses its dominance margin")
-        if label == "four_phonon" and ratio <= 1.5:
+        if order == 4 and ratio <= 1.5:
             raise ValueError(f"{label}/{mesh} loses its dominance margin")
+
+    return order
 
 
 def verify(answer_path: Path) -> dict[str, object]:
@@ -84,11 +94,13 @@ def verify(answer_path: Path) -> dict[str, object]:
                      0.05 * ref["three_plus_four"], f"transport/{mesh}/three_plus_four")
         if three <= 0 or full <= 0 or full / three >= 0.7:
             raise ValueError(f"transport/{mesh} does not show a substantial four-phonon effect")
-    modes = shape(answer["modes"], {"three_phonon", "four_phonon"}, "modes")
-    for label, mode in modes.items():
-        check_mode(mode, label, gap)
-    if answer["gap_alone_predicts_dominant_order"] is not False:
-        raise ValueError("The gap alone cannot predict both observed mechanisms")
+    modes = answer["modes"]
+    if not isinstance(modes, list) or len(modes) != 2:
+        raise ValueError("Submit two evidence modes")
+    orders = {check_mode(mode, f"mode {index}", gap) for index, mode in enumerate(modes)}
+    conclusion = answer["gap_alone_predicts_dominant_order"]
+    if orders != {3, 4} or conclusion is not False:
+        raise ValueError("The selected evidence must establish the conclusion for this model")
     return {"status": "correct", "validated_modes": 2, "validated_meshes": 2,
             "analysis_present": bool(answer.get("analysis"))}
 
