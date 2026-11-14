@@ -1,9 +1,9 @@
-version: 4
+version: 5
 reward: binary
-scientific_target: Temperature-dependent response during hydrogenation on a persistent predominantly reduced alloy
-accepted_mechanism_answers:
-  - [persistent_reduced_alloy_temperature_response]
-  - [persistent_reduced_alloy, shared_temperature_response]
+scientific_target: Evidence states during temperature-dependent AuCu hydrogenation
+process_conclusions: tests/reference_answer.json
+mechanism_status: tests/reference_answer.json
+inference_limits: tests/reference_answer.json
 independent_evidence: evidence/reaction_mechanism_reference.md
 required_numeric_evidence: tests/reference_answer.json
 unscored_optional: [follow_up]

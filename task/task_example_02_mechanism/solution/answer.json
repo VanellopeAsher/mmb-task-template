@@ -67,7 +67,19 @@
     "aucu_reduced_vs_130_correlation": 0.9824518919967836,
     "aucu_reduced_vs_150_correlation": 0.9774468495083348
   },
-  "mechanisms": [
-    "persistent_reduced_alloy_temperature_response"
-  ]
+  "process_conclusions": {
+    "reduced_alloy_persists": "supported_by_observations",
+    "same_direction_ms_in_au_control": "supported_by_observations"
+  },
+  "mechanism_status": {
+    "bulk_redox_turnover": "not_supported_as_dominant_explanation",
+    "alloy_demixing_drives_response": "not_supported_as_dominant_explanation",
+    "minority_cu_redistribution_drives_response": "unresolved",
+    "fixed_surface_coverage_kinetics": "unresolved"
+  },
+  "inference_limits": {
+    "fixed_active_sites_established": false,
+    "calibrated_yield_or_selectivity_established": false,
+    "shared_elementary_mechanism_established": false
+  }
 }

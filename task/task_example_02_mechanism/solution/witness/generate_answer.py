@@ -23,8 +23,15 @@ def generate(xas_source, ms_source):
         "control_reaction_xanes_change": {sample: xanes_controls[sample]
                                            for sample in ("Au", "Cu")},
         "post_edge_fingerprint_correlation": post_edge,
-        "mechanisms": ["persistent_reduced_alloy_temperature_response"],
-
+        "process_conclusions": {'reduced_alloy_persists': 'supported_by_observations',
+         'same_direction_ms_in_au_control': 'supported_by_observations'},
+        "mechanism_status": {'bulk_redox_turnover': 'not_supported_as_dominant_explanation',
+         'alloy_demixing_drives_response': 'not_supported_as_dominant_explanation',
+         'minority_cu_redistribution_drives_response': 'unresolved',
+         'fixed_surface_coverage_kinetics': 'unresolved'},
+        "inference_limits": {'fixed_active_sites_established': False,
+         'calibrated_yield_or_selectivity_established': False,
+         'shared_elementary_mechanism_established': False},
     }
 
 

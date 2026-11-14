@@ -1,3 +1,3 @@
 # Shortcut audit
 
-A mechanism ID alone cannot pass: the submission has to recover independent XANES, post-edge and MS evidence. Numerical checkpoints without the correct scientific claim also fail. The reference accepts the combined label or both complementary components in either order. Microscopic claims that remain merely compatible receive no credit. Agent difficulty has not been empirically calibrated.
+Numerical evidence alone cannot pass. The submitted process observations, rival-specific evidence states and inference boundaries must all agree with the independent reference. The grader rejects confident claims about unresolved microscopic alternatives, even with correct numbers. JSON key order is immaterial. Agent difficulty has not been empirically calibrated.

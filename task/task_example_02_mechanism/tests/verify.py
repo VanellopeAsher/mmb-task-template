@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Score source evidence, rival-mechanism logic, and discriminating tests."""
+"""Verify reaction observations, inference limits and mechanism evidence states."""
 
 import argparse
 import json
@@ -43,13 +43,14 @@ def verify(payload):
     if not isinstance(payload, dict):
         raise ValueError("Expected answer object")
     require_map({k: v for k, v in payload.items() if k != "follow_up"}, reference, "answer")
-    selected = payload["mechanisms"]
-    expected = frozenset(reference["mechanisms"])
-    equivalent = frozenset({"persistent_reduced_alloy", "shared_temperature_response"})
-    if (not isinstance(selected, list) or not all(isinstance(x, str) for x in selected)
-            or len(set(selected)) != len(selected)
-            or frozenset(selected) not in (expected, equivalent)):
-        raise ValueError("Mechanism answer is unsupported or incomplete")
+    if "follow_up" in payload and not isinstance(payload["follow_up"], str):
+        raise ValueError("Optional follow_up must be text")
+    for block in ("process_conclusions", "mechanism_status", "inference_limits"):
+        expected = reference[block]
+        reported = require_map(payload[block], expected, block)
+        for key, value in expected.items():
+            if type(reported[key]) is not type(value) or reported[key] != value:
+                raise ValueError(f"Incorrect evidence judgment: {block}.{key}")
     compare_numeric_block(payload["reaction_xanes_change"], reference["reaction_xanes_change"],
                           0.002, "reaction_xanes_change")
     compare_numeric_block(payload["aucu_ms_signal_median"], reference["aucu_ms_signal_median"],
@@ -69,6 +70,27 @@ def verify(payload):
         require_number(fingerprint[key], target,
                        0.08 if key.startswith("au_vs") else 0.025, key)
 
+    # Require the submitted contrasts to agree with the process conclusion.
+    control = payload["control_ms_signal_median"]["Au"]
+    alloy = payload["aucu_ms_signal_median"]
+    for sample, readings in (("Au", control), ("AuCu", alloy)):
+        if not (readings["150"]["54"] < readings["130"]["54"]
+                and readings["150"]["56"] > readings["130"]["56"]):
+            raise ValueError(f"{sample}: submitted MS direction contradicts the process conclusion")
+
+
+def unique_object(pairs):
+    result = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError(f"Duplicate JSON field: {key}")
+        result[key] = value
+    return result
+
+
+def reject_constant(value):
+    raise ValueError(f"Non-finite JSON constant: {value}")
+
 
 def main():
     parser = argparse.ArgumentParser()
@@ -77,10 +99,11 @@ def main():
     args = parser.parse_args()
     accepted = False
     try:
-        payload = json.loads(Path(args.answer).read_text(encoding="utf-8"))
+        payload = json.loads(Path(args.answer).read_text(encoding="utf-8"),
+                             object_pairs_hook=unique_object, parse_constant=reject_constant)
         verify(payload)
         accepted = True
-    except (OSError, ValueError, TypeError, KeyError, json.JSONDecodeError) as exc:
+    except (OSError, ValueError, TypeError, KeyError, OverflowError, RecursionError) as exc:
         print(f"Verifier rejected answer: {exc}")
     reward = Path(args.reward)
     reward.parent.mkdir(parents=True, exist_ok=True)

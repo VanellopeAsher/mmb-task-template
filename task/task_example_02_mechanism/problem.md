@@ -2,19 +2,27 @@
 
 AuCu/TiO₂ 经 H₂ 活化后，在含丙烯的丁二烯加氢进料下测得 operando XAS 和在线质谱。什么样的催化剂状态和过程最能解释反应温度变化伴随的质谱响应？可使用 Au、Cu、AuCu、AuCu₃ 四组原始记录。问题针对加氢阶段。质谱未标定及解卷积，答案以数据可以识别的过程尺度为准。
 
-提交 `/workspace/results/answer.json`。用 `mechanisms` 数组填写证据正面支持的解释，顺序不限。可选择完整解释，也可组合相应的状态和响应项。选项中有不同尺度的解释，只有数据支持到该尺度时才应提交。
+提交 `/workspace/results/answer.json`，同时报告下列过程结论、机制证据状态、推断边界和可复核观测量。
+
+## 第一层：过程结论
+
+`process_conclusions` 是对象，包含两项：`reduced_alloy_persists`（在测得的反应状态中，AuCu 总体保持还原且保留类似的合金局部环境）及 `same_direction_ms_in_au_control`（130→150 °C 的 m/z 54 和 56 变化方向，是否也出现在单金属 Au 对照）。分别以 `supported_by_observations` 或 `unresolved` 报告证据状态。
+
+`inference_limits` 以 JSON 布尔值回答：当前证据是否确立固定活性位点（`fixed_active_sites_established`）、是否确立标定后的产率或选择性（`calibrated_yield_or_selectivity_established`）、是否确立 Au 与 AuCu 共享基元反应机理（`shared_elementary_mechanism_established`）。
+
+## 第二层：竞争机制
+
+`mechanism_status` 是对象，以表中四个标识为键。逐项填写 `supported_by_observations`（观测正面支持）、`not_supported_as_dominant_explanation`（证据不支持其为主导解释）、或 `unresolved`（本数据无法判定）。未获主导解释的支持不表示该过程在任何尺度上均不存在。
 
 | 标识 | 候选解释 |
 |---|---|
-| `persistent_reduced_alloy_temperature_response` | 温度相关的加氢信号变化发生在持续总体还原、保持合金局部环境的 AuCu 上，单金属对照也可呈现同向响应。 |
-| `persistent_reduced_alloy` | 状态分项：反应期间 AuCu 的总体还原合金环境延续下来。 |
-| `shared_temperature_response` | 响应分项：已还原催化剂的温度响应伴随同向质谱变化，至少一种单金属对照也能呈现这一方向。 |
 | `bulk_redox_turnover` | Cu 金属与氧化态 Cu 的显著体相互变主导随温度变化的反应响应。 |
 | `alloy_demixing_drives_response` | 加热使 AuCu 大范围脱合金并暴露单金属相，由此主导质谱响应。 |
 | `minority_cu_redistribution_drives_response` | 少数表面 Cu 位点重新分布是温度响应的主因，整体合金仍可保留。 |
 | `fixed_surface_coverage_kinetics` | 表面位点人口保持不变，覆盖度或本征速率变化主导响应。 |
 
-可选 `follow_up` 可说明如何区分微观解释，不计分。以下观测量用于客观核验数据依据。
+
+对象字段顺序不限。可选文本 `follow_up` 用于提出后续实验，不计分。
 
 ## 可复核的观测量
 
