@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
 set -euo pipefail
-ROOT="$(cd "$(dirname "$0")" && pwd)"
-python "$ROOT/witness/generate_answer.py" --output /workspace/results/answer.json
-python "$ROOT/witness/check_reference.py" /workspace/results/answer.json
+HERE="$(cd "$(dirname "$0")" && pwd)"
+python "$HERE/witness/generate_answer.py" --data-dir "${DATA_DIR:-/workspace/data}" --output "${ANSWER_PATH:-/workspace/results/answer.json}"

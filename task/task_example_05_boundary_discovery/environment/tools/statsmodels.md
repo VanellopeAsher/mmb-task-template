@@ -1,6 +1,6 @@
 # statsmodels
 
-External interface. Check availability in the shared sandbox before use.
+Installed: `statsmodels==0.14.4`.
 
 Official source or manual: https://www.statsmodels.org/stable/
 

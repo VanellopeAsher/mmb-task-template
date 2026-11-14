@@ -1,3 +1,11 @@
-# Provenance
+# Model provenance and licence boundary
 
-Record original problem lineage, paper and dataset sources, acquisition method, licence, version, checksums, and all preprocessing. Raw-source data are fetched by the environment bootstrap where applicable.
+See source_manifest.json for the pinned MOFUN reference, original motivation, licence decision, source/output hashes and versions. `uio66_mofun.cif` is the unmodified upstream fixture; its original citation metadata is retained. The repo MIT notice includes associated documentation and no separate restriction was found for this fixture; do not treat this as a new licence on Islamov's external structure repository.
+
+`python authoring/provenance/generate_models.py` regenerates the thirteen atomic models, anonymous reference and author-only generation_record.json. Input geometry and the deletion/ownership algorithm are explicit; seed20261113 fixes site selection and atom shuffling. Clusters use Zr6 connected components; linkers use eight-carbon groups. Atoms C and O/H within1.7 Å of C belong to their BDC; remaining atoms belong to their nearest Zr6 center. This is geometric deletion, not chemical relaxation or charge balancing. There are no fabricated laboratory measurements.
+
+Public fixtures contain no generation seed, construction policy, original defect filename or removal IDs. In the final image, only data/README.md, LICENSE-MOFUN.txt, reference.cif and the thirteen anonymous CIFs are present under data/. The generation script and deletion record are not Docker build inputs.
+
+The [published supporting information](https://pmc-oa-opendata.s3.amazonaws.com/PMC10284114.1/SC-014-D2SC06120A-s001.pdf) was checked through the PMC Open Access archive. Its seven pages report thermal conductivity, mass density, phonon dispersion and density of states plots. The supplementary PDF contains no atomic coordinate tables or embedded CIFs. The article points to the external structure repository for those files. Source URLs and SHA256 values are recorded in the manifest.
+
+The two added linker-deletion masks are fixed in `competing_linker_masks.json`. They were selected by matching deletion count, nearest-neighbor vacancy-pair count and the sum of the three translation overlaps while contrasting periodic connectivity. The first removes every linker crossing one periodic face. The second retains bridges across that face. Generation uses the same pristine CIF and atom-ownership rule as the original panel. Mask IDs and their mapping remain author-only.

@@ -1,3 +1,5 @@
-# Shortcut audit
+# 最短得分路径审计
 
-The multi-stage build renames all source CIFs to opaque IDs and leaves the source-to-sample mapping out of the final Agent image. The task configuration disables Agent runtime network access. The initial random samples had 3×3×3 cells while the correlated samples had primitive cells, making distribution recoverable from cell size alone. The bootstrap now repeats the latter structures 3×3×3 so this shortcut is removed. The numeric output includes measured defect fraction, complete-linker count, and cluster degree statistics for every sample, so a list of source labels cannot earn full reward. The witness reconstructs these quantities and folds repeated ordered structures to a primitive cluster-linker motif before assigning reo, scu or bcu signatures. A second independent parser, quantitative spatial-correlation test and full periodic-net check remain release gates.
+改前，按固定随机化流程和周期图计算，查找题面预告的两类配对即可得分。改后，可见材料为参考和 13 个匿名 CIF。精确重复允许用完整重合轴数或计数表达。核心反例要求判断浓度、邻近空缺、平均重合率和逐轴重合谱之间，哪一级能形成最严格的实际对照。题面没有给出可达到的等级或样本 ID。
+
+最短通用路线仍是构建带周期位移的图、建立空缺摘要，再筛选最严格异秩对。将同秩对视为反例、只按坐标轴计维数、或在正确给出分量秩后仍宣称三维分量覆盖所有簇，都在相应单项得 0。替代答案使用混合秩证据、紧凑重复证据和另一有效配对。任务仍是可枚举的几何结构分析样例，开放探索难度有待独立试跑。实测案例见 verifier_cases.json。

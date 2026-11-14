@@ -1,17 +1,13 @@
-# Problem
+# CO₂ 电还原经验关系的证据边界
 
-CO₂ 电还原中，CH₄ 与 C₂₊ 产物的分电流密度之间是否存在稳定的 scaling relationship？这种关系会因改变铜合金组成而失效，还是只有当电极表面微环境被有机分子膜改变时才会失效？
+在给定的 Cu–Mn 电还原观测中，哪些结果支持 1-Br₂ 条件下的 CH₄–C₂₊ 分电流经验关系出现偏离？哪些看似反例的观测，仍受实验条件或数据覆盖范围限制？
 
-请分析提供的高通量 Cu–M 合金与有机添加剂实验数据，确定 scaling relationship 的适用范围及其失效条件。重点区分 bulk alloying 与 hybrid inorganic–organic interface 两种调控方式。
+`/workspace/data/observations.csv` 包含 19 个图像读数。电流为按几何面积归一化的阴极分电流密度绝对值，单位 mA cm⁻²。电位为 iR 补偿后的 V vs RHE。两组均使用 0.1 M KHCO₃，添加剂组的 1-Br₂ 浓度为 0.1 mM。不同处理组没有逐行配对。分电流的读数半宽为 0.08 dex，电位为 0.015 V，实验间变异未知。点位来源及条件见 `/workspace/data/README.md`。
 
-提交 `/workspace/results/answer.json`：
+在 `/workspace/results/answer.json` 提交：
 
-- `scaling_analysis.pure_cu_no_additive_pearson_r`：无添加剂纯 Cu 上 CH₄/C₂₊ 分电流密度对数分电流密度的 Pearson 相关系数。
-- `scaling_analysis.alloy_pearson_r_lower_bound`：无添加剂 Cu–M 合金体系中相关系数的论文报告下界。
-- `scaling_analysis.alloy_elements`：纳入的合金元素。
-- `scaling_analysis.unique_experiment_count`：实验条件总数。
-- `scaling_analysis.bulk_alloying_breaks_relation`：合金化是否打破关系。
-- `scaling_analysis.organic_film_breaks_relation`：有机分子膜是否打破关系。
-- `scaling_analysis.c2plus_partial_current_enhanced`：有机膜是否促进 C₂₊ 生成。
+- `findings`：以你选择报告的添加剂观测 ID 为键。至少报告一条有数据支撑的偏离及一条证据不足的观测。每条包含 `status`，取 `higher`、`lower`或 `insufficient_evidence`。前两项表示相对无添加剂经验关系的 C₂₊ 偏离方向，且考虑读数误差后仍有超过 0.30 dex 的实用效应。后一项表示数据覆盖、可比性或读数误差限制了方向性结论。
+- 方向性结论还需报告该点的 `j_CH4_mA_cm2` 和 `j_C2plus_mA_cm2`，用于复核点位，读数容差为 0.08 dex。证据不足的条目只需填写 `status`。
+- `analysis`：可选说明。可记录你采用的证据、假设和混杂因素，以及什么条件下结论会改变。此字段不参与自动评分。
 
-所有定量值均按论文报告；`alloy_pearson_r_lower_bound` 是下界而不是某个合金的精确对数分电流密度的 Pearson 相关系数。`analysis` 可选且不计分。
+结论限于所给观测和其可支持的范围。

@@ -1,20 +1,39 @@
 {
-  "scaling_analysis": {
-    "product_pair": [
-      "CH4",
-      "C2+"
-    ],
-    "pure_cu_no_additive_pearson_r": 0.99,
-    "alloy_pearson_r_lower_bound": 0.98,
-    "alloy_elements": [
-      "Co",
-      "In",
-      "Mn",
-      "Zn"
-    ],
-    "unique_experiment_count": 137,
-    "bulk_alloying_breaks_relation": false,
-    "organic_film_breaks_relation": true,
-    "c2plus_partial_current_enhanced": true
+  "findings": {
+    "b_left_1": {
+      "status": "insufficient_evidence"
+    },
+    "b_left_2": {
+      "status": "insufficient_evidence"
+    },
+    "b_left_3": {
+      "status": "insufficient_evidence"
+    },
+    "b_left_4": {
+      "status": "insufficient_evidence"
+    },
+    "b_left_5": {
+      "status": "insufficient_evidence"
+    },
+    "b_right_1": {
+      "status": "higher",
+      "j_CH4_mA_cm2": 0.1640122,
+      "j_C2plus_mA_cm2": 4.1671076
+    },
+    "b_right_2": {
+      "status": "insufficient_evidence"
+    },
+    "b_right_3": {
+      "status": "insufficient_evidence"
+    },
+    "b_right_4": {
+      "status": "insufficient_evidence"
+    },
+    "b_right_5": {
+      "status": "insufficient_evidence"
+    },
+    "b_right_6": {
+      "status": "insufficient_evidence"
+    }
   }
 }

@@ -1,0 +1,14 @@
+{
+  "reward": 1,
+  "sections": {
+    "matched_methane": {
+      "passed": true
+    },
+    "pooled_methane": {
+      "passed": true
+    },
+    "matched_potential": {
+      "passed": true
+    }
+  }
+}

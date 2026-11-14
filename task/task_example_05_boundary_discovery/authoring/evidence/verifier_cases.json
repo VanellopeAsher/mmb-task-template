@@ -1,0 +1,306 @@
+[
+  {
+    "case": "oracle",
+    "optimized": false,
+    "reward": 1.0,
+    "failed_sections": []
+  },
+  {
+    "case": "analysis_unscored",
+    "optimized": false,
+    "reward": 1.0,
+    "failed_sections": []
+  },
+  {
+    "case": "missing",
+    "optimized": false,
+    "reward": 0.0,
+    "failed_sections": [
+      "format"
+    ]
+  },
+  {
+    "case": "empty",
+    "optimized": false,
+    "reward": 0.0,
+    "failed_sections": [
+      "findings"
+    ]
+  },
+  {
+    "case": "array",
+    "optimized": false,
+    "reward": 0.0,
+    "failed_sections": [
+      "format"
+    ]
+  },
+  {
+    "case": "selected_subset",
+    "optimized": false,
+    "reward": 1.0,
+    "failed_sections": []
+  },
+  {
+    "case": "different_limitation",
+    "optimized": false,
+    "reward": 1.0,
+    "failed_sections": []
+  },
+  {
+    "case": "only_deviation",
+    "optimized": false,
+    "reward": 0.0,
+    "failed_sections": [
+      "findings"
+    ]
+  },
+  {
+    "case": "pooled_only_deviation_promoted",
+    "optimized": false,
+    "reward": 0.0,
+    "failed_sections": [
+      "findings"
+    ]
+  },
+  {
+    "case": "potential_deviation_promoted",
+    "optimized": false,
+    "reward": 0.0,
+    "failed_sections": [
+      "findings"
+    ]
+  },
+  {
+    "case": "reversed_direction",
+    "optimized": false,
+    "reward": 0.0,
+    "failed_sections": [
+      "findings"
+    ]
+  },
+  {
+    "case": "missed_deviation",
+    "optimized": false,
+    "reward": 0.0,
+    "failed_sections": [
+      "findings"
+    ]
+  },
+  {
+    "case": "incorrect_coverage",
+    "optimized": false,
+    "reward": 0.0,
+    "failed_sections": [
+      "findings"
+    ]
+  },
+  {
+    "case": "missing_currents",
+    "optimized": false,
+    "reward": 0.0,
+    "failed_sections": [
+      "findings"
+    ]
+  },
+  {
+    "case": "wrong_current",
+    "optimized": false,
+    "reward": 0.0,
+    "failed_sections": [
+      "findings"
+    ]
+  },
+  {
+    "case": "reading_tolerance",
+    "optimized": false,
+    "reward": 1.0,
+    "failed_sections": []
+  },
+  {
+    "case": "invalid_current_True",
+    "optimized": false,
+    "reward": 0.0,
+    "failed_sections": [
+      "findings"
+    ]
+  },
+  {
+    "case": "invalid_current_0",
+    "optimized": false,
+    "reward": 0.0,
+    "failed_sections": [
+      "findings"
+    ]
+  },
+  {
+    "case": "invalid_current_nan",
+    "optimized": false,
+    "reward": 0.0,
+    "failed_sections": [
+      "findings"
+    ]
+  },
+  {
+    "case": "invalid_current_inf",
+    "optimized": false,
+    "reward": 0.0,
+    "failed_sections": [
+      "findings"
+    ]
+  },
+  {
+    "case": "oracle",
+    "optimized": true,
+    "reward": 1.0,
+    "failed_sections": []
+  },
+  {
+    "case": "analysis_unscored",
+    "optimized": true,
+    "reward": 1.0,
+    "failed_sections": []
+  },
+  {
+    "case": "missing",
+    "optimized": true,
+    "reward": 0.0,
+    "failed_sections": [
+      "format"
+    ]
+  },
+  {
+    "case": "empty",
+    "optimized": true,
+    "reward": 0.0,
+    "failed_sections": [
+      "findings"
+    ]
+  },
+  {
+    "case": "array",
+    "optimized": true,
+    "reward": 0.0,
+    "failed_sections": [
+      "format"
+    ]
+  },
+  {
+    "case": "selected_subset",
+    "optimized": true,
+    "reward": 1.0,
+    "failed_sections": []
+  },
+  {
+    "case": "different_limitation",
+    "optimized": true,
+    "reward": 1.0,
+    "failed_sections": []
+  },
+  {
+    "case": "only_deviation",
+    "optimized": true,
+    "reward": 0.0,
+    "failed_sections": [
+      "findings"
+    ]
+  },
+  {
+    "case": "pooled_only_deviation_promoted",
+    "optimized": true,
+    "reward": 0.0,
+    "failed_sections": [
+      "findings"
+    ]
+  },
+  {
+    "case": "potential_deviation_promoted",
+    "optimized": true,
+    "reward": 0.0,
+    "failed_sections": [
+      "findings"
+    ]
+  },
+  {
+    "case": "reversed_direction",
+    "optimized": true,
+    "reward": 0.0,
+    "failed_sections": [
+      "findings"
+    ]
+  },
+  {
+    "case": "missed_deviation",
+    "optimized": true,
+    "reward": 0.0,
+    "failed_sections": [
+      "findings"
+    ]
+  },
+  {
+    "case": "incorrect_coverage",
+    "optimized": true,
+    "reward": 0.0,
+    "failed_sections": [
+      "findings"
+    ]
+  },
+  {
+    "case": "missing_currents",
+    "optimized": true,
+    "reward": 0.0,
+    "failed_sections": [
+      "findings"
+    ]
+  },
+  {
+    "case": "wrong_current",
+    "optimized": true,
+    "reward": 0.0,
+    "failed_sections": [
+      "findings"
+    ]
+  },
+  {
+    "case": "reading_tolerance",
+    "optimized": true,
+    "reward": 1.0,
+    "failed_sections": []
+  },
+  {
+    "case": "invalid_current_True",
+    "optimized": true,
+    "reward": 0.0,
+    "failed_sections": [
+      "findings"
+    ]
+  },
+  {
+    "case": "invalid_current_0",
+    "optimized": true,
+    "reward": 0.0,
+    "failed_sections": [
+      "findings"
+    ]
+  },
+  {
+    "case": "invalid_current_nan",
+    "optimized": true,
+    "reward": 0.0,
+    "failed_sections": [
+      "findings"
+    ]
+  },
+  {
+    "case": "invalid_current_inf",
+    "optimized": true,
+    "reward": 0.0,
+    "failed_sections": [
+      "findings"
+    ]
+  },
+  {
+    "case": "malformed_json",
+    "reward": 0
+  }
+]

@@ -3,9 +3,9 @@ artifacts = ["/workspace/results/"]
 
 [task]
 name = "mattermysterybench/task_example_06_anomaly_interpretation"
-description = "Identify missing-linker and missing-cluster defects, quantify random defect fractions, and distinguish correlated topologies in UiO-66 CIFs."
+description = "Infer defect occupancy, spatial evidence and periodic connectivity from reproducible UiO-66 geometric models."
 authors = []
-keywords = ["UiO-66", "CIF", "missing-linker", "missing-cluster", "reo", "scu", "bcu"]
+keywords = ["UiO-66", "CIF", "missing-linker", "missing-cluster", "periodic-connectivity", "spatial-null-model"]
 
 [metadata]
 task_id = "task_example_06_anomaly_interpretation"

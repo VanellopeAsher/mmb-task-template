@@ -1,13 +1,3 @@
 # Scientific software
 
-- [Atomic Simulation Environment](ase.md)
-- [pymatgen](pymatgen.md)
-- [NetworkX](networkx.md)
-- [Systre](systre.md)
-- [Zeo++](zeopp.md)
-- [OVITO](ovito.md)
-- [SciPy](scipy.md)
-
-## Dataset utilities
-
-- [inspect_structures.py](inspect_structures.py)
+Installed: ASE, pymatgen, SciPy, NumPy, pandas and NetworkX; versions in requirements.txt. `python /workspace/tools/smoke_test.py` checks interfaces. inspect_structures.py is a generic structural inventory, not a defect classifier. Systre, Zeo++ and OVITO are optional external packages, not installed or required by the scored geometric scope.

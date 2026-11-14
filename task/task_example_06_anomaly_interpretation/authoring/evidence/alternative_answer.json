@@ -1,0 +1,311 @@
+{
+  "samples": {
+    "sample_01": {
+      "defect_type": "missing_linker",
+      "missing_site_count": 216,
+      "spatial": {
+        "full_repeat_axes": 0
+      },
+      "connectivity": {
+        "method": "axis_spans",
+        "components": [
+          [
+            true,
+            true,
+            true
+          ]
+        ]
+      },
+      "network_status": "single_3d_network"
+    },
+    "sample_02": {
+      "defect_type": "missing_linker",
+      "missing_site_count": 216,
+      "spatial": {
+        "full_repeat_axes": 0
+      },
+      "connectivity": {
+        "method": "axis_spans",
+        "components": [
+          [
+            false,
+            true,
+            true
+          ]
+        ]
+      },
+      "network_status": "no_3d_network"
+    },
+    "sample_03": {
+      "defect_type": "missing_linker",
+      "missing_site_count": 1,
+      "spatial": {
+        "full_repeat_axes": 0
+      },
+      "connectivity": {
+        "method": "axis_spans",
+        "components": [
+          [
+            true,
+            true,
+            true
+          ]
+        ]
+      },
+      "network_status": "single_3d_network"
+    },
+    "sample_04": {
+      "defect_type": "missing_cluster",
+      "missing_site_count": 27,
+      "spatial": {
+        "full_repeat_axes": 0
+      },
+      "connectivity": {
+        "method": "axis_spans",
+        "components": [
+          [
+            true,
+            true,
+            true
+          ]
+        ]
+      },
+      "network_status": "single_3d_network"
+    },
+    "sample_05": {
+      "defect_type": "missing_linker",
+      "missing_site_count": 216,
+      "spatial": {
+        "full_repeat_axes": 3
+      },
+      "connectivity": {
+        "method": "axis_spans",
+        "components": [
+          [
+            true,
+            true,
+            true
+          ]
+        ]
+      },
+      "network_status": "single_3d_network"
+    },
+    "sample_06": {
+      "defect_type": "missing_cluster",
+      "missing_site_count": 1,
+      "spatial": {
+        "full_repeat_axes": 0
+      },
+      "connectivity": {
+        "method": "axis_spans",
+        "components": [
+          [
+            true,
+            true,
+            true
+          ]
+        ]
+      },
+      "network_status": "single_3d_network"
+    },
+    "sample_07": {
+      "defect_type": "missing_linker",
+      "missing_site_count": 216,
+      "spatial": {
+        "full_repeat_axes": 0
+      },
+      "connectivity": {
+        "method": "axis_spans",
+        "components": [
+          [
+            true,
+            true,
+            true
+          ]
+        ]
+      },
+      "network_status": "single_3d_network"
+    },
+    "sample_08": {
+      "defect_type": "missing_cluster",
+      "missing_site_count": 36,
+      "spatial": {
+        "full_repeat_axes": 2
+      },
+      "connectivity": {
+        "method": "axis_spans",
+        "components": [
+          [
+            false,
+            true,
+            true
+          ]
+        ]
+      },
+      "network_status": "no_3d_network"
+    },
+    "sample_09": {
+      "defect_type": "missing_linker",
+      "missing_site_count": 65,
+      "spatial": {
+        "full_repeat_axes": 0
+      },
+      "connectivity": {
+        "method": "axis_spans",
+        "components": [
+          [
+            true,
+            true,
+            true
+          ]
+        ]
+      },
+      "network_status": "single_3d_network"
+    },
+    "sample_10": {
+      "defect_type": "missing_cluster",
+      "missing_site_count": 27,
+      "spatial": {
+        "full_repeat_axes": 3
+      },
+      "connectivity": {
+        "method": "axis_spans",
+        "components": [
+          [
+            true,
+            true,
+            true
+          ]
+        ]
+      },
+      "network_status": "single_3d_network"
+    },
+    "sample_11": {
+      "defect_type": "missing_linker",
+      "missing_site_count": 216,
+      "spatial": {
+        "full_repeat_axes": 0
+      },
+      "connectivity": {
+        "method": "axis_spans",
+        "components": [
+          [
+            true,
+            true,
+            true
+          ]
+        ]
+      },
+      "network_status": "single_3d_network"
+    },
+    "sample_12": {
+      "defect_type": "missing_linker",
+      "missing_site_count": 216,
+      "spatial": {
+        "full_repeat_axes": 0
+      },
+      "connectivity": {
+        "method": "winding_rank",
+        "components": [
+          2
+        ]
+      },
+      "network_status": "no_3d_network"
+    },
+    "sample_13": {
+      "defect_type": "missing_linker",
+      "missing_site_count": 216,
+      "spatial": {
+        "full_repeat_axes": 0
+      },
+      "connectivity": {
+        "method": "axis_spans",
+        "components": [
+          [
+            false,
+            false,
+            false
+          ],
+          [
+            false,
+            false,
+            false
+          ],
+          [
+            false,
+            false,
+            false
+          ],
+          [
+            false,
+            false,
+            false
+          ],
+          [
+            false,
+            false,
+            false
+          ],
+          [
+            false,
+            false,
+            false
+          ],
+          [
+            false,
+            false,
+            false
+          ],
+          [
+            false,
+            false,
+            false
+          ],
+          [
+            false,
+            false,
+            false
+          ],
+          [
+            false,
+            false,
+            false
+          ],
+          [
+            false,
+            false,
+            false
+          ],
+          [
+            false,
+            false,
+            false
+          ],
+          [
+            false,
+            false,
+            false
+          ],
+          [
+            false,
+            false,
+            false
+          ],
+          [
+            true,
+            true,
+            true
+          ]
+        ]
+      },
+      "network_status": "partial_3d_network"
+    }
+  },
+  "counterexample": {
+    "samples": [
+      "sample_11",
+      "sample_02"
+    ],
+    "agreement": "mean_repeat"
+  }
+}

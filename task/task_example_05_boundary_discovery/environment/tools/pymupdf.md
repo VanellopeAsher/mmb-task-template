@@ -1,6 +1,6 @@
 # PyMuPDF
 
-Declared in this task image: `pymupdf==1.24.14`.
+Declared in this task image: `pymupdf==1.25.5`.
 
 Official source or manual: https://pymupdf.readthedocs.io/
 

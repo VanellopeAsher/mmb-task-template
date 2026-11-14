@@ -1,56 +1,70 @@
-name: Validate example_06 engineering pilot
-
+name: Validate examples 05 and 06
 on:
   push:
     paths:
-      - "task/task_example_06_anomaly_interpretation/**"
-      - "scripts/build_harbor_task.py"
-      - ".github/workflows/example_06.yml"
+      - 'task/task_example_05_boundary_discovery/**'
+      - 'task/task_example_06_anomaly_interpretation/**'
+      - 'scripts/build_harbor_task.py'
+      - '.github/workflows/example_06.yml'
   workflow_dispatch:
-
 jobs:
-  solution-and-verifier:
+  scientific-and-harbor:
     runs-on: ubuntu-latest
     timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        task: [task_example_05_boundary_discovery, task_example_06_anomaly_interpretation]
+    env:
+      TASK: task/${{ matrix.task }}
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v6
-      - name: Check verifier rejection cases
-        run: python task/task_example_06_anomaly_interpretation/tests/test_adversarial.py
-      - name: Build scientific image and recompute structural witness
+      - name: Adversarial CLI rewards
         run: |
-          docker build -t mmb-example06-environment task/task_example_06_anomaly_interpretation/environment
-          docker run --rm \
-            -v "$PWD/task/task_example_06_anomaly_interpretation/solution:/solution:ro" \
-            mmb-example06-environment \
-            python /solution/witness/check_reference.py /solution/answer.json
-      - name: Check Harbor-compatible staging task
+          test -x "$TASK/solution/solve.sh"
+          test -x "$TASK/tests/test.sh"
+          python "$TASK/tests/test_adversarial.py"
+      - name: Build scientific and verifier images
         run: |
-          python scripts/build_harbor_task.py \
-            --source task/task_example_06_anomaly_interpretation \
-            --output "$RUNNER_TEMP/mmb-example06-harbor"
-          uvx harbor==0.25.0 lint "$RUNNER_TEMP/mmb-example06-harbor"
-      - name: Run oracle and isolated verifier in Harbor
+          docker build -t mmb-scientific "$TASK/environment"
+          docker build -t mmb-verifier "$TASK/tests"
+          docker run --rm --network none mmb-scientific python /workspace/tools/smoke_test.py
+          docker run --rm --network none mmb-scientific bash -c 'test ! -e /workspace/solution && test ! -e /workspace/tests && test ! -e /workspace/authoring && test ! -e /workspace/data/fetch_data.py && ! find /workspace -name "*answer*" -o -name "*generation_record*" | grep .'
+      - name: Independent numerical reconstruction and invariance
         run: |
-          python scripts/build_harbor_task.py \
-            --source task/task_example_06_anomaly_interpretation \
-            --output "$RUNNER_TEMP/mmb-example06-answer-harbor"
-          uvx harbor==0.25.0 run \
-            --path "$RUNNER_TEMP/mmb-example06-answer-harbor" \
-            --agent oracle \
-            --env docker \
-            --jobs-dir "$RUNNER_TEMP/mmb-example06-jobs" \
-            --job-name example06-answer
+          docker run --rm --network none -v "$PWD/$TASK:/review" -w /review mmb-scientific python authoring/evidence/independent_reference.py
+          docker run --rm --network none -v "$PWD/$TASK:/review" -w /review mmb-scientific python solution/witness/check_reference.py solution/answer.json
+          if [ -f "$TASK/authoring/evidence/check_invariance.py" ]; then
+            docker run --rm --network none -v "$PWD/$TASK:/review" -w /review mmb-scientific python authoring/evidence/check_invariance.py
+          fi
+      - name: Harbor staging and lint
+        run: |
+          python scripts/build_harbor_task.py --source "$TASK" --output "$RUNNER_TEMP/mmb-harbor-task"
+          uvx --python 3.12 harbor==0.25.0 lint "$RUNNER_TEMP/mmb-harbor-task"
+      - name: Isolated Harbor oracle and verifier
+        run: |
+          uvx --python 3.12 harbor==0.25.0 run --path "$RUNNER_TEMP/mmb-harbor-task" --agent oracle --env docker --jobs-dir "$RUNNER_TEMP/mmb-jobs" --job-name scientific-check
           python - <<'PY'
-          import json
-          import os
+          import json,os
           from pathlib import Path
-
-          job = Path(os.environ["RUNNER_TEMP"]) / "mmb-example06-jobs" / "example06-answer"
-          trials = [path for path in job.rglob("result.json") if path.parent != job]
-          assert len(trials) == 1, trials
-          result = json.loads(trials[0].read_text(encoding="utf-8"))
-          reward = result.get("verifier_result", {}).get("rewards", {}).get("reward")
-          print(f"Oracle reward: {reward}")
-          assert reward == 1.0, result
+          job=Path(os.environ['RUNNER_TEMP'])/'mmb-jobs'/'scientific-check'
+          trials=[p for p in job.rglob('result.json') if p.parent!=job]
+          if len(trials)!=1: raise RuntimeError(f'Expected one trial, found {trials}')
+          result=json.loads(trials[0].read_text());reward=result.get('verifier_result',{}).get('rewards',{}).get('reward')
+          print('ACTUAL HARBOR REWARD:',reward)
+          if reward!=1.0: raise RuntimeError(result)
+          if not list(job.rglob('reward.txt')): raise RuntimeError('No verifier reward artifact')
+          diagnostics = list(job.rglob('assessment.json'))
+          if len(diagnostics) != 1: raise RuntimeError('Expected one verifier assessment')
+          assessment = json.loads(diagnostics[0].read_text())
+          if assessment['reward'] != 1 or not assessment['sections'] or not all(row['passed'] for row in assessment['sections'].values()):
+              raise RuntimeError(assessment)
           PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ${{ matrix.task }}-validation
+          path: |
+            ${{ runner.temp }}/mmb-jobs/
+            task/${{ matrix.task }}/authoring/evidence/

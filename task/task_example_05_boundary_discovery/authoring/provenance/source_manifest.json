@@ -1,13 +1,26 @@
 {
   "paper": {
-    "title": "Breaking Scaling Relationships in CO2 Reduction on Copper Alloys with Organic Additives",
     "doi": "10.1021/acscentsci.1c00860",
-    "url": "https://authors.library.caltech.edu/records/sahhv-ks850"
+    "url": "https://authors.library.caltech.edu/records/sahhv-ks850",
+    "published_pdf_url": "https://authors.library.caltech.edu/records/sahhv-ks850/files/acscentsci.1c00860.pdf?download=1",
+    "md5": "2608918656782e0a82e67991ab232836",
+    "sha256": "37ef0d91b27b2d3b433826ea0f650c58ed3f863f39de8f9d140e7e06b161bdba",
+    "license": "CC BY-NC-ND 4.0; originals not bundled or relicensed"
   },
-  "supplementary_information": {
-    "filename": "oc1c00860_si_001.pdf",
+  "supplement": {
     "url": "https://authors.library.caltech.edu/records/sahhv-ks850/files/oc1c00860_si_001.pdf?download=1",
     "md5": "ecd6af69f79b18423a01cff476b1f1e5",
-    "license": "CC-BY-NC-ND 4.0 per article; download at build time, do not redistribute the PDF."
-  }
+    "sha256": "da08cd1427f238400b6001286a3bd2bfca3e1b8a843bce0425f1420d3cc04417"
+  },
+  "retrieved": "2026-11-13",
+  "software": {
+    "pymupdf": "1.25.5"
+  },
+  "derived_data": {
+    "path": "environment/data/observations.csv",
+    "sha256": "b663c845ed610514ec361120495142040a95464abec09eb9a3d4cebf4ccfb51d",
+    "nature": "Factual numerical transcription with attribution; 19 displayed observations, no PDF/image redistributed",
+    "source": "Figure2c baseline currents, Figure2a baseline potentials, Figure2b film currents/potentials"
+  },
+  "licensing_boundary": "No claim to relicense source illustrations. Any future redistributed source PDF or transformed figure needs the original terms reviewed."
 }

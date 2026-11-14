@@ -1,12 +1,53 @@
 {
-  "paper": {
-    "title": "Correlated missing linker defects increase thermal conductivity in metal-organic framework UiO-66",
-    "doi": "10.1039/D2SC06120A",
-    "url": "https://pubs.rsc.org/en/content/articlehtml/2023/sc/d2sc06120a"
+  "motivation": {
+    "doi": "10.1039/d2sc06120a",
+    "original_repository": "https://github.com/meiirbek-islamov/defective-UiO-66",
+    "audit": "No explicit repository licence located 2026-11-13; not used in this revision",
+    "article_xml": {
+      "url": "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC10284114/fullTextXML",
+      "sha256": "75ba6ed5d649caf86c8b47641acb55d471a15822d97fbb46dd086e717ac9a4d4"
+    },
+    "supplement": {
+      "url": "https://pmc-oa-opendata.s3.amazonaws.com/PMC10284114.1/SC-014-D2SC06120A-s001.pdf",
+      "sha256": "80c6f5e54c32c9cc0e75ee2501b67e278331d5276b688ad2ea869b8560560388",
+      "pages": 7,
+      "audit": "Thermal conductivity, mass density, phonon dispersion and DOS figures. No embedded CIF or atomic-coordinate dataset."
+    }
   },
-  "structure_repository": {
-    "url": "https://github.com/meiirbek-islamov/defective-UiO-66",
-    "license": "No explicit licence found in repository; do not redistribute raw CIFs without permission."
+  "reference": {
+    "repository": "https://github.com/WilmerLab/mofun",
+    "commit": "0e61d20a5e115220390637fc863d54dc2cddd5fb",
+    "path": "tests/uio66/uio66.cif",
+    "sha256": "d272f0329766bbe589ff82f76e7d659b69f1bb7d543552dd67a4d211260aef87",
+    "license": "MIT",
+    "notice": "environment/data/LICENSE-MOFUN.txt"
   },
-  "acquisition": "Fetch selected raw CIFs from upstream GitHub raw URLs and verify Git blob SHA-1 before renaming to sample_01..sample_09; deterministically repeat source primitive cells 3x3x3 for samples 07..09 with ASE 3.24.0."
+  "models": "Unrelaxed geometric deletions, no capping or charge balancing; not the published MD structures",
+  "generator": "authoring/provenance/generate_models.py",
+  "software": {
+    "ase": "3.24.0",
+    "numpy": "2.1.3",
+    "scipy": "1.14.1"
+  },
+  "observation_cell_A": [
+    62.1012,
+    62.1012,
+    62.1012
+  ],
+  "data_sha256": {
+    "environment/data/reference.cif": "e34b9651581c91408e29984ec37070d97d8885e31bfa611aea385a6c3669885d",
+    "environment/data/structures/sample_01.cif": "98e605b09b1260344d95456b55839f9232f55757c80af212ad530980cb6d110d",
+    "environment/data/structures/sample_02.cif": "03e60c9d2872f94610fed755a1161a3046d3e7f1ff38d517002a718f8257b728",
+    "environment/data/structures/sample_03.cif": "943d2062ea59aeb2ec66857f0ffe8251843ac2a0f6f4dcd2fa6e95c7b5df5d27",
+    "environment/data/structures/sample_04.cif": "e330700baed223ed0601153e3688651d569f20fdc7a694b2d421fb2154f7ffc7",
+    "environment/data/structures/sample_05.cif": "21fdda2bcfb71f35cad0b4a095562a6ddf6882ed5ea6656196da0a8aa73eee82",
+    "environment/data/structures/sample_06.cif": "f2c1a65269d043505cc07baf688f1ed091a302caf27539d29331d996491a9f49",
+    "environment/data/structures/sample_07.cif": "7e123d1cff418f730e595b29fa07577b88f88cf79a4a77814acbad0ee1cf24f0",
+    "environment/data/structures/sample_08.cif": "95a83e8ee141ff137be8a6934fb0ab6f54b2901195628de663f21fecc6d9eaf9",
+    "environment/data/structures/sample_09.cif": "7b0ed5f6c7cbfdb01797dc7578355a10376655338ee1d0dca19a32799615b0c7",
+    "environment/data/structures/sample_10.cif": "7ff6062f9ad0c2361ed2b6a7a2c487069a50ffe557a59530cb62c2e363508f85",
+    "environment/data/structures/sample_11.cif": "c0e050f5cbb570a3908618464530b1fc1ebd23d385e7a332a1c53c993a6c7418",
+    "environment/data/structures/sample_12.cif": "76fb260a0fd359af463a4dea27c6176b4be40818f18088e3c49343c72b52cd81",
+    "environment/data/structures/sample_13.cif": "9ae3ef9edf67f1333de6f563a255ae03acc35c2c95a2aa3ab662b85dbb30076a"
+  }
 }

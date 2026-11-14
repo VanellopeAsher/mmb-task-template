@@ -2,131 +2,258 @@
   "samples": {
     "sample_01": {
       "defect_type": "missing_linker",
-      "distribution": "random",
-      "nominal_fraction_pct": 1,
-      "topology": null
+      "missing_site_count": 216,
+      "spatial": {
+        "overlap_counts": [
+          60,
+          61,
+          78
+        ]
+      },
+      "connectivity": {
+        "method": "winding_rank",
+        "components": [
+          3
+        ]
+      },
+      "network_status": "single_3d_network"
     },
     "sample_02": {
       "defect_type": "missing_linker",
-      "distribution": "random",
-      "nominal_fraction_pct": 10,
-      "topology": null
+      "missing_site_count": 216,
+      "spatial": {
+        "overlap_counts": [
+          55,
+          106,
+          116
+        ]
+      },
+      "connectivity": {
+        "method": "winding_rank",
+        "components": [
+          2
+        ]
+      },
+      "network_status": "no_3d_network"
     },
     "sample_03": {
       "defect_type": "missing_linker",
-      "distribution": "random",
-      "nominal_fraction_pct": 20,
-      "topology": null
+      "missing_site_count": 1,
+      "spatial": {
+        "overlap_counts": [
+          0,
+          0,
+          0
+        ]
+      },
+      "connectivity": {
+        "method": "winding_rank",
+        "components": [
+          3
+        ]
+      },
+      "network_status": "single_3d_network"
     },
     "sample_04": {
       "defect_type": "missing_cluster",
-      "distribution": "random",
-      "nominal_fraction_pct": 1,
-      "topology": null
+      "missing_site_count": 27,
+      "spatial": {
+        "overlap_counts": [
+          5,
+          7,
+          8
+        ]
+      },
+      "connectivity": {
+        "method": "winding_rank",
+        "components": [
+          3
+        ]
+      },
+      "network_status": "single_3d_network"
     },
     "sample_05": {
-      "defect_type": "missing_cluster",
-      "distribution": "random",
-      "nominal_fraction_pct": 10,
-      "topology": null
+      "defect_type": "missing_linker",
+      "missing_site_count": 216,
+      "spatial": {
+        "overlap_counts": [
+          216,
+          216,
+          216
+        ]
+      },
+      "connectivity": {
+        "method": "winding_rank",
+        "components": [
+          3
+        ]
+      },
+      "network_status": "single_3d_network"
     },
     "sample_06": {
       "defect_type": "missing_cluster",
-      "distribution": "random",
-      "nominal_fraction_pct": 20,
-      "topology": null
+      "missing_site_count": 1,
+      "spatial": {
+        "overlap_counts": [
+          0,
+          0,
+          0
+        ]
+      },
+      "connectivity": {
+        "method": "winding_rank",
+        "components": [
+          3
+        ]
+      },
+      "network_status": "single_3d_network"
     },
     "sample_07": {
-      "defect_type": "missing_cluster",
-      "distribution": "correlated",
-      "nominal_fraction_pct": null,
-      "topology": "reo"
+      "defect_type": "missing_linker",
+      "missing_site_count": 216,
+      "spatial": {
+        "overlap_counts": [
+          83,
+          91,
+          103
+        ]
+      },
+      "connectivity": {
+        "method": "winding_rank",
+        "components": [
+          3
+        ]
+      },
+      "network_status": "single_3d_network"
     },
     "sample_08": {
       "defect_type": "missing_cluster",
-      "distribution": "correlated",
-      "nominal_fraction_pct": null,
-      "topology": "scu"
+      "missing_site_count": 36,
+      "spatial": {
+        "overlap_counts": [
+          0,
+          36,
+          36
+        ]
+      },
+      "connectivity": {
+        "method": "winding_rank",
+        "components": [
+          2
+        ]
+      },
+      "network_status": "no_3d_network"
     },
     "sample_09": {
       "defect_type": "missing_linker",
-      "distribution": "correlated",
-      "nominal_fraction_pct": null,
-      "topology": "bcu"
+      "missing_site_count": 65,
+      "spatial": {
+        "overlap_counts": [
+          4,
+          6,
+          9
+        ]
+      },
+      "connectivity": {
+        "method": "winding_rank",
+        "components": [
+          3
+        ]
+      },
+      "network_status": "single_3d_network"
+    },
+    "sample_10": {
+      "defect_type": "missing_cluster",
+      "missing_site_count": 27,
+      "spatial": {
+        "overlap_counts": [
+          27,
+          27,
+          27
+        ]
+      },
+      "connectivity": {
+        "method": "winding_rank",
+        "components": [
+          3
+        ]
+      },
+      "network_status": "single_3d_network"
+    },
+    "sample_11": {
+      "defect_type": "missing_linker",
+      "missing_site_count": 216,
+      "spatial": {
+        "overlap_counts": [
+          85,
+          95,
+          97
+        ]
+      },
+      "connectivity": {
+        "method": "winding_rank",
+        "components": [
+          3
+        ]
+      },
+      "network_status": "single_3d_network"
+    },
+    "sample_12": {
+      "defect_type": "missing_linker",
+      "missing_site_count": 216,
+      "spatial": {
+        "overlap_counts": [
+          64,
+          66,
+          139
+        ]
+      },
+      "connectivity": {
+        "method": "winding_rank",
+        "components": [
+          2
+        ]
+      },
+      "network_status": "no_3d_network"
+    },
+    "sample_13": {
+      "defect_type": "missing_linker",
+      "missing_site_count": 216,
+      "spatial": {
+        "overlap_counts": [
+          106,
+          110,
+          116
+        ]
+      },
+      "connectivity": {
+        "method": "winding_rank",
+        "components": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          3
+        ]
+      },
+      "network_status": "partial_3d_network"
     }
   },
-  "structural_metrics": {
-    "sample_01": {
-      "measured_fraction_pct": 1.0802469135802468,
-      "intact_linker_count": 641,
-      "primitive_translation_overlap": 0.9890795631825272,
-      "cluster_degree_min": 10,
-      "cluster_degree_max": 12,
-      "cluster_degree_mean": 11.87037037037037
-    },
-    "sample_02": {
-      "measured_fraction_pct": 10.030864197530864,
-      "intact_linker_count": 583,
-      "primitive_translation_overlap": 0.8999428244711263,
-      "cluster_degree_min": 8,
-      "cluster_degree_max": 12,
-      "cluster_degree_mean": 10.796296296296296
-    },
-    "sample_03": {
-      "measured_fraction_pct": 20.061728395061728,
-      "intact_linker_count": 518,
-      "primitive_translation_overlap": 0.8030888030888029,
-      "cluster_degree_min": 6,
-      "cluster_degree_max": 12,
-      "cluster_degree_mean": 9.592592592592593
-    },
-    "sample_04": {
-      "measured_fraction_pct": 0.9259259259259259,
-      "intact_linker_count": 636,
-      "primitive_translation_overlap": 0.9906542056074766,
-      "cluster_degree_min": 11,
-      "cluster_degree_max": 12,
-      "cluster_degree_mean": 11.88785046728972
-    },
-    "sample_05": {
-      "measured_fraction_pct": 10.185185185185185,
-      "intact_linker_count": 522,
-      "primitive_translation_overlap": 0.9003436426116839,
-      "cluster_degree_min": 8,
-      "cluster_degree_max": 12,
-      "cluster_degree_mean": 10.762886597938145
-    },
-    "sample_06": {
-      "measured_fraction_pct": 20.37037037037037,
-      "intact_linker_count": 408,
-      "primitive_translation_overlap": 0.7984496124031008,
-      "cluster_degree_min": 7,
-      "cluster_degree_max": 12,
-      "cluster_degree_mean": 9.488372093023257
-    },
-    "sample_07": {
-      "measured_fraction_pct": 25.0,
-      "intact_linker_count": 324,
-      "primitive_translation_overlap": 1.0,
-      "cluster_degree_min": 8,
-      "cluster_degree_max": 8,
-      "cluster_degree_mean": 8.0
-    },
-    "sample_08": {
-      "measured_fraction_pct": 25.0,
-      "intact_linker_count": 216,
-      "primitive_translation_overlap": 1.0,
-      "cluster_degree_min": 4,
-      "cluster_degree_max": 8,
-      "cluster_degree_mean": 5.333333333333333
-    },
-    "sample_09": {
-      "measured_fraction_pct": 33.333333333333336,
-      "intact_linker_count": 432,
-      "primitive_translation_overlap": 1.0,
-      "cluster_degree_min": 8,
-      "cluster_degree_max": 8,
-      "cluster_degree_mean": 8.0
-    }
+  "counterexample": {
+    "samples": [
+      "sample_02",
+      "sample_11"
+    ],
+    "agreement": "mean_repeat"
   }
 }

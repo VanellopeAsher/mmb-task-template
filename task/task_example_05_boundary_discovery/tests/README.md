@@ -1,3 +1,3 @@
-# Objective verifier
+# Isolated objective verification
 
-The isolated verifier checks only the task's structured scientific output. Optional `analysis` is ignored. `reference_answer.json` is author-only verifier calibration data and must never be copied into the Agent image.
+The verifier checks the reported observation IDs, the direction or evidence limitation for each selected point, and the measured currents for directional findings. It requires at least one supported deviation and one valid limitation. It uses author-side uncertainty and comparability checks as the independent reference. It does not grade comparison axes, control windows, fitted quantities, or optional analysis. The CLI writes binary reward and assessment diagnostics.

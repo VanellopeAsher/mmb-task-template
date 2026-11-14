@@ -1,10 +1,9 @@
-# Scientific brief
+# 科学范围与取舍
 
-## Original candidate
-4.3 CO₂RR 标度关系何时因微环境失效。
+原问题是 CO₂ 电还原经验标度何时偏离。19 个同源图像读数只支持两种 Cu–Mn 组成、0.1 M KHCO₃ 条件下的局部比较。原文 Figure 2a/c 的八个无添加剂点经过筛选，SI 图中的分产物误差条与这些图读数共享实验来源。跨电解液及不同催化剂的公开候选材料也缺少同组成、同处理、可直接合并的对照；本版保留可追溯子集。 [原论文和补充材料](https://authors.library.caltech.edu/records/sahhv-ks850)
 
-## Task interpretation
-以 Cu–M 合金与有机分子膜调控 CO₂ 电还原为案例，考察 bulk alloying 是否足以改变 CH₄/C₂₊ 产物分电流密度之间的经验 scaling relationship，以及有机分子膜形成的 hybrid inorganic–organic interface 是否能够打破这一关系。
+给定 C₂₊ 局部观测包络和读数范围，求解者须找到支持比较的无添加剂窗口。合并组成时有五个正向偏离，其中三个 Cu₀.₉₈Mn₀.₀₂ 点没有同组成甲烷电流覆盖。Cu₀.₈₄Mn₀.₁₆ 的 b_right_2 有同组成覆盖，但最佳间隔约 0.284 dex，低于 0.30 dex 门槛。b_right_1 的同组成甲烷电流比较成立，同电位比较缺少覆盖。b_right_4 则有同组成电位对照，最强间隔约 0.705 dex，但无甲烷电流覆盖。把两个比较轴的结果互相代用会改变科学结论并被扣分。
 
-## Evidence basis
-Lai et al., ACS Central Science 2021, DOI 10.1021/acscentsci.1c00860. The study reports a Pearson correlation of 0.99 for pure Cu, correlations above 0.98 across the Cu–M alloy systems, and a broken scaling relationship after coating with an organic molecular film. The study includes 137 unique catalyst/composition/additive/potential combinations.
+包络假设约束窗内比较，误差半宽覆盖图读与部分分析误差，不能量化实验间变异或窗内未测行为。0.30 dex 是约两倍的实用效应约定。敏感性文件对电流读数半宽 0.04、0.08、0.12 dex 和效应门槛 0.25、0.30、0.35 dex 作单因素检查。收紧读数半宽或将门槛降到 0.25 dex 时，b_right_2 升为正向偏离。逐一删除对照时 b_right_1 仍有支持，b_right_4 的电位结论依赖两条局部对照。三点组删去一条后只剩两条，删点检查只能衡量点的影响，无法估计重测变异。
+
+Oracle 用最窄合格窗口，独立程序枚举全部窗口及包络。评分接受任意合格窗口和对应间隔，不要求估计回归系数。结论适用于本地观察子集和比较约定；宽泛的物理规律失效、机制与重复实验外推需要额外证据。

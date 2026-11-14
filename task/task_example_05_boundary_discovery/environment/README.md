@@ -1,5 +1,3 @@
-# Agent environment
+# Agent-visible environment
 
-This task environment contains the source-linked data, task-relevant tools, and pinned Python dependencies. The Dockerfile copies only `environment/`; it never copies `solution/`, `tests/`, or `authoring/`.
-
-The raw-source bootstrap runs during image construction when `network_mode = "public"`. Data provenance, licence notes, file names, units, and checksums are recorded in `data/README.md` and `authoring/provenance/source_manifest.json`.
+Build with `docker build -t mmb-task environment`. Inputs are versioned locally; runtime needs no network. Python package versions are pinned in requirements.txt. data/, tools/ and skills/ are the only copied task materials. Author-side source mappings, generation code, answers and verifier are excluded. See data/README.md for scientific limitations.

@@ -1,3 +1,7 @@
-# Provenance
+# Frozen source and numerical transcription
 
-Record original problem lineage, paper and dataset sources, acquisition method, licence, version, checksums, and all preprocessing. Raw-source data are fetched by the environment bootstrap where applicable.
+Source landing page: https://authors.library.caltech.edu/records/sahhv-ks850 . `source_manifest.json` records URLs, hashes, versions, rights statements, software and output hashes. Published PDF and SI were fetched on 2026-11-13. Original PDFs are not bundled or relicensed.
+
+Reproduce: `python authoring/provenance/fetch_sources.py --output <cache>` then `python authoring/provenance/digitize.py --paper <cache>/paper.pdf`. The latter verifies the paper SHA256, extracts its original 1950×1888 Figure 2 image, applies recorded manual coordinates and a separate color-segmentation reread, and regenerates observations.csv and digitization.json. It does not create or infer unobserved experiments. Pixel origin is image top-left; log axes are calibrated at labelled decade ticks. Figure 2c supplies baseline currents because 2a markers overlap. Potentials are read from 2a for baseline and 2b for film; Each Figure 2a potential is associated with the unique Figure 2c marker of the same legend composition within 0.08 dex in both currents. Every accepted marker is used once. The maximum paired-axis discrepancy is 0.056 dex. The paper caption confirms these are the same eight plotted conditions.
+
+The maximum centroid/manual disagreement is 0.0496 dex. The adopted 0.08 dex sensitivity bound adds room for analytical error and marker overlap; it does not include all physical experiment variability. Two rereads of the same raster are not independent experimental replication. Full-source MD5 and SHA256, source locators, axis calibration and both readings remain available to the reviewer.
