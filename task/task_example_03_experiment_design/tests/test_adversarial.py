@@ -12,7 +12,6 @@ from verify import REF, SPEC, score
 HERE = Path(__file__).resolve().parent
 TASK = HERE.parent
 GOOD = json.loads((TASK / "solution/answer.json").read_text(encoding="utf-8"))
-IS03 = "selected_experiment" in GOOD
 
 
 class ContractChecks(unittest.TestCase):
@@ -46,26 +45,25 @@ class ContractChecks(unittest.TestCase):
             self.assertEqual(json.loads(out.with_suffix(".json").read_text())["reward"],
                              float(out.read_text()))
 
-    def test_every_valid_objective_can_earn_credit(self):
-        for choice, priorities in REF["abilities"].items():
-            for priority in priorities:
-                outcomes = dict(zip(("resolved_positive", "no_resolved_effect"), REF["branches"][priority]))
-                result = score(dict(GOOD, selected_experiment=choice, priority=priority, updates=outcomes))
-                self.assertEqual(result["experiment"], 40)
-                self.assertEqual(result["update"], 20)
+    def test_tied_optima_and_unbalanced_plan(self):
+        a, b = GOOD["design"]
+        equivalent = [dict(b, count=2), a, dict(b, count=3, power_times=[48, "baseline", 24])]
+        self.assertEqual(score(dict(GOOD, design=equivalent))["experiment"], 40)
+        unequal = [dict(a, count=6), dict(b, count=4)]
+        self.assertEqual(score(dict(GOOD, design=unequal))["experiment"], 32)
 
-    def test_unsupported_inference_loses_credit(self):
+    def test_invalid_or_uninformative_measurements(self):
+        a, b = GOOD["design"]
+        for design in ([dict(a, count=6), b], [dict(a, xps_hour=24), b]):
+            with self.assertRaises(ValueError):
+                score(dict(GOOD, design=design))
+        for design in ([dict(a, xps_hour=None), b], [a], [dict(a, power_times=[24, 48]), b]):
+            result = score(dict(GOOD, design=design))
+            self.assertEqual(result["experiment"], 0)
+            self.assertEqual(result["update"], 0)
         answer = deepcopy(GOOD)
-        answer["limitations"]["permanent_loss_established"] = True
-        answer["evidence"]["a_recovery_18h"] = 0
-        answer["selected_experiment"] = "A"
-        result = score(answer)
-        self.assertLess(result["evidence"], 25)
-        self.assertEqual(result["experiment"], 20)
-        self.assertEqual(result["update"], 0)
-        answer["selected_experiment"] = "B"
-        answer["updates"]["no_resolved_effect"] = answer["updates"]["resolved_positive"]
-        self.assertEqual(score(answer)["update"], 10)
+        answer["updates"]["matched_xps_difference_proves_causation"] = True
+        self.assertEqual(score(answer)["update"], 15)
 
     def test_evidence_recomputed_from_visible_data(self):
         visible = json.loads((TASK/"environment/data/observations.json").read_text(encoding="utf-8"))
@@ -78,17 +76,11 @@ class ContractChecks(unittest.TestCase):
             self.assertAlmostEqual(REF["evidence"][k+"_relative_iodine_loss"], (before-after)/before)
 
     def test_targets_recompute_from_separate_held_out_evidence(self):
-        if IS03:
-            visible=json.loads((TASK/'environment/data/observations.json').read_text(encoding='utf-8'))
-            hidden=json.loads((TASK/'authoring/evidence/held_out/24h.json').read_text(encoding='utf-8'))
-            calculated={k:(v-visible['power'][k]['0h'])/(visible['power'][k]['origin']-visible['power'][k]['0h']) for k,v in hidden.items()}
-        else:
-            calculated={}
-            for key in 'CDE':
-                trace=json.loads((TASK/'authoring/evidence/held_out'/f'{key}_dilute.json').read_text(encoding='utf-8'))
-                amount=sum(s['moles_out [mol]'] for s in trace['steps_desorption'])
-                methane=sum(s['moles_out [mol]']*s['column_state']['mole_fraction_gas [mol]'][0] for s in trace['steps_desorption'])
-                calculated[key]=methane/amount/trace['feed']['mole_fractions'][0]
+        visible = json.loads((TASK / "environment/data/observations.json").read_text(encoding="utf-8"))
+        hidden = json.loads((TASK / "authoring/evidence/held_out/24h.json").read_text(encoding="utf-8"))
+        calculated = {k: (v - visible["power"][k]["0h"]) /
+                      (visible["power"][k]["origin"] - visible["power"][k]["0h"])
+                      for k, v in hidden.items()}
         for key,value in calculated.items():
             self.assertAlmostEqual(SPEC['targets'][key],value,places=12)
 

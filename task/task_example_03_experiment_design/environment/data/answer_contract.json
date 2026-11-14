@@ -2,18 +2,13 @@
   "type": "object",
   "additionalProperties": false,
   "required": [
-    "selected_experiment",
     "predicted_recovery",
     "evidence",
-    "capabilities",
-    "priority",
     "updates",
-    "limitations"
+    "limitations",
+    "design"
   ],
   "properties": {
-    "selected_experiment": {
-      "type": "string"
-    },
     "predicted_recovery": {
       "type": "object",
       "additionalProperties": false,
@@ -62,58 +57,27 @@
         }
       }
     },
-    "capabilities": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "A",
-        "B",
-        "C",
-        "D"
-      ],
-      "properties": {
-        "A": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "B": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "C": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "D": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        }
-      }
-    },
-    "priority": {
-      "type": "string"
-    },
     "updates": {
       "type": "object",
       "additionalProperties": false,
       "required": [
-        "resolved_positive",
-        "no_resolved_effect"
+        "resolved_gain_supports_late_recovery",
+        "matched_xps_difference_proves_causation",
+        "null_xps_excludes_iodine_change",
+        "no_late_gain_proves_permanence"
       ],
       "properties": {
-        "resolved_positive": {
-          "type": "string"
+        "resolved_gain_supports_late_recovery": {
+          "type": "boolean"
         },
-        "no_resolved_effect": {
-          "type": "string"
+        "matched_xps_difference_proves_causation": {
+          "type": "boolean"
+        },
+        "null_xps_excludes_iodine_change": {
+          "type": "boolean"
+        },
+        "no_late_gain_proves_permanence": {
+          "type": "boolean"
         }
       }
     },
@@ -130,6 +94,56 @@
         },
         "permanent_loss_established": {
           "type": "boolean"
+        }
+      }
+    },
+    "design": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "count",
+          "bias_v",
+          "power_times",
+          "xps_hour"
+        ],
+        "properties": {
+          "count": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "bias_v": {
+            "enum": [
+              -2.7,
+              0
+            ]
+          },
+          "power_times": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "anyOf": [
+                {
+                  "const": "baseline"
+                },
+                {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 48
+                }
+              ]
+            }
+          },
+          "xps_hour": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 0,
+            "maximum": 48
+          }
         }
       }
     }

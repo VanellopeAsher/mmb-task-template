@@ -1,5 +1,4 @@
 {
-  "selected_experiment": "B",
   "predicted_recovery": {
     "a": 0.9170519105064685,
     "c": 0.6312799624790542
@@ -12,28 +11,36 @@
     "control_relative_iodine_loss": 0.2313167259786476,
     "chelated_relative_iodine_loss": 0.053003533568904526
   },
-  "capabilities": {
-    "A": [
-      "late_recovery"
-    ],
-    "B": [
-      "late_recovery",
-      "device_iodine_association"
-    ],
-    "C": [
-      "temperature_sensitivity"
-    ],
-    "D": [
-      "film_stressor_contrast"
-    ]
-  },
-  "priority": "device_iodine_association",
   "updates": {
-    "resolved_positive": "iodine_depletion_associated_not_causal",
-    "no_resolved_effect": "iodine_change_below_detection_or_absent"
+    "resolved_gain_supports_late_recovery": true,
+    "matched_xps_difference_proves_causation": false,
+    "null_xps_excludes_iodine_change": false,
+    "no_late_gain_proves_permanence": false
   },
   "limitations": {
     "cross_specimen_attribution": false,
     "permanent_loss_established": false
-  }
+  },
+  "design": [
+    {
+      "count": 5,
+      "bias_v": -2.7,
+      "power_times": [
+        "baseline",
+        24,
+        48
+      ],
+      "xps_hour": 48
+    },
+    {
+      "count": 5,
+      "bias_v": 0,
+      "power_times": [
+        "baseline",
+        24,
+        48
+      ],
+      "xps_hour": 48
+    }
+  ]
 }

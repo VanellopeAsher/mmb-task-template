@@ -7,37 +7,9 @@
     "control_relative_iodine_loss": 0.2313167259786476,
     "chelated_relative_iodine_loss": 0.053003533568904526
   },
-  "abilities": {
-    "A": [
-      "late_recovery"
-    ],
-    "B": [
-      "late_recovery",
-      "device_iodine_association"
-    ],
-    "C": [
-      "temperature_sensitivity"
-    ],
-    "D": [
-      "film_stressor_contrast"
-    ]
-  },
-  "branches": {
-    "late_recovery": [
-      "additional_power_is_recoverable",
-      "remaining_deficit_not_proven_permanent"
-    ],
-    "device_iodine_association": [
-      "iodine_depletion_associated_not_causal",
-      "iodine_change_below_detection_or_absent"
-    ],
-    "temperature_sensitivity": [
-      "recovery_sensitive_to_temperature_not_unique_mechanism",
-      "no_resolved_temperature_effect_in_tested_window"
-    ],
-    "film_stressor_contrast": [
-      "film_stressor_effect_not_device_attribution",
-      "no_resolved_film_contrast_in_tested_protocol"
-    ]
+  "budget": {
+    "devices": 12,
+    "power": 30,
+    "xps": 10
   }
 }

@@ -5,10 +5,9 @@ environment/data/observations.json含a（−0.9 V）、c（−2.7 V）功率，�
 
 盲测Agent挂载problem.md与environment/。详细rubric.md位于authoring，仅供出题者。公开评分维度和数值规则已写入problem.md。solutions、tests和authoring隔离。背景工具、依赖配置沿用原仓库。
 
-## 本轮限定选项的新增内容
-A—D 的方案、温度、时点为本题给定的前瞻性候选安排，不是原论文已实施实验或新观测数据。只有现有功率和 I/Pb 可复算；未做追加实验，不提供其结果真值。XPS 制样有效性、重复数和温度稳定性须由领域专家先导核查。选 D 的联合应力按原薄膜协议，盲测仅评价其选择与推断，不要求实际复现该追加实验。源 JSON 数值、保留24 h读数均未改变。
-标准输出新增 selected_experiment，枚举 A/B/C/D，必须单选。answer_contract.json 为对应类型契约。所选方案内部可补必要控制，不得组合多个选项。完整环境工具、skills、Dockerfile、requirements 和背景下载入口均保持上版字节。
-solution/answer.json 使用可见数据外推；solution/reference_report.md 与 authoring/solvability.md 为含实测24 h结果的作者侧完整作答。solution/submission_report.md 为不引用保留值的候选提交论证。
+## Current design task
+
+The cohort allocation is prospective; no follow-up measurements are included. Resource caps are given task constraints. The experimental-design score counts valid joint stress/sham measurement units. The original 24 h holdout and visible-data forecast remain unchanged.
 
 ## 本轮离线分发边界（覆盖前版分发说明）
 盲测仅部署 agent_release/ 对应单题目录，不能给完整作者包。Agent 只获得公开数据、工具、skills和资料使用规则；来源映射、完整参考、初筛脚本、保留结果及独立核验程序留在作者端。构建镜像可以下载依赖，但不运行原始科研数据下载脚本。第三题原fetch_data.sh已移至authoring/provenance/upstream_bootstrap，仅供来源追溯，不向Agent提供；raw目录不再自动生成，inspect_transients.py原工具代码仍保留，但该背景扫描工具不再获得raw背景数据。解题所需的公开JSON未更改。
