@@ -1,5 +1,7 @@
 # Cu activation causal identifiability
 
+> Historical activation analysis. Early Cu reduction causality is outside the current reaction-stage reward.
+
 The operational Cu midpoints are 88.29 °C for Cu, 69.88 °C for AuCu, and 74.49 °C for AuCu3 on the resistor scale. All 302 raw Cu-edge ramp files across those three samples report a missing sample-temperature reading. The shift therefore survives a common additive calibration correction, but actual bed temperatures are not independently matched. The reaction MS channels refer to subsequent hydrogenation and do not identify the molecular hydrogen transfer pathway, local water activity, or sample-specific photon dose during activation.
 
 | Candidate | Evidence and verdict |

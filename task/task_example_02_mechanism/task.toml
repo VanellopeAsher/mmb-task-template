@@ -3,7 +3,7 @@ artifacts = ["/workspace/results/"]
 
 [task]
 name = "mattermysterybench/task_example_02_mechanism"
-description = "Assess activation and reaction-state evidence, competing mechanisms, and identifiability in operando Au-Cu/TiO2 butadiene hydrogenation."
+description = "Discriminate competing mechanisms during Au-Cu/TiO2 butadiene hydrogenation using operando XAS and mass spectrometry. Score numerical evidence, process conclusions, mechanism evidence states, and inference limits."
 authors = []
 keywords = ["operando-XAS", "EXAFS", "mass-spectrometry", "Au-Cu", "mechanism-identifiability"]
 
