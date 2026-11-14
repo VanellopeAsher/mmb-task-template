@@ -19,13 +19,25 @@ TiO₂ 负载 Au–Cu 催化剂在 H₂ 活化后进行 1,3-丁二烯加氢。�
 
 - `observed_signature` 有三个 JSON 布尔值：`large_bulk_redox` 表示已报 AuCu、Au、Cu 反应态 XANES 变化的最大值是否至少为 0.1；`nonalloy_control_has_ms_sign` 表示 Au 单金属 130→150 °C 的 m/z 54 是否下降且 56 上升；`aucu_post_edge_reaction_similar` 表示 AuCu 还原态与 130 °C 后边区指纹相关性是否大于 0.9。
 - `necessary_predictions` 有四行：`bulk_redox_required`、`aucu_only_reconstruction_required`、`stable_reduced_sites_temperature_response`、`minority_surface_redistribution`。每行对三个观测签名给出 `true`、`false` 或 `null`。这些行只表示各机制的**必要条件**，并不穷尽所有可能的催化机制。
-- `compatible_reaction_models` 列出所有未被已报观测推翻其**必要预测**的行。`compatible_early_Cu_explanations` 从 `hydrogen_spillover`、`Cu_dispersion_or_precursor_bonding`、`beam_or_temperature_bias` 中保留尚未由本数据分开的解释。另给出四个布尔值：`unique_rate_mechanism_identified`、`unique_early_Cu_cause_identified`、`unique_alloy_morphology_identified`、`molecular_selectivity_quantified`。只有数据真正能唯一识别或定量时才能填 `true`。
+- `compatible_reaction_models` 列出所有未被已报观测推翻其**必要预测**的行。`compatible_early_Cu_explanations` 提交下表中所有与现有数据兼容的原因标识，顺序不限。另给出四个布尔值：`unique_rate_mechanism_identified`、`unique_early_Cu_cause_identified`、`unique_alloy_morphology_identified`、`molecular_selectivity_quantified`。只有数据真正能唯一识别或定量时才能填 `true`。
+
+| Cu 活化候选解释 | 含义 |
+|---|---|
+| `hydrogen_spillover` | Au 上活化的氢向含 Cu 位点迁移，可经过载体。 |
+| `cu_precursor_dispersion` | Cu 前驱体的分散度或团簇尺寸不同，改变其还原动力学。 |
+| `cu_o_bonding` | Au 邻近改变 Cu 前驱体的局部 Cu–O 键合，影响脱氧还原。 |
+| `metal_nucleation_kinetics` | Au 富集的金属核降低还原后金属相成核势垒，使后续 Cu 还原更快。 |
+| `xray_photoreduction` | X 射线照射通过光化学途径改变 Cu 还原动力学。 |
+| `sample_dependent_bed_temperature` | 各样品的实际床层温度与电阻器读数之间的关系不同。 |
+| `local_h2_h2o_transport` | 样品间有效 H₂ 供给或生成水的移除不同，改变局部还原条件。 |
+| `common_temperature_offset_only` | 各样品完全相同的恒定测温偏移，单独造成样品间的提前。 |
+| `butadiene_required_for_early_reduction` | 必须有丁二烯参与，才会出现观测到的 Cu 提前还原。 |
 
 请根据已有证据，自主设计一项能区分两种仍兼容机制的受控实验。将实验写入 `discriminating_experiment` 对象。为便于核验，每项用简短的英文描述，数组每个条目只描述一项。
 
 - `factor` 和 `contrast` 分别描述操纵变量和比较工况。
 - `controls` 列出匹配条件，`endpoint` 和 `assay` 分别说明判别指标和测量方式。`context_readouts` 列出辅助读出，可为空数组。
-- `predictions` 以所比较的两个机制标识为键，分别描述同一判别指标在两种机制下的预期响应。
+- `predictions` 以所比较的两个机制标识为键，分别描述同一判别指标在两种机制下的预期响应。活化实验仍使用原有的模型标识 `beam_or_temperature_bias`（在该实验中特指束流贡献）和 `Cu_dispersion_or_precursor_bonding`。
 - `scope` 说明结论适用的效应及条件，`detection_check` 说明如何确定检测能力，`null_interpretation` 说明零结果能约束什么。
 
 评分核验干预、对照、读出及预测之间的科学关系。无需估计未经测量的效应大小。

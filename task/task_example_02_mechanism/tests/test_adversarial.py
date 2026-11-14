@@ -85,6 +85,22 @@ bad = copy.deepcopy(GOOD)
 bad["mechanism_comparison"]["unique_rate_mechanism_identified"] = True
 expect(bad, False)
 
+key = "compatible_early_Cu_explanations"
+for cause in GOOD["mechanism_comparison"][key]:
+    incomplete = copy.deepcopy(GOOD)
+    incomplete["mechanism_comparison"][key].remove(cause)
+    expect(incomplete, False)
+
+for cause in ("common_temperature_offset_only", "butadiene_required_for_early_reduction",
+              "beam_or_temperature_bias", "Cu_dispersion_or_precursor_bonding"):
+    unsupported = copy.deepcopy(GOOD)
+    unsupported["mechanism_comparison"][key].append(cause)
+    expect(unsupported, False)
+
+reordered = copy.deepcopy(GOOD)
+reordered["mechanism_comparison"][key].reverse()
+expect(reordered, True)
+
 bad = copy.deepcopy(GOOD)
 bad["mechanism_comparison"]["unique_early_Cu_cause_identified"] = True
 expect(bad, False)

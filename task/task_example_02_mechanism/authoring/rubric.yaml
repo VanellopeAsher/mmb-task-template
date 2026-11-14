@@ -12,7 +12,8 @@ core_assessment:
     aucu_post_edge_reaction_similar: within-AuCu post-edge correlation > 0.9
   rejection_logic: Reject a model only if a non-null necessary prediction conflicts with a source-derived observation.
   compatible_models: [stable_reduced_sites_temperature_response, minority_surface_redistribution]
-  reduction_explanations: [hydrogen_spillover, Cu_dispersion_or_precursor_bonding, beam_or_temperature_bias]
+  reduction_explanations: [hydrogen_spillover, cu_precursor_dispersion, cu_o_bonding, metal_nucleation_kinetics, xray_photoreduction, sample_dependent_bed_temperature, local_h2_h2o_transport]
+  activation_evidence: evidence/early_cu_identifiability.md
   identifiability_limits: [rate_mechanism, early_Cu_cause, unique_morphology, molecular_selectivity]
 discriminating_experiments:
   automatic: Verify intervention, controls, assay, endpoint, and model predictions against the causal reference.

@@ -32,9 +32,6 @@ MODEL_PREDICTIONS = {
         "aucu_post_edge_reaction_similar": None,
     },
 }
-REDUCTION_RIVALS = {
-    "hydrogen_spillover", "Cu_dispersion_or_precursor_bonding", "beam_or_temperature_bias",
-}
 def require_map(value, keys, label):
     if not isinstance(value, dict) or set(value) != set(keys):
         raise ValueError(f"Incorrect fields in {label}")
@@ -166,13 +163,23 @@ def check_experiment(value, comparison):
     predictions = design["predictions"]
     if isinstance(predictions, dict):
         predictions = {model: canonical_phrase(value) for model, value in predictions.items()}
+    # The experiment uses its existing scoped model names. Map those names
+    # only for the compatibility check against the finer activation taxonomy.
+    experiment_models = {
+        "beam_or_temperature_bias": {"xray_photoreduction"},
+        "Cu_dispersion_or_precursor_bonding": {"cu_precursor_dispersion", "cu_o_bonding"},
+    }
+    compatible_groups = [
+        {model for model, causes in experiment_models.items() if causes <= set(comparison[group])}
+        | set(comparison[group])
+        for group in ("compatible_reaction_models", "compatible_early_Cu_explanations")
+    ]
     response = rule["response_model"]
     if (not isinstance(predictions, dict) or len(predictions) != 2
             or predictions.get(response) != "detectable_response"
             or not any(predictions.get(model) == "no_systematic_response"
                        for model in rule["null_models"])
-            or not any(set(predictions) <= set(comparison[group])
-                       for group in ("compatible_reaction_models", "compatible_early_Cu_explanations"))):
+            or not any(set(predictions) <= group for group in compatible_groups)):
         raise ValueError("Predictions must follow from the competing causal models")
     if (design["scope"] != rule["scope"]
             or design["detection_check"] != "calibrate_with_matched_replicates"
@@ -258,7 +265,7 @@ def verify(payload):
     explanations = comparison["compatible_early_Cu_explanations"]
     if (not isinstance(explanations, list) or any(type(value) is not str for value in explanations)
             or len(explanations) != len(set(explanations))
-            or set(explanations) != REDUCTION_RIVALS):
+            or set(explanations) != set(reference["mechanism_comparison"]["compatible_early_Cu_explanations"])):
         raise ValueError("Earlier Cu reduction does not identify one of the untested causes")
     for key in ("unique_rate_mechanism_identified", "unique_early_Cu_cause_identified",
                 "unique_alloy_morphology_identified", "molecular_selectivity_quantified"):

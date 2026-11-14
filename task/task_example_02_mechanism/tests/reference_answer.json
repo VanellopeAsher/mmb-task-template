@@ -115,8 +115,12 @@
     ],
     "compatible_early_Cu_explanations": [
       "hydrogen_spillover",
-      "Cu_dispersion_or_precursor_bonding",
-      "beam_or_temperature_bias"
+      "cu_precursor_dispersion",
+      "cu_o_bonding",
+      "metal_nucleation_kinetics",
+      "xray_photoreduction",
+      "sample_dependent_bed_temperature",
+      "local_h2_h2o_transport"
     ],
     "unique_rate_mechanism_identified": false,
     "unique_early_Cu_cause_identified": false,
