@@ -1,16 +1,16 @@
-version: 6
+version: 7
 artifact: /workspace/results/answer.json
 reward:
   pass: 1
   fail: 0
-  rule: All three comparisons must report supported directions or the correct insufficiency status for every film condition.
+  rule: Selected findings must include a supported deviation and a valid limitation, with correct observation IDs and currents for directional claims.
 reference:
   input: environment/data/observations.csv
   independent_calculation: authoring/evidence/independent_reference.py
-  accepted_windows: tests/condition_context.json
+  author_only_comparisons: tests/condition_context.json
   sensitivity: authoring/evidence/sensitivity.json
   source_readings: authoring/evidence/digitization.json
-margin_tolerance_dex: 0.02
+current_reading_tolerance_dex: 0.08
 effect_threshold_dex: 0.30
 unscored_optional: [analysis]
 excluded_claims: [causal_mechanism, experimental_variance, broad_alloy_generalization]

@@ -32,22 +32,28 @@ def generate(data_dir):
     with (data_dir / 'observations.csv').open(encoding='utf-8', newline='') as stream:
         rows = [
             dict(id=row['condition_id'], composition=row['composition'], additive=row['additive'],
+                 currents={key: float(row[key]) for key in (
+                     "j_CH4_mA_cm2", "j_C2plus_mA_cm2")},
                  methane=math.log10(float(row['j_CH4_mA_cm2'])),
                  c2plus=math.log10(float(row['j_C2plus_mA_cm2'])),
                  potential=float(row['potential_V_RHE']))
             for row in csv.DictReader(stream)
         ]
     bare = [row for row in rows if row['additive'] == 'none']
-    result = {key: {} for key in ('matched_methane', 'pooled_methane', 'matched_potential')}
+    findings = {}
     for film in rows:
         if film['additive'] == 'none':
             continue
         matched = [row for row in bare if row['composition'] == film['composition']]
-        name = film['id']
-        result['matched_methane'][name] = assess_window(film, matched, 'methane', .08)
-        result['pooled_methane'][name] = assess_window(film, bare, 'methane', .08)
-        result['matched_potential'][name] = assess_window(film, matched, 'potential', .015)
-    return result
+        status = assess_window(film, matched, 'methane', .08)['status']
+        finding = {'status': status}
+        if status in ('higher', 'lower'):
+            finding.update(film['currents'])
+        else:
+            finding['status'] = 'insufficient_evidence'
+        findings[film['id']] = finding
+    return {'findings': findings}
+
 
 
 if __name__ == '__main__':

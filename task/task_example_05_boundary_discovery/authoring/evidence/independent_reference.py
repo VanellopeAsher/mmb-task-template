@@ -61,7 +61,17 @@ if __name__ == '__main__':
     alternative = {key: {name: choices[0] for name, choices in group.items()} for key, group in catalog.items()}
     save('authoring/evidence/reference_answer.json', reference)
     save('authoring/evidence/alternative_answer.json', alternative)
-    save('tests/reference_answer.json', reference)
+    currents = {
+        row['condition_id']: {key: float(row[key]) for key in ('j_CH4_mA_cm2', 'j_C2plus_mA_cm2')}
+        for row in rows if row['additive'] != 'none'
+    }
+    findings = {}
+    for name, row in reference['matched_methane'].items():
+        status = row['status']
+        findings[name] = {'status': status if status in ('higher', 'lower') else 'insufficient_evidence'}
+        if status in ('higher', 'lower'):
+            findings[name].update(currents[name])
+    save('tests/reference_answer.json', {'findings': findings})
     save('tests/condition_context.json', catalog)
     scenarios = {}
     for width, threshold in ((.04, .30), (.08, .30), (.12, .30), (.08, .25), (.08, .35)):

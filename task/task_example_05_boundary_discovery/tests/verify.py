@@ -4,40 +4,46 @@ import json
 import math
 from pathlib import Path
 
-CONTEXT = json.loads(Path(__file__).with_name('condition_context.json').read_text(encoding='utf-8'))
+REFERENCE = json.loads(Path(__file__).with_name('reference_answer.json').read_text(encoding='utf-8'))
 
 
-def check_comparison(submitted, targets):
-    if not isinstance(submitted, dict) or submitted.keys() != targets.keys():
-        raise ValueError('Expected all eleven film condition IDs')
-    for name, choices in targets.items():
-        row = submitted[name]
+def check_findings(findings):
+    reference = REFERENCE['findings']
+    if not isinstance(findings, dict) or not findings or set(findings) - set(reference):
+        raise ValueError('Use existing additive observation IDs')
+    directional = limited = False
+    for name, row in findings.items():
         if not isinstance(row, dict):
-            raise ValueError(f'{name}: expected a comparison object')
-        if len(choices[0]) == 1:
-            if row != choices[0]:
-                raise ValueError(f'{name}: incorrect support or unresolved status')
-            continue
-        if set(row) != {'status', 'controls', 'margin_dex'}:
-            raise ValueError(f'{name}: directional comparison requires controls and margin')
-        margin = row['margin_dex']
-        if type(margin) not in (int, float) or not math.isfinite(margin) or margin <= .30:
-            raise ValueError(f'{name}: margin must be finite and greater than 0.30 dex')
-        for target in choices:
-            if (row['status'] == target['status'] and row['controls'] == target['controls']
-                    and abs(margin - target['margin_dex']) <= .02 + 1e-12):
-                break
+            raise ValueError(f'{name}: expected a finding object')
+        status = row.get('status')
+        supported_status = reference[name]['status']
+        if status in ('higher', 'lower'):
+            if status != supported_status or set(row) != {
+                'status', 'j_CH4_mA_cm2', 'j_C2plus_mA_cm2'
+            }:
+                raise ValueError(f'{name}: unsupported direction or missing observed currents')
+            for column in ('j_CH4_mA_cm2', 'j_C2plus_mA_cm2'):
+                expected = reference[name][column]
+                value = row[column]
+                if (type(value) not in (int, float) or not math.isfinite(value) or value <= 0
+                        or abs(math.log10(value) - math.log10(expected)) > .08 + 1e-12):
+                    raise ValueError(f'{name}: incorrect {column}')
+            directional = True
+        elif status == 'insufficient_evidence':
+            if supported_status in ('higher', 'lower') or set(row) != {'status'}:
+                raise ValueError(f'{name}: incorrect evidence limitation')
+            limited = True
         else:
-            raise ValueError(f'{name}: unsupported direction, control window or margin')
+            raise ValueError(f'{name}: unknown status')
+    if not directional or not limited:
+        raise ValueError('Report both a supported deviation and an evidence limitation')
 
 
 def check_sections(payload, record):
-    if not isinstance(payload, dict):
-        raise ValueError('Answer must be an object')
-    if set(payload) - set(CONTEXT) - {'analysis'}:
-        raise ValueError('Unexpected answer fields')
-    for name, targets in CONTEXT.items():
-        record(name, lambda: check_comparison(payload[name], targets))
+    if not isinstance(payload, dict) or set(payload) - {'findings', 'analysis'}:
+        raise ValueError('Expected findings and optional analysis')
+    record('findings', lambda: check_findings(payload['findings']))
+
 
 CHECK_ERRORS = (ValueError, KeyError, TypeError, OverflowError, RecursionError, IndexError)
 
