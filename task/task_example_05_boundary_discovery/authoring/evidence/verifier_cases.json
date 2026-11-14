@@ -24,9 +24,7 @@
     "optimized": false,
     "reward": 0.0,
     "failed_sections": [
-      "matched_methane",
-      "matched_potential",
-      "pooled_methane"
+      "findings"
     ]
   },
   {
@@ -38,175 +36,118 @@
     ]
   },
   {
-    "case": "alternative",
+    "case": "selected_subset",
     "optimized": false,
     "reward": 1.0,
     "failed_sections": []
   },
   {
-    "case": "margin_at_tolerance",
+    "case": "different_limitation",
     "optimized": false,
     "reward": 1.0,
     "failed_sections": []
   },
   {
-    "case": "margin_outside_tolerance",
+    "case": "only_deviation",
     "optimized": false,
     "reward": 0.0,
     "failed_sections": [
-      "matched_methane"
+      "findings"
     ]
   },
   {
-    "case": "margin_bool",
+    "case": "pooled_only_deviation_promoted",
     "optimized": false,
     "reward": 0.0,
     "failed_sections": [
-      "matched_methane"
+      "findings"
     ]
   },
   {
-    "case": "margin_nan",
+    "case": "potential_deviation_promoted",
     "optimized": false,
     "reward": 0.0,
     "failed_sections": [
-      "matched_methane"
+      "findings"
     ]
   },
   {
-    "case": "margin_infinity",
+    "case": "reversed_direction",
     "optimized": false,
     "reward": 0.0,
     "failed_sections": [
-      "matched_methane"
+      "findings"
     ]
   },
   {
-    "case": "margin_wrong_units",
+    "case": "missed_deviation",
     "optimized": false,
     "reward": 0.0,
     "failed_sections": [
-      "matched_methane"
+      "findings"
     ]
   },
   {
-    "case": "contradictory_direction",
+    "case": "incorrect_coverage",
     "optimized": false,
     "reward": 0.0,
     "failed_sections": [
-      "matched_methane"
+      "findings"
     ]
   },
   {
-    "case": "no_endpoints",
+    "case": "missing_currents",
     "optimized": false,
     "reward": 0.0,
     "failed_sections": [
-      "matched_methane"
+      "findings"
     ]
   },
   {
-    "case": "endpoint_order_reversed",
+    "case": "wrong_current",
     "optimized": false,
     "reward": 0.0,
     "failed_sections": [
-      "matched_methane"
+      "findings"
     ]
   },
   {
-    "case": "same_endpoint_twice",
-    "optimized": false,
-    "reward": 0.0,
-    "failed_sections": [
-      "matched_methane"
-    ]
-  },
-  {
-    "case": "film_as_control",
-    "optimized": false,
-    "reward": 0.0,
-    "failed_sections": [
-      "matched_methane"
-    ]
-  },
-  {
-    "case": "pooled_promoted_to_matched",
-    "optimized": false,
-    "reward": 0.0,
-    "failed_sections": [
-      "matched_methane"
-    ]
-  },
-  {
-    "case": "methane_promoted_to_potential",
-    "optimized": false,
-    "reward": 0.0,
-    "failed_sections": [
-      "matched_potential"
-    ]
-  },
-  {
-    "case": "potential_promoted_to_methane",
-    "optimized": false,
-    "reward": 0.0,
-    "failed_sections": [
-      "matched_methane"
-    ]
-  },
-  {
-    "case": "out_of_range_endpoints",
-    "optimized": false,
-    "reward": 0.0,
-    "failed_sections": [
-      "matched_methane"
-    ]
-  },
-  {
-    "case": "outside_called_unresolved",
-    "optimized": false,
-    "reward": 0.0,
-    "failed_sections": [
-      "matched_methane"
-    ]
-  },
-  {
-    "case": "inside_called_outside",
-    "optimized": false,
-    "reward": 0.0,
-    "failed_sections": [
-      "matched_methane"
-    ]
-  },
-  {
-    "case": "window_below_effect_threshold",
-    "optimized": false,
-    "reward": 0.0,
-    "failed_sections": [
-      "matched_methane"
-    ]
-  },
-  {
-    "case": "only_regression_coefficients",
-    "optimized": false,
-    "reward": 0.0,
-    "failed_sections": [
-      "format"
-    ]
-  },
-  {
-    "case": "only_methane",
-    "optimized": false,
-    "reward": 0.0,
-    "failed_sections": [
-      "matched_potential",
-      "pooled_methane"
-    ]
-  },
-  {
-    "case": "different_valid_window_b_right_1",
+    "case": "reading_tolerance",
     "optimized": false,
     "reward": 1.0,
     "failed_sections": []
+  },
+  {
+    "case": "invalid_current_True",
+    "optimized": false,
+    "reward": 0.0,
+    "failed_sections": [
+      "findings"
+    ]
+  },
+  {
+    "case": "invalid_current_0",
+    "optimized": false,
+    "reward": 0.0,
+    "failed_sections": [
+      "findings"
+    ]
+  },
+  {
+    "case": "invalid_current_nan",
+    "optimized": false,
+    "reward": 0.0,
+    "failed_sections": [
+      "findings"
+    ]
+  },
+  {
+    "case": "invalid_current_inf",
+    "optimized": false,
+    "reward": 0.0,
+    "failed_sections": [
+      "findings"
+    ]
   },
   {
     "case": "oracle",
@@ -233,9 +174,7 @@
     "optimized": true,
     "reward": 0.0,
     "failed_sections": [
-      "matched_methane",
-      "matched_potential",
-      "pooled_methane"
+      "findings"
     ]
   },
   {
@@ -247,175 +186,118 @@
     ]
   },
   {
-    "case": "alternative",
+    "case": "selected_subset",
     "optimized": true,
     "reward": 1.0,
     "failed_sections": []
   },
   {
-    "case": "margin_at_tolerance",
+    "case": "different_limitation",
     "optimized": true,
     "reward": 1.0,
     "failed_sections": []
   },
   {
-    "case": "margin_outside_tolerance",
+    "case": "only_deviation",
     "optimized": true,
     "reward": 0.0,
     "failed_sections": [
-      "matched_methane"
+      "findings"
     ]
   },
   {
-    "case": "margin_bool",
+    "case": "pooled_only_deviation_promoted",
     "optimized": true,
     "reward": 0.0,
     "failed_sections": [
-      "matched_methane"
+      "findings"
     ]
   },
   {
-    "case": "margin_nan",
+    "case": "potential_deviation_promoted",
     "optimized": true,
     "reward": 0.0,
     "failed_sections": [
-      "matched_methane"
+      "findings"
     ]
   },
   {
-    "case": "margin_infinity",
+    "case": "reversed_direction",
     "optimized": true,
     "reward": 0.0,
     "failed_sections": [
-      "matched_methane"
+      "findings"
     ]
   },
   {
-    "case": "margin_wrong_units",
+    "case": "missed_deviation",
     "optimized": true,
     "reward": 0.0,
     "failed_sections": [
-      "matched_methane"
+      "findings"
     ]
   },
   {
-    "case": "contradictory_direction",
+    "case": "incorrect_coverage",
     "optimized": true,
     "reward": 0.0,
     "failed_sections": [
-      "matched_methane"
+      "findings"
     ]
   },
   {
-    "case": "no_endpoints",
+    "case": "missing_currents",
     "optimized": true,
     "reward": 0.0,
     "failed_sections": [
-      "matched_methane"
+      "findings"
     ]
   },
   {
-    "case": "endpoint_order_reversed",
+    "case": "wrong_current",
     "optimized": true,
     "reward": 0.0,
     "failed_sections": [
-      "matched_methane"
+      "findings"
     ]
   },
   {
-    "case": "same_endpoint_twice",
-    "optimized": true,
-    "reward": 0.0,
-    "failed_sections": [
-      "matched_methane"
-    ]
-  },
-  {
-    "case": "film_as_control",
-    "optimized": true,
-    "reward": 0.0,
-    "failed_sections": [
-      "matched_methane"
-    ]
-  },
-  {
-    "case": "pooled_promoted_to_matched",
-    "optimized": true,
-    "reward": 0.0,
-    "failed_sections": [
-      "matched_methane"
-    ]
-  },
-  {
-    "case": "methane_promoted_to_potential",
-    "optimized": true,
-    "reward": 0.0,
-    "failed_sections": [
-      "matched_potential"
-    ]
-  },
-  {
-    "case": "potential_promoted_to_methane",
-    "optimized": true,
-    "reward": 0.0,
-    "failed_sections": [
-      "matched_methane"
-    ]
-  },
-  {
-    "case": "out_of_range_endpoints",
-    "optimized": true,
-    "reward": 0.0,
-    "failed_sections": [
-      "matched_methane"
-    ]
-  },
-  {
-    "case": "outside_called_unresolved",
-    "optimized": true,
-    "reward": 0.0,
-    "failed_sections": [
-      "matched_methane"
-    ]
-  },
-  {
-    "case": "inside_called_outside",
-    "optimized": true,
-    "reward": 0.0,
-    "failed_sections": [
-      "matched_methane"
-    ]
-  },
-  {
-    "case": "window_below_effect_threshold",
-    "optimized": true,
-    "reward": 0.0,
-    "failed_sections": [
-      "matched_methane"
-    ]
-  },
-  {
-    "case": "only_regression_coefficients",
-    "optimized": true,
-    "reward": 0.0,
-    "failed_sections": [
-      "format"
-    ]
-  },
-  {
-    "case": "only_methane",
-    "optimized": true,
-    "reward": 0.0,
-    "failed_sections": [
-      "matched_potential",
-      "pooled_methane"
-    ]
-  },
-  {
-    "case": "different_valid_window_b_right_1",
+    "case": "reading_tolerance",
     "optimized": true,
     "reward": 1.0,
     "failed_sections": []
+  },
+  {
+    "case": "invalid_current_True",
+    "optimized": true,
+    "reward": 0.0,
+    "failed_sections": [
+      "findings"
+    ]
+  },
+  {
+    "case": "invalid_current_0",
+    "optimized": true,
+    "reward": 0.0,
+    "failed_sections": [
+      "findings"
+    ]
+  },
+  {
+    "case": "invalid_current_nan",
+    "optimized": true,
+    "reward": 0.0,
+    "failed_sections": [
+      "findings"
+    ]
+  },
+  {
+    "case": "invalid_current_inf",
+    "optimized": true,
+    "reward": 0.0,
+    "failed_sections": [
+      "findings"
+    ]
   },
   {
     "case": "malformed_json",
