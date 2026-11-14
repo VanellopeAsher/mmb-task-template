@@ -5,9 +5,23 @@
   "primary_source_04": "https://pmc.ncbi.nlm.nih.gov/articles/PMC13504625/",
   "source_code_scope": "Inspected repository KPI recomputation code; published original process implementation not located. Sign/boundary interpretation checked independently against ten actual stage traces and column inventories.",
   "known_limitations": [
-    "No independent human baseline",
-    "No new wet experiment",
-    "No frontier Agent difficulty trial",
-    "Docker/Harbor not executed"
-  ]
+    "final_agent_network_probe",
+    "actual_mounts_and_read_only_permissions",
+    "model_browser_search_and_connectors_disabled",
+    "frontier_agent_trials",
+    "independent_expert_review_and_inter_rater_agreement"
+  ],
+  "verified_ci_baseline": {
+    "tested_commit": "dbec07e33b589b073bf7d013325463ce1655e704",
+    "run_id": 43439937124,
+    "url": "https://github.com/VanellopeAsher/mmb-task-template/actions/runs/43439937124",
+    "docker_build": "passed",
+    "harbor_lint": "passed",
+    "harbor_oracle": "passed",
+    "numeric_tests": "passed",
+    "file_release_integrity": "passed",
+    "numeric_reward": 0.25,
+    "review_status": "pending_expert_review"
+  },
+  "json_repair": "109 nulls per A trace at the un-converged methane reference-isotherm point [0][20]: loading, enthalpy, fugacity and pressure/fugacity in each of 53 extrapolations. No finite data changed."
 }

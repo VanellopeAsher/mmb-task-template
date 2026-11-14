@@ -2,7 +2,7 @@
   "upstream": "VanellopeAsher/mmb-task-template",
   "reference_commit": "5309a467793aad11505b7c3f2ff5e1b6fb360238",
   "scientific_source": "10.1038/s41467-026-73269-9",
-  "license": "source-workbook redistribution terms require confirmation",
+  "license": "Release blocker: redistribution of workbook-derived task data not confirmed. Article CC BY-NC-ND 4.0 does not establish a separate grant for extracted data.",
   "input_hashes": {
     "environment\\data\\answer_contract.json": "b21af13c6c0f6b31d2723e618bcf702a6adbbca3a4c90597dc0235235e97a337",
     "environment\\data\\observations.json": "20e8bf0c33979e63c7dd822dce20151334c1a4e4dd27479f5f6c7dcc8518cf66"
@@ -91,5 +91,12 @@
       }
     ],
     "note": "Original tool/skill paths, requirements, Dockerfile and third-task background-data fetch retained byte for byte. New task-specific held-out split retained."
+  },
+  "source_workbook": {
+    "filename": "41467_2026_73269_MOESM4_ESM.xlsx",
+    "sha256": "f6834ffed74b179813a459cc854e3450802a098ef665947bf71bd74a0b2a2355",
+    "publisher_article": "https://www.nature.com/articles/s41467-026-73269-9",
+    "archive": "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC13381688/supplementaryFiles",
+    "standalone_license_found": false
   }
 }

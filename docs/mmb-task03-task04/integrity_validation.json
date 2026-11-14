@@ -1,110 +1,40 @@
 {
-  "diagnosed_pr_head": "1b9a84d814e740f5cec9bd97a7965685f5008fbc",
-  "diagnosed_files": [
-    {
-      "path": "agent_release/task_example_03_experiment_design/environment/ACCESS_POLICY.md",
-      "local_crlf_lines": 26,
-      "remote_crlf_lines": 0,
-      "same_after_crlf_normalization": true
-    },
-    {
-      "path": "agent_release/task_example_03_experiment_design/environment/Dockerfile",
-      "local_crlf_lines": 11,
-      "remote_crlf_lines": 0,
-      "same_after_crlf_normalization": true
-    },
-    {
-      "path": "agent_release/task_example_03_experiment_design/environment/README.md",
-      "local_crlf_lines": 7,
-      "remote_crlf_lines": 0,
-      "same_after_crlf_normalization": true
-    },
-    {
-      "path": "agent_release/task_example_03_experiment_design/environment/data/answer_contract.json",
-      "local_crlf_lines": 40,
-      "remote_crlf_lines": 0,
-      "same_after_crlf_normalization": true
-    },
-    {
-      "path": "agent_release/task_example_03_experiment_design/problem.md",
-      "local_crlf_lines": 57,
-      "remote_crlf_lines": 0,
-      "same_after_crlf_normalization": true
-    },
-    {
-      "path": "agent_release/task_example_03_experiment_design/task.toml",
-      "local_crlf_lines": 32,
-      "remote_crlf_lines": 0,
-      "same_after_crlf_normalization": true
-    },
-    {
-      "path": "agent_release/task_example_03_experiment_design/environment/data/observations.json",
-      "local_crlf_lines": 27,
-      "remote_crlf_lines": 0,
-      "same_after_crlf_normalization": true
-    },
-    {
-      "path": "agent_release/task_example_04_inverse_design/environment/ACCESS_POLICY.md",
-      "local_crlf_lines": 26,
-      "remote_crlf_lines": 0,
-      "same_after_crlf_normalization": true
-    },
-    {
-      "path": "agent_release/task_example_04_inverse_design/environment/Dockerfile",
-      "local_crlf_lines": 11,
-      "remote_crlf_lines": 0,
-      "same_after_crlf_normalization": true
-    },
-    {
-      "path": "agent_release/task_example_04_inverse_design/environment/README.md",
-      "local_crlf_lines": 7,
-      "remote_crlf_lines": 0,
-      "same_after_crlf_normalization": true
-    },
-    {
-      "path": "agent_release/task_example_04_inverse_design/environment/data/answer_contract.json",
-      "local_crlf_lines": 34,
-      "remote_crlf_lines": 0,
-      "same_after_crlf_normalization": true
-    },
-    {
-      "path": "agent_release/task_example_04_inverse_design/problem.md",
-      "local_crlf_lines": 26,
-      "remote_crlf_lines": 0,
-      "same_after_crlf_normalization": true
-    },
-    {
-      "path": "agent_release/task_example_04_inverse_design/task.toml",
-      "local_crlf_lines": 32,
-      "remote_crlf_lines": 0,
-      "same_after_crlf_normalization": true
-    }
-  ],
-  "checks": [
+  "verified_ci_baseline": [
     {
       "task": "task_example_03_experiment_design",
-      "ordinary_integrity_tests": "12_passed",
-      "optimized_integrity_tests": "12_passed",
-      "actual_pr_text_snapshot_accepted_with_v2_manifest": true,
-      "real_edits_missing_extra_invalid_utf8_still_rejected": true,
-      "runtime_probe_logic": "mocked_network_only_passed",
-      "agent_files_byte_identical": true,
-      "workflow_yaml_and_bash_syntax": "passed",
-      "docker_harbor_live_runtime": "not_run"
+      "tested_commit": "dbec07e33b589b073bf7d013325463ce1655e704",
+      "run_id": 43439937111,
+      "url": "https://github.com/VanellopeAsher/mmb-task-template/actions/runs/43439937111",
+      "docker_build": "passed",
+      "harbor_lint": "passed",
+      "harbor_oracle": "passed",
+      "numeric_tests": "passed",
+      "file_release_integrity": "passed",
+      "numeric_reward": 0.08436284,
+      "review_status": "pending_expert_review"
     },
     {
       "task": "task_example_04_inverse_design",
-      "ordinary_integrity_tests": "12_passed",
-      "optimized_integrity_tests": "12_passed",
-      "actual_pr_text_snapshot_accepted_with_v2_manifest": true,
-      "real_edits_missing_extra_invalid_utf8_still_rejected": true,
-      "runtime_probe_logic": "mocked_network_only_passed",
-      "agent_files_byte_identical": true,
-      "workflow_yaml_and_bash_syntax": "passed",
-      "docker_harbor_live_runtime": "not_run"
+      "tested_commit": "dbec07e33b589b073bf7d013325463ce1655e704",
+      "run_id": 43439937124,
+      "url": "https://github.com/VanellopeAsher/mmb-task-template/actions/runs/43439937124",
+      "docker_build": "passed",
+      "harbor_lint": "passed",
+      "harbor_oracle": "passed",
+      "numeric_tests": "passed",
+      "file_release_integrity": "passed",
+      "numeric_reward": 0.25,
+      "review_status": "pending_expert_review"
     }
   ],
-  "remote_repository_modified": false,
-  "user_clone_modified": false,
-  "github_actions_full_pass": "pending_after_user_upload"
+  "unverified_final_deployment_and_evaluation": [
+    "final_agent_network_probe",
+    "actual_mounts_and_read_only_permissions",
+    "model_browser_search_and_connectors_disabled",
+    "frontier_agent_trials",
+    "independent_expert_review_and_inter_rater_agreement"
+  ],
+  "example_03_release_blocker": "Workbook-derived data redistribution not confirmed",
+  "example_04_release_json": "Only NaN placeholders at the failed reference-isotherm point were changed to null. Author and Agent-release copies match.",
+  "reward_scope": "Numeric component only; expert review remains pending."
 }

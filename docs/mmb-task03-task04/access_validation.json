@@ -1,77 +1,40 @@
 {
-  "file_level_checks": [
+  "verified_ci_baseline": [
     {
       "task": "task_example_03_experiment_design",
-      "allowed_data_files": [
-        "answer_contract.json",
-        "observations.json"
-      ],
-      "released_files": 17,
-      "tools_skills_unchanged": true,
-      "scientific_input_bytes_unchanged": true,
-      "original_bootstrap_archived": [
-        "data/fetch_data.sh -> authoring/provenance/upstream_bootstrap/fetch_data.sh"
-      ],
-      "network_config": "no-network",
-      "docker_build": "not_run",
-      "live_network_isolation": "not_run",
-      "external_platform_tools": "requires_platform_configuration",
-      "training_contamination": "not_excludable",
-      "exact_release_allowlist_check": "passed",
-      "reference_recomputation_same_results": true,
-      "independent_numeric_verifier": "passed_pending_expert_review",
-      "numeric_points_reference_artifact": 8.436284041221404,
-      "reference_artifact_kind": "visible_forecast",
-      "injected_answer_file_rejected": true,
-      "probe_logic_simulations": [
-        "blocked_clean_accept",
-        "successful_connection_reject",
-        "unexpected_file_reject",
-        "authoring_directory_reject"
-      ],
-      "probe_logic_simulations_are_live_isolation_tests": false
+      "tested_commit": "dbec07e33b589b073bf7d013325463ce1655e704",
+      "run_id": 43439937111,
+      "url": "https://github.com/VanellopeAsher/mmb-task-template/actions/runs/43439937111",
+      "docker_build": "passed",
+      "harbor_lint": "passed",
+      "harbor_oracle": "passed",
+      "numeric_tests": "passed",
+      "file_release_integrity": "passed",
+      "numeric_reward": 0.08436284,
+      "review_status": "pending_expert_review"
     },
     {
       "task": "task_example_04_inverse_design",
-      "allowed_data_files": [
-        "A_dilute.json",
-        "A_rich.json",
-        "B_dilute.json",
-        "B_rich.json",
-        "C_dilute.json",
-        "C_rich.json",
-        "D_dilute.json",
-        "D_rich.json",
-        "E_dilute.json",
-        "E_rich.json",
-        "answer_contract.json"
-      ],
-      "released_files": 23,
-      "tools_skills_unchanged": true,
-      "scientific_input_bytes_unchanged": true,
-      "original_bootstrap_archived": [],
-      "network_config": "no-network",
-      "docker_build": "not_run",
-      "live_network_isolation": "not_run",
-      "external_platform_tools": "requires_platform_configuration",
-      "training_contamination": "not_excludable",
-      "exact_release_allowlist_check": "passed",
-      "reference_recomputation_same_results": true,
-      "independent_numeric_verifier": "passed_pending_expert_review",
-      "numeric_points_reference_artifact": 25.0,
-      "reference_artifact_kind": "author_oracle_not_blind_prediction",
-      "injected_answer_file_rejected": true,
-      "probe_logic_simulations": [
-        "blocked_clean_accept",
-        "successful_connection_reject",
-        "unexpected_file_reject",
-        "authoring_directory_reject"
-      ],
-      "probe_logic_simulations_are_live_isolation_tests": false
+      "tested_commit": "dbec07e33b589b073bf7d013325463ce1655e704",
+      "run_id": 43439937124,
+      "url": "https://github.com/VanellopeAsher/mmb-task-template/actions/runs/43439937124",
+      "docker_build": "passed",
+      "harbor_lint": "passed",
+      "harbor_oracle": "passed",
+      "numeric_tests": "passed",
+      "file_release_integrity": "passed",
+      "numeric_reward": 0.25,
+      "review_status": "pending_expert_review"
     }
   ],
-  "runtime_isolation": "not_run",
-  "status": "file_checks_and_reference_recomputation_passed_runtime_pending",
-  "actual_runtime_probe": "not_run_no_docker_runtime_available_in_this_session",
-  "automatic_training_contamination_detection": false
+  "unverified_final_deployment_and_evaluation": [
+    "final_agent_network_probe",
+    "actual_mounts_and_read_only_permissions",
+    "model_browser_search_and_connectors_disabled",
+    "frontier_agent_trials",
+    "independent_expert_review_and_inter_rater_agreement"
+  ],
+  "example_03_release_blocker": "Workbook-derived data redistribution not confirmed",
+  "example_04_release_json": "Only NaN placeholders at the failed reference-isotherm point were changed to null. Author and Agent-release copies match.",
+  "reward_scope": "Numeric component only; expert review remains pending."
 }

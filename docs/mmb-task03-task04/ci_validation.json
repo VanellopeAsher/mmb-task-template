@@ -1,41 +1,40 @@
 {
-  "checks": [
+  "verified_ci_baseline": [
     {
       "task": "task_example_03_experiment_design",
-      "ordinary_python": "passed_10_test_methods",
-      "optimized_python": "passed_10_test_methods",
-      "docker_build": "not_run",
-      "live_container_network": "not_run",
-      "harbor_lint": "not_run",
-      "harbor_run": "not_run",
-      "github_actions": "not_run",
-      "compatibility_entry_and_numeric_status_check": "passed",
-      "reference_numeric_reward": 0.08436284,
-      "harbor_result_assertion_logic": "synthetic_pending_reward_accepted_fake_full_reward_rejected",
-      "workflow_yaml_and_bash_syntax": "passed",
-      "agent_release_unchanged_and_valid": "passed",
-      "original_staging_script_and_staged_python_entries": "passed"
+      "tested_commit": "dbec07e33b589b073bf7d013325463ce1655e704",
+      "run_id": 43439937111,
+      "url": "https://github.com/VanellopeAsher/mmb-task-template/actions/runs/43439937111",
+      "docker_build": "passed",
+      "harbor_lint": "passed",
+      "harbor_oracle": "passed",
+      "numeric_tests": "passed",
+      "file_release_integrity": "passed",
+      "numeric_reward": 0.08436284,
+      "review_status": "pending_expert_review"
     },
     {
       "task": "task_example_04_inverse_design",
-      "ordinary_python": "passed_10_test_methods_one_not_applicable_skip",
-      "optimized_python": "passed_10_test_methods_one_not_applicable_skip",
-      "docker_build": "not_run",
-      "live_container_network": "not_run",
-      "harbor_lint": "not_run",
-      "harbor_run": "not_run",
-      "github_actions": "not_run",
-      "compatibility_entry_and_numeric_status_check": "passed",
-      "reference_numeric_reward": 0.25,
-      "harbor_result_assertion_logic": "synthetic_pending_reward_accepted_fake_full_reward_rejected",
-      "workflow_yaml_and_bash_syntax": "passed",
-      "agent_release_unchanged_and_valid": "passed",
-      "original_staging_script_and_staged_python_entries": "passed"
+      "tested_commit": "dbec07e33b589b073bf7d013325463ce1655e704",
+      "run_id": 43439937124,
+      "url": "https://github.com/VanellopeAsher/mmb-task-template/actions/runs/43439937124",
+      "docker_build": "passed",
+      "harbor_lint": "passed",
+      "harbor_oracle": "passed",
+      "numeric_tests": "passed",
+      "file_release_integrity": "passed",
+      "numeric_reward": 0.25,
+      "review_status": "pending_expert_review"
     }
   ],
-  "expert_review": "not_performed",
-  "fake_expert_score_used_for_real_grading": false,
-  "remote_repository_modified": false,
-  "user_clone_modified": false,
-  "note": "Only local Python, YAML, Bash syntax, release and staging checks executed. Docker/Harbor/GitHub runtime results remain pending."
+  "unverified_final_deployment_and_evaluation": [
+    "final_agent_network_probe",
+    "actual_mounts_and_read_only_permissions",
+    "model_browser_search_and_connectors_disabled",
+    "frontier_agent_trials",
+    "independent_expert_review_and_inter_rater_agreement"
+  ],
+  "example_03_release_blocker": "Workbook-derived data redistribution not confirmed",
+  "example_04_release_json": "Only NaN placeholders at the failed reference-isotherm point were changed to null. Author and Agent-release copies match.",
+  "reward_scope": "Numeric component only; expert review remains pending."
 }

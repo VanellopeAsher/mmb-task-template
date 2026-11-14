@@ -13,3 +13,7 @@ solution/answer.json 使用可见数据外推；solution/reference_report.md 与
 ## 本轮离线分发边界（覆盖前版分发说明）
 盲测仅部署 agent_release/ 对应单题目录，不能给完整作者包。Agent 只获得公开数据、工具、skills和资料使用规则；来源映射、完整参考、初筛脚本、保留结果及独立核验程序留在作者端。构建镜像可以下载依赖，但不运行原始科研数据下载脚本。第三题原fetch_data.sh已移至authoring/provenance/upstream_bootstrap，仅供来源追溯，不向Agent提供；raw目录不再自动生成，inspect_transients.py原工具代码仍保留，但该背景扫描工具不再获得raw背景数据。解题所需的公开JSON未更改。
 规则限制外部查答案，不能消除预训练记忆；匿名化、保留划分及访问隔离只降低风险。发布manifest列出精确可见文件，部署前和运行前分别核对。网络隔离必须实测，不能从network_mode配置推定已生效。
+
+## Redistribution status
+
+The [publisher article](https://www.nature.com/articles/s41467-026-73269-9) lists Supplementary Information and the Source Data XLSX separately and states CC BY-NC-ND 4.0 for the article. The downloaded workbook matches the SHA256 in the provenance manifest. No separate redistribution license was found in the publisher listing or the workbook's metadata and shared strings. Availability for download does not establish permission to redistribute normalized extracts or held-out endpoints. This is a release blocker for the existing data-bearing package. Preserve the pinned files for verification, refrain from a new public release, and seek written permission from the rights holder covering the exact extracts and intended distribution. If permission is unavailable, review a publisher-download and local-extraction path with the maintainer before changing the package.

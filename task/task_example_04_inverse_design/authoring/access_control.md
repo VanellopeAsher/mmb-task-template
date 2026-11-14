@@ -15,7 +15,10 @@ Python探针用法：python runtime_probe.py --manifest release_manifest.json --
 探针只能在最终Agent容器中运行；不能在作者主机上跑一次就宣布隔离成功。还需检查外部工具与挂载，不能把探针通过当作完整安全证明。
 
 ## 不能保证的事项
-无法让模型忘掉训练知识；源数据曾公开也无法撤销。匿名化和隔离降低直接查答案风险，并不证明零污染。实际重复实验、专家评阅、模型难度、Docker/Harbor兼容与断网均未因本轮文档修改自动得到验证。科学可识别性和材料选择空间问题仍保留，不借访问限制掩盖。
+无法让模型忘掉训练知识；源数据曾公开也无法撤销。匿名化和隔离降低直接查答案风险，并不证明零污染。实际重复实验、专家评阅、模型难度、最终部署断网均未因本轮文档修改自动得到验证。科学可识别性和材料选择空间问题仍保留，不借访问限制掩盖。
 
 ## 跨平台指纹修复
 版本2指纹只将UTF-8文本CRLF规范为LF，再计算SHA256；实际文字、数字、空格、BOM、独立CR及末尾换行仍参与核验。文件增删和符号链接检查保留。运行探针需要runtime_probe.py与release_hash.py在同一作者临时目录，并传入新版release_manifest.json；不要向Agent发布这些作者侧文件。网络探针逻辑的本地模拟不能算真实断网验证。
+
+## CI evidence and deployment boundary
+[Run 43439937124](https://github.com/VanellopeAsher/mmb-task-template/actions/runs/43439937124) passed Docker builds, numeric and file-integrity tests, Harbor lint and the isolated Harbor Oracle. Numeric reward was 0.25; expert review remains pending. These CI author-side runs leave final Agent network isolation, actual mount and read-only permissions, model-side browser/search/connectors, frontier Agent performance and expert agreement untested.
