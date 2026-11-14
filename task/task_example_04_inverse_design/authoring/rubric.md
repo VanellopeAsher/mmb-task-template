@@ -1,19 +1,5 @@
-# 初筛试用评分（100分）
-|项目|满分依据|部分分依据|零分依据|
-|---|---|---|---|
-|解释与替代检验35|全程及阶段证据10，竞争过程贡献定量比较15，分段/方法敏感性和边界10|各子项实质正确但不完整给一半|该项未给证据或与衡算矛盾|
-|保留预测25|C/D/E各25/3分，按误差公式|连续计分|缺失、非有限或该项误差≥0.20|
-|多目标判断30|工况和边界8，逐项核查与排除10，预测后条件式决策8，说明决定约束4|各子项有依据但遗漏给一半|该项偷换工况或结论矛盾|
-|范围与失效10|可推翻推荐的观察4，物理解释边界3，模型/验证范围3|各子项仅泛述给一半|该项缺失或宣称未证明因果|
-预测单项得分(25/3)×max(0,1−绝对误差/0.20)。0.20是试用工程刻度，需基线/专家校准。若正确方法简单，按结果与证据照常评分。
+# Automatic evaluation
 
-## 作者试评
-甲准确算出所有公开KPI、猜中E，提交的保留预测也恰好准确，但只称“材料孔径好，所以选E”。解释最多5/35，预测25，正确约束核查且未陈述预测依赖最多22/30，范围0，总最多52。材料ID本身不给额外分。
-乙通过逐步甲烷/氮气累积贡献与不同产品切割窗口检验反转，用守恒一致的方法作预测，并给出各约束和E稀进料结果对资格的影响。只要证据充分，可获解释35、决策30、范围10，加实际预测分。无需采用作者的二段分解。此试评属于作者案例，尚未经过双人独立一致性试验。
+The problem statement defines the scored observables, conditional claims, tolerance and point allocations. The verifier uses private source-backed targets and assigns the complete reward without per-answer expert review. Experts may audit the evidence and the scoring design independently.
 
-## 提交时信息与事后核验
-公开等摩尔数据已经排除A至D，E仅是可能合格的候选。允许对E提出有根据的条件推荐或暂缓确认。专家评分不因提交时未断言E必然通过而扣分，也不把隐藏结果重建当成解题者已获得的信息。已知完整结果与预测必须明确标注。源数据回顾性选样不支持前瞻性泛化声明。
-
-
-## 资料使用合规单独记录
-本轮科学评分权重与数值公式不变。组织者核对是否接触禁止的外部/保留信息；确认违规的运行标为protocol_invalid，不把其科学分数纳入有效成绩。无法确认的异常标为待人工审查，不能仅凭预测准确或提及文献判违规。自动verify.py只核验原有输出和数字，不宣称已自动识别联网或训练污染。
+The private reference contains signed amounts and methane contributions by desorption step, full rich-feed KPIs from complete-cycle calculations, and measured full dilute-feed enrichment targets. Segment and counterfactual scores accept multiple cuts and both weight-only replacement orders. Public eligibility is provisional wherever full dilute trajectories are withheld.

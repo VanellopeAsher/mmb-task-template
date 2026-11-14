@@ -21,5 +21,6 @@
     "file_release_integrity": "passed",
     "numeric_reward": 0.08436284,
     "review_status": "pending_expert_review"
-  }
+  },
+  "evaluation_update": "Automatic scientific section scores replace per-answer expert review. Prior verified_ci_baseline describes the earlier numeric-only scoring."
 }

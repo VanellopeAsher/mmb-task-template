@@ -1,77 +1,97 @@
-"""Independent numeric verification with an explicit pending expert-review state."""
 import argparse
-import hashlib
 import json
 import math
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-parser = argparse.ArgumentParser()
-parser.add_argument("--answer",type=Path,default=Path("/workspace/results/answer.json"))
-parser.add_argument("--reward",type=Path,default=Path("/logs/verifier/reward.txt"))
-parser.add_argument("--review-file",type=Path,default=HERE/"manual_review.json")
-args = parser.parse_args()
-spec = json.loads((HERE/"targets.json").read_text(encoding="utf-8"))
-result = {"status":"invalid","numeric_points":0.0,"expert_points":None,"total_points":None}
-reward = 0.0
-valid = False
-try:
-    raw = args.answer.read_bytes()
-    payload = json.loads(raw)
-    if not isinstance(payload,dict) or set(payload)!={spec["field"],"scientific_report","selected_experiment"}:
-        raise ValueError("Wrong top-level fields")
+SPEC = json.loads((HERE / "targets.json").read_text(encoding="utf-8"))
+REF = json.loads((HERE / "evaluation_reference.json").read_text(encoding="utf-8"))
+
+
+def fields(value, keys):
+    if not isinstance(value, dict) or set(value) != set(keys):
+        raise ValueError("Unexpected fields")
+    return value
+
+
+def number(value):
+    if type(value) not in (float, int) or not math.isfinite(value):
+        raise ValueError("Expected finite number")
+    return value
+
+
+def close(actual, expected):
+    number(actual)
+    return math.isclose(actual, expected, abs_tol=1e-6, rel_tol=1e-5)
+
+
+def numeric_group(actual, expected):
+    fields(actual, expected)
+    return sum(close(actual[k], v) for k, v in expected.items()) / len(expected)
+
+
+def same_codes(actual, expected):
+    return (isinstance(actual, list) and all(isinstance(x, str) for x in actual)
+            and len(actual) == len(expected) and set(actual) == set(expected))
+
+
+def prediction_score(payload):
+    values = fields(payload[SPEC["field"]], SPEC["targets"])
+    errors = [abs(number(values[k]) - t) for k, t in SPEC["targets"].items()]
+    return SPEC["numeric_max"] * sum(
+        max(0, 1 - (0 if e <= 1e-9 else e) / SPEC["error_scale"]) for e in errors
+    ) / len(errors)
+
+
+LIMITS = {"cross_specimen_attribution": False, "permanent_loss_established": False}
+
+
+def score(payload):
+    fields(payload, {"selected_experiment", "predicted_recovery", "evidence", "capabilities",
+                     "priority", "updates", "limitations"})
     choice = payload["selected_experiment"]
-    if not isinstance(choice, str) or choice not in ("A", "B", "C", "D"):
-        raise ValueError("Select exactly one experiment: A, B, C, or D")
-    result["selected_experiment"] = choice
-    report = payload["scientific_report"]
-    if not isinstance(report,str) or not report.strip():
-        raise ValueError("A nonempty scientific_report is required")
-    values = payload[spec["field"]]
-    if not isinstance(values,dict) or set(values)!=set(spec["targets"]):
-        raise ValueError("Wrong numeric keys")
-    points = 0.0
-    errors = {}
-    for key,target in spec["targets"].items():
-        value = values[key]
-        if type(value) not in (int,float) or not math.isfinite(value):
-            raise ValueError("Predictions must be finite numbers, excluding booleans")
-        error = abs(value-target)
-        errors[key] = error
-        effective_error = 0.0 if error<=1e-9 else error
-        points += spec["numeric_max"]/len(values)*max(0.0,1-effective_error/spec["error_scale"])
-    digest = hashlib.sha256(raw).hexdigest()
-    result.update(status="pending_expert_review",numeric_points=points,absolute_errors=errors,answer_sha256=digest)
-    reward = points/100
-    if args.review_file.exists():
-        review = json.loads(args.review_file.read_text(encoding="utf-8"))
-        if review.get("answer_sha256")!=digest:
-            raise ValueError("Expert review belongs to a different artifact")
-        if not isinstance(review.get("reviewer"),str) or not review["reviewer"].strip():
-            raise ValueError("Expert reviewer identity is required")
-        if not isinstance(review.get("rationale"),str) or not review["rationale"].strip():
-            raise ValueError("Evidence-based review rationale is required")
-        scores = review["scores"]
-        if not isinstance(scores,dict) or set(scores)!=set(spec["expert_components"]):
-            raise ValueError("Wrong expert score fields")
-        for key,maximum in spec["expert_components"].items():
-            score = scores[key]
-            if type(score) not in (int,float) or not math.isfinite(score) or not 0<=score<=maximum:
-                raise ValueError("Expert component outside its range")
-        expert_points = sum(scores.values())
-        result.update(status="reviewed",expert_points=expert_points,total_points=points+expert_points)
-        reward = (points+expert_points)/100
-    valid = True
-except (OSError,ValueError,TypeError,KeyError) as error:
-    reward = 0.0
-    result.update(status="invalid",error=str(error))
-args.reward.parent.mkdir(parents=True,exist_ok=True)
-# Harbor reserves reward.json for a flat numeric reward mapping.
-# Keep review status, hashes and nested error details in a separate artifact.
-numeric_reward = round(reward, 9)
-args.reward.write_text(f"{numeric_reward:.9f}\n",encoding="utf-8")
-args.reward.with_suffix(".json").write_text(
-    json.dumps({"reward":numeric_reward},allow_nan=False)+"\n",encoding="utf-8")
-args.reward.with_name(args.reward.stem+"_details.json").write_text(
-    json.dumps(result,ensure_ascii=False,indent=2,allow_nan=False)+"\n",encoding="utf-8")
-raise SystemExit(0 if valid else 1)
+    abilities = REF["abilities"]
+    if not isinstance(choice, str) or choice not in abilities:
+        raise ValueError("Choose one experiment")
+    observed = numeric_group(payload["evidence"], REF["evidence"])
+    limits = fields(payload["limitations"], LIMITS)
+    correct_limits = sum(limits[k] is v for k, v in LIMITS.items())
+    capabilities = fields(payload["capabilities"], abilities)
+    matched = {k: same_codes(capabilities[k], v) for k, v in abilities.items()}
+    priority = payload["priority"]
+    if not isinstance(priority, str) or priority not in REF["branches"]:
+        raise ValueError("Unknown scientific objective")
+    adequate = priority in abilities[choice]
+    updates = fields(payload["updates"], {"resolved_positive", "no_resolved_effect"})
+    expected = REF["branches"][priority]
+    return {
+        "evidence": 20 * observed + 2.5 * correct_limits,
+        "experiment": 5 * sum(matched.values()) + 20 * adequate,
+        "update": 10 * adequate * sum(updates[k] == v for k, v in zip(
+            ("resolved_positive", "no_resolved_effect"), expected)),
+        "prediction": prediction_score(payload),
+    }
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--answer", type=Path, default=Path("/workspace/results/answer.json"))
+    parser.add_argument("--reward", type=Path, default=Path("/logs/verifier/reward.txt"))
+    args = parser.parse_args()
+    try:
+        sections = score(json.loads(args.answer.read_bytes()))
+        result = {"status": "automatically_scored", "sections": sections, "total_points": sum(sections.values())}
+        reward = round(result["total_points"] / 100, 9)
+    except (OSError, ValueError, TypeError, KeyError, OverflowError, RecursionError) as error:
+        result = {"status": "invalid", "error": str(error), "total_points": 0}
+        reward = 0.0
+    args.reward.parent.mkdir(parents=True, exist_ok=True)
+    args.reward.write_text(f"{reward:.9f}\n", encoding="utf-8")
+    args.reward.with_suffix(".json").write_text(json.dumps({"reward": reward}) + "\n", encoding="utf-8")
+    args.reward.with_name(args.reward.stem + "_details.json").write_text(
+        json.dumps(result, allow_nan=False) + "\n", encoding="utf-8")
+    return int(result["status"] == "invalid")
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

@@ -6,10 +6,5 @@
     "E": 1.8737172152222108
   },
   "numeric_max": 25,
-  "error_scale": 0.2,
-  "expert_components": {
-    "explanation": 35,
-    "process_decision": 30,
-    "limitations": 10
-  }
+  "error_scale": 0.2
 }

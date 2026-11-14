@@ -23,32 +23,28 @@
 
 你可以补充所选方案内部的重复安排、检测能力、统计比较及质量控制，但不得把多个选项合并为一次选择，也不要求另创第五种方案。领域专家尚未确认最佳重复数、XPS 制样有效性或温度方案的化学稳定性；请说明这些条件会怎样影响你的选择。
 
-## 需要提交什么
+## 提交与评分
 
-提交一份研究记录，完成以下内容：
+提交 `/workspace/results/answer.json`，字段以 `answer_contract.json` 为准。
 
-1. 依据具体数据，说明已观察到的恢复、尚未确定的剩余损失，以及至少两种仍可信、可以并存的解释。区分器件与薄膜、暗态反偏与联合应力。
-2. 从 A—D 中选一个，说明它优先检验哪个明确判断、为什么值得优先做，并与至少两个未选方案比较。无需假定存在所有情境下唯一最优的选项。
-3. 对所选方案给出至少两种可区别的可能结果，分别说明哪些判断得到支持或削弱、哪些解释仍不能排除。说明结果受噪声、检测限或观察窗口限制时，怎样保留判断。
-4. 仅用截至 18 h 的可见记录，预测 a、c 在 24 h 恢复的初始功率损失份额，说明依据与不确定性。恢复份额定义为 `(P_24h − P_0h)/(P_origin − P_0h)`。不能将 24 h 未恢复的缺口直接当成永久不可逆损失。
+- `evidence` 报告 a、c 各自的 18 h 恢复份额（`a_recovery_18h`、`c_recovery_18h`）和相对原始功率的差值（`a_deficit_18h`、`c_deficit_18h`，mW/cm²），以及两种薄膜的相对碘损失 `1 − I/Pb_after ÷ I/Pb_before`（`control_relative_iodine_loss`、`chelated_relative_iodine_loss`）。六项等权，共 20 分。用布尔值报告 `limitations.cross_specimen_attribution` 和 `limitations.permanent_loss_established`，表示证据是否足以跨试样归因和确立永久损失，各 2.5 分。
+- `capabilities` 以 A–D 为键，逐项列出方案可直接检验的科学问题集合。四项各 5 分。问题标识为 `late_recovery`（延长观察后有无额外功率恢复）、`device_iodine_association`（匹配器件上碘组成与功率缺口是否关联）、`temperature_sensitivity`（受控温度变化是否改变恢复）、`film_stressor_contrast`（薄膜上不同应力是否导致组成差异）。在 `priority` 指定一个问题，在 `selected_experiment` 选 A–D 之一。所选实验能检验该问题得 20 分。
+- `updates` 报告所选问题的两种条件结论。对于 `resolved_positive`，假设对应正向响应已超出匹配对照和检测误差，且 B 中指残余缺口随碘耗减出现的关联。对于 `no_resolved_effect`，假设未检出相应响应。每项 10 分，并以方案能检验该问题为前提。结论使用下表标识。表中顺序不表示配对，未执行的实验没有实测结果。
 
-## 标准提交格式与评分
+| 可选结论标识 | 含义 |
+|---|---|
+| `additional_power_is_recoverable` | 观察到额外可恢复的功率 |
+| `remaining_deficit_not_proven_permanent` | 剩余缺口尚不能证明永久损失 |
+| `iodine_depletion_associated_not_causal` | 发现碘耗减关联，因果仍未确立 |
+| `iodine_change_below_detection_or_absent` | 碘变化可能低于检测限或不存在 |
+| `recovery_sensitive_to_temperature_not_unique_mechanism` | 恢复对温度敏感，微观机制仍不唯一 |
+| `no_resolved_temperature_effect_in_tested_window` | 给定窗口内未检出温度效应 |
+| `film_stressor_effect_not_device_attribution` | 观察到薄膜应力效应，器件归因仍待检验 |
+| `no_resolved_film_contrast_in_tested_protocol` | 给定协议下未检出薄膜组成差异 |
 
-提交 `/workspace/results/answer.json`，顶层只能包含以下三个字段：
+- `predicted_recovery` 只用截至 18 h 的数据预测 a、c 的 24 h 恢复份额，定义为 `(P_24h − P_0h)/(P_origin − P_0h)`。各 7.5 分，乘以 `max(0, 1 − 绝对误差/0.25)`。误差 ≤1e−9 按零计。
 
-```json
-{
-  "selected_experiment": "B",
-  "predicted_recovery": {"a": 0.0, "c": 0.0},
-  "scientific_report": "在这里写完整的证据判断、选择依据、未选方案比较、结果分支和预测说明。"
-}
-```
-
-以上仅示范格式，字母和数值均不是标准答案。`selected_experiment` 必须为 A、B、C、D 之一；预测为有限 JSON 数值，单位无量纲；报告为非空 UTF-8 字符串。详细类型见 `/workspace/data/answer_contract.json`。只填字母、不提供论证，不能获得实验选择与判断更新分。
-
-评分为：已有证据判断 25 分；候选方案比较与所选实验的区分能力 40 分；结果出现后如何更新判断 20 分；24 h 数值预测 15 分。每个预测占 7.5 分，得分为 `7.5 × max(0, 1 − 绝对误差/0.25)`；误差不超过 1e−9 视为计算精度内相同。0.25 是初筛试用刻度，不是经过实验噪声校准的测量容差。
-
-不同选项可以凭充分证据获得高分，不按选中字母固定给科学判断分。实际没有执行的追加实验不设置唯一结果真值。科学判断由专家评阅；自动程序只核验格式、合法选项和数值部分。未完成专家评阅时，不提供完整总分或完整通过结论。
+证据数值以绝对 1e−6 或相对 1e−5 取较宽容差。所有分项自动核验。方案优先级按所申报、可检验的问题评价。
 
 ## 资料使用与搜索限制
 

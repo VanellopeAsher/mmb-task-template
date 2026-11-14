@@ -4,9 +4,16 @@
   "required": [
     "selected_experiment",
     "predicted_recovery",
-    "scientific_report"
+    "evidence",
+    "capabilities",
+    "priority",
+    "updates",
+    "limitations"
   ],
   "properties": {
+    "selected_experiment": {
+      "type": "string"
+    },
     "predicted_recovery": {
       "type": "object",
       "additionalProperties": false,
@@ -23,18 +30,108 @@
         }
       }
     },
-    "scientific_report": {
-      "type": "string",
-      "minLength": 1
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "a_recovery_18h",
+        "a_deficit_18h",
+        "c_recovery_18h",
+        "c_deficit_18h",
+        "control_relative_iodine_loss",
+        "chelated_relative_iodine_loss"
+      ],
+      "properties": {
+        "a_recovery_18h": {
+          "type": "number"
+        },
+        "a_deficit_18h": {
+          "type": "number"
+        },
+        "c_recovery_18h": {
+          "type": "number"
+        },
+        "c_deficit_18h": {
+          "type": "number"
+        },
+        "control_relative_iodine_loss": {
+          "type": "number"
+        },
+        "chelated_relative_iodine_loss": {
+          "type": "number"
+        }
+      }
     },
-    "selected_experiment": {
-      "type": "string",
-      "enum": [
+    "capabilities": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
         "A",
         "B",
         "C",
         "D"
-      ]
+      ],
+      "properties": {
+        "A": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "B": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "C": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "D": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "priority": {
+      "type": "string"
+    },
+    "updates": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "resolved_positive",
+        "no_resolved_effect"
+      ],
+      "properties": {
+        "resolved_positive": {
+          "type": "string"
+        },
+        "no_resolved_effect": {
+          "type": "string"
+        }
+      }
+    },
+    "limitations": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "cross_specimen_attribution",
+        "permanent_loss_established"
+      ],
+      "properties": {
+        "cross_specimen_attribution": {
+          "type": "boolean"
+        },
+        "permanent_loss_established": {
+          "type": "boolean"
+        }
+      }
     }
   }
 }

@@ -4,7 +4,7 @@
   "scientific_source": "10.1038/s41467-026-73269-9",
   "license": "Release blocker: redistribution of workbook-derived task data not confirmed. Article CC BY-NC-ND 4.0 does not establish a separate grant for extracted data.",
   "input_hashes": {
-    "environment\\data\\answer_contract.json": "b21af13c6c0f6b31d2723e618bcf702a6adbbca3a4c90597dc0235235e97a337",
+    "environment\\data\\answer_contract.json": "1efb7964e38d69ce24cd995e663f30faf91cdcf8d689b442a495d4d2bfb180cd",
     "environment\\data\\observations.json": "20e8bf0c33979e63c7dd822dce20151334c1a4e4dd27479f5f6c7dcc8518cf66"
   },
   "scope": "v3 scientific content retained. No independent expert/Agent trial.",

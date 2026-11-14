@@ -1,30 +1,8 @@
-{
-  "version": 1,
-  "status": "initial_screening",
-  "artifact": "/workspace/results/answer.json",
-  "numeric": {
-    "max_points": 25,
-    "field": "predicted_enrichment",
-    "error_scale": 0.2,
-    "units": "dimensionless"
-  },
-  "expert_components": {
-    "explanation": 35,
-    "process_decision": 30,
-    "limitations": 10
-  },
-  "expert_detail": "rubric.md",
-  "pending_review": {
-    "reward": "numeric_points/100",
-    "full_score_available": false
-  },
-  "review_record": {
-    "trusted_location": "tests/manual_review.json",
-    "required": [
-      "answer_sha256",
-      "reviewer",
-      "rationale",
-      "scores"
-    ]
-  }
-}
+weights:
+  explanation: 35
+  process_decision: 30
+  limitations: 10
+  prediction: 25
+scoring: fully_automatic
+scientific_reference: tests/evaluation_reference.json
+held_out_targets: tests/targets.json

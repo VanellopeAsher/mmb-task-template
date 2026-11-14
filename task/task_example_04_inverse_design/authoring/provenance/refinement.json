@@ -23,5 +23,6 @@
     "numeric_reward": 0.25,
     "review_status": "pending_expert_review"
   },
-  "json_repair": "109 nulls per A trace at the un-converged methane reference-isotherm point [0][20]: loading, enthalpy, fugacity and pressure/fugacity in each of 53 extrapolations. No finite data changed."
+  "json_repair": "109 nulls per A trace at the un-converged methane reference-isotherm point [0][20]: loading, enthalpy, fugacity and pressure/fugacity in each of 53 extrapolations. No finite data changed.",
+  "evaluation_update": "Automatic scientific section scores replace per-answer expert review. Prior verified_ci_baseline describes the earlier numeric-only scoring."
 }

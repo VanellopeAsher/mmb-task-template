@@ -1,4 +1,5 @@
-"""Validate CI plumbing without pretending that an expert awarded full credit."""
+"""Validate CI artifacts against the automatic score."""
+from verify import score
 import argparse
 import json
 import math
@@ -13,12 +14,7 @@ parser.add_argument('--harbor-job',type=Path)
 args=parser.parse_args()
 spec=json.loads((HERE/'targets.json').read_text(encoding='utf-8'))
 answer=json.loads(args.answer.read_text(encoding='utf-8'))
-expected=0.0
-for key,target in spec['targets'].items():
-    error=abs(answer[spec['field']][key]-target)
-    if error<=1e-9:
-        error=0.0
-    expected += spec['numeric_max']/len(spec['targets'])*max(0,1-error/spec['error_scale'])
+expected = sum(score(answer).values())
 def require(value,message):
     if not value:
         raise RuntimeError(message)
@@ -35,9 +31,8 @@ else:
     require(args.reward is not None and args.status is not None,'Both --reward and --status are required')
     reward=float(args.reward.read_text(encoding='utf-8'))
     state=json.loads(args.status.read_text(encoding='utf-8'))
-require(state.get('status')=='pending_expert_review',f'Unexpected status: {state}')
-require(state.get('expert_points') is None and state.get('total_points') is None,'Unreviewed run must not claim an expert total')
-require(abs(state['numeric_points']-expected)<1e-8,'Numeric points do not match independent formula')
-require(type(reward) in (float,int) and math.isfinite(reward),'Missing or nonfinite reward')
-require(abs(reward-expected/100)<1e-8,f'Expected numeric-only reward {expected/100}, got {reward}')
-print(json.dumps({'numeric_reward':reward,'expected_numeric_reward':expected/100,'expert_review':'pending','scientific_full_pass':False}))
+require(state.get('status') == 'automatically_scored', 'Expected automatic scoring')
+require(abs(state['total_points'] - expected) < 1e-8, 'Section totals disagree')
+require(type(reward) in (int, float) and math.isfinite(reward), 'Invalid reward')
+require(abs(reward - expected / 100) < 1e-8, 'Unexpected Oracle reward')
+print(json.dumps({'automatic_reward': reward, 'expected': expected / 100}))
