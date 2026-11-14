@@ -6,5 +6,6 @@ RUN pip install --no-cache-dir -r /workspace/requirements.txt
 COPY data/ /workspace/data/
 COPY tools/ /workspace/tools/
 COPY skills/ /workspace/skills/
-RUN if [ -f /workspace/data/fetch_data.sh ]; then bash /workspace/data/fetch_data.sh; fi
+# Source-data bootstrap intentionally disabled: only released visible data may enter the image.
+COPY ACCESS_POLICY.md /workspace/ACCESS_POLICY.md
 CMD ["bash"]

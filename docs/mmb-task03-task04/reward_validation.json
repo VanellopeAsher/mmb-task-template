@@ -1,0 +1,40 @@
+{
+  "verified_ci_baseline": [
+    {
+      "task": "task_example_03_experiment_design",
+      "tested_commit": "dbec07e33b589b073bf7d013325463ce1655e704",
+      "run_id": 43439937111,
+      "url": "https://github.com/VanellopeAsher/mmb-task-template/actions/runs/43439937111",
+      "docker_build": "passed",
+      "harbor_lint": "passed",
+      "harbor_oracle": "passed",
+      "numeric_tests": "passed",
+      "file_release_integrity": "passed",
+      "numeric_reward": 0.08436284,
+      "review_status": "pending_expert_review"
+    },
+    {
+      "task": "task_example_04_inverse_design",
+      "tested_commit": "dbec07e33b589b073bf7d013325463ce1655e704",
+      "run_id": 43439937124,
+      "url": "https://github.com/VanellopeAsher/mmb-task-template/actions/runs/43439937124",
+      "docker_build": "passed",
+      "harbor_lint": "passed",
+      "harbor_oracle": "passed",
+      "numeric_tests": "passed",
+      "file_release_integrity": "passed",
+      "numeric_reward": 0.25,
+      "review_status": "pending_expert_review"
+    }
+  ],
+  "unverified_final_deployment_and_evaluation": [
+    "final_agent_network_probe",
+    "actual_mounts_and_read_only_permissions",
+    "model_browser_search_and_connectors_disabled",
+    "frontier_agent_trials",
+    "independent_expert_review_and_inter_rater_agreement"
+  ],
+  "example_03_release_blocker": "Workbook-derived data redistribution not confirmed",
+  "example_04_release_json": "Only NaN placeholders at the failed reference-isotherm point were changed to null. Author and Agent-release copies match.",
+  "reward_scope": "Numeric component only; expert review remains pending."
+}

@@ -1,20 +1,46 @@
 {
-  "experiments": [
+  "predicted_recovery": {
+    "a": 0.9170519105064685,
+    "c": 0.6312799624790542
+  },
+  "evidence": {
+    "a_recovery_18h": 0.8778437054851377,
+    "a_deficit_18h": 1.8624081579999974,
+    "c_recovery_18h": 0.5513855851022018,
+    "c_deficit_18h": 7.77136492,
+    "control_relative_iodine_loss": 0.2313167259786476,
+    "chelated_relative_iodine_loss": 0.053003533568904526
+  },
+  "updates": {
+    "resolved_gain_supports_late_recovery": true,
+    "matched_xps_difference_proves_causation": false,
+    "null_xps_excludes_iodine_change": false,
+    "no_late_gain_proves_permanence": false
+  },
+  "limitations": {
+    "cross_specimen_attribution": false,
+    "permanent_loss_established": false
+  },
+  "design": [
     {
-      "assay": "recovery",
-      "bias_V": -0.9,
-      "dark_hours": 24,
-      "predicted_fraction": 0.9684862469507719
+      "count": 5,
+      "bias_v": -2.7,
+      "power_times": [
+        "baseline",
+        24,
+        48
+      ],
+      "xps_hour": 48
     },
     {
-      "assay": "xps",
-      "arm": "control",
-      "predicted_fraction": 0.2313167259786476
-    },
-    {
-      "assay": "xps",
-      "arm": "chelated",
-      "predicted_fraction": 0.053003533568904526
+      "count": 5,
+      "bias_v": 0,
+      "power_times": [
+        "baseline",
+        24,
+        48
+      ],
+      "xps_hour": 48
     }
   ]
 }

@@ -1,0 +1,80 @@
+{
+  "upstream": "VanellopeAsher/mmb-task-template",
+  "reference_commit": "5309a467793aad11505b7c3f2ff5e1b6fb360238",
+  "scientific_source": "10.1039/D6ME00066E; 10.5281/zenodo.21132903",
+  "license": "CC-BY-4.0",
+  "input_hashes": {
+    "environment\\data\\answer_contract.json": "1702b768571769f1ff55258a8dbb10eb9b5ca106a9710ab30db478f4b275183d",
+    "environment\\data\\A_dilute.json": "a6739f238d7ab4e88ad821af8a51f0cb7d014e8a74e128d1c54390a033e4b104",
+    "environment\\data\\A_rich.json": "0f18516154d42e0c003f910d5f5413116f081c5b31c798af8b7c8e86bc9ddee7",
+    "environment\\data\\B_dilute.json": "f7dfe4448f37245b25fe1867aa0def51ea7fd6e1bb0372428b211e92b6466a59",
+    "environment\\data\\B_rich.json": "0137c4420762609e52fca6a5b9c753f4149cb54133359233045e4bee0bb1252c",
+    "environment\\data\\C_dilute.json": "039c10410b4861e9f4edc7eb8e8809e12e124855d213fdd337fa5a049b9f1972",
+    "environment\\data\\C_rich.json": "80b94ed21055e7d777b812470e7f92c0cea16d11d6cfcd95547270c114b18868",
+    "environment\\data\\D_dilute.json": "364e937116c97be3f360c17e0d02d30f37fd005712c1906048265e4d312efd06",
+    "environment\\data\\D_rich.json": "1adf7d6c9b5c04ed265534b15a661e8ff4a0a12f3f4b9e5244a8e1c90040ec8a",
+    "environment\\data\\E_dilute.json": "834092116943966deee8f65b486c278b14e2fcd8151d6cd4c28fdb2257b3ab4e",
+    "environment\\data\\E_rich.json": "3e838c32ada2c82bee1169b53ee5dc504df545d990071aec5647a5e2d3c335af"
+  },
+  "scope": "v3 scientific content retained. No independent expert/Agent trial.",
+  "environment_preservation": {
+    "reference_commit": "5309a467793aad11505b7c3f2ff5e1b6fb360238",
+    "files": [
+      {
+        "task": "task_example_04_inverse_design",
+        "path": "environment/Dockerfile",
+        "sha256": "ee951328a1ded1588cee57a07a53ea6d7a42213e037c9037c97b6137c810a014",
+        "upstream_identical": true
+      },
+      {
+        "task": "task_example_04_inverse_design",
+        "path": "environment/README.md",
+        "sha256": "cd7639d713593a6ae529ebbd9913f19f911fca6a12bcff00c6fac31bed61715f",
+        "upstream_identical": true
+      },
+      {
+        "task": "task_example_04_inverse_design",
+        "path": "environment/requirements.txt",
+        "sha256": "daeb0d4578a1911254d9f9fa33b11518abe8b3cb384db88853e25dff397e70d1",
+        "upstream_identical": true
+      },
+      {
+        "task": "task_example_04_inverse_design",
+        "path": "environment/skills/README.md",
+        "sha256": "50c133cbefeb08c8504d2544463a21e3abb8ac36ed3e89987d0441ff113d64fd",
+        "upstream_identical": true
+      },
+      {
+        "task": "task_example_04_inverse_design",
+        "path": "environment/tools/README.md",
+        "sha256": "e75e80a5daa0fe9aa7372b77dc425e9b11626fb25735758766520bfdbdd696b5",
+        "upstream_identical": true
+      },
+      {
+        "task": "task_example_04_inverse_design",
+        "path": "environment/tools/gemmi.md",
+        "sha256": "135e4c6f7193f57420ef4cd3a81c7520f373fe67fe657ad08417f60f381c4770",
+        "upstream_identical": true
+      },
+      {
+        "task": "task_example_04_inverse_design",
+        "path": "environment/tools/pygaps.md",
+        "sha256": "3a753e03475d3981d50a7f8e4b73363492ec82532a00745ad5ce9b4f1656a4fd",
+        "upstream_identical": true
+      },
+      {
+        "task": "task_example_04_inverse_design",
+        "path": "environment/tools/pyiast.md",
+        "sha256": "fe783d618108becda8f9fd93e14e561fe6d3bb0f8142363083fd340222b6e2a2",
+        "upstream_identical": true
+      },
+      {
+        "task": "task_example_04_inverse_design",
+        "path": "environment/tools/raspa3.md",
+        "sha256": "a773b46a583bb14d7a36d2a794b27154f3abdb67665284a6e69830a1fc2fb275",
+        "upstream_identical": true
+      }
+    ],
+    "note": "Original tool/skill paths, requirements, Dockerfile and third-task background-data fetch retained byte for byte. New task-specific held-out split retained."
+  }
+}

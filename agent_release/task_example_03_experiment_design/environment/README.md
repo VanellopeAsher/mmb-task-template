@@ -1,0 +1,7 @@
+# 解题环境与离线资料范围
+
+Dockerfile只复制environment内的公开数据、原有tools/skills和ACCESS_POLICY.md。构建可安装依赖；本轮不下载源科研档案，不自动构建data/raw。第三题原下载脚本仅保存在作者provenance中。
+
+Agent运行必须no-network，且平台不得另行赋予浏览器、搜索、外部API或访问作者文件的工具。原有工具/skills和依赖列表保持不变；外部软件说明不表示软件已经安装，仍以本地可用性为准。inspect_transients.py扫描raw的原逻辑保留，但本轮不提供该可选背景目录。
+
+盲测只使用agent_release单题目录，禁止挂载作者完整包。数据、工具与规则只读；results独立可写。authoring/access_control.md说明部署边界和仍待执行的验证。

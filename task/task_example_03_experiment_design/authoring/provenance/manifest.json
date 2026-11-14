@@ -1,0 +1,102 @@
+{
+  "upstream": "VanellopeAsher/mmb-task-template",
+  "reference_commit": "5309a467793aad11505b7c3f2ff5e1b6fb360238",
+  "scientific_source": "10.1038/s41467-026-73269-9",
+  "license": "Release blocker: redistribution of workbook-derived task data not confirmed. Article CC BY-NC-ND 4.0 does not establish a separate grant for extracted data.",
+  "input_hashes": {
+    "environment\\data\\answer_contract.json": "bef6c3de99115e246adbd6a38f2e2027a7bfadd4c8cf6491eab792ce08294c5f",
+    "environment\\data\\observations.json": "20e8bf0c33979e63c7dd822dce20151334c1a4e4dd27479f5f6c7dcc8518cf66"
+  },
+  "scope": "v3 scientific content retained. No independent expert/Agent trial.",
+  "environment_preservation": {
+    "reference_commit": "5309a467793aad11505b7c3f2ff5e1b6fb360238",
+    "files": [
+      {
+        "task": "task_example_03_experiment_design",
+        "path": "environment/Dockerfile",
+        "sha256": "ee951328a1ded1588cee57a07a53ea6d7a42213e037c9037c97b6137c810a014",
+        "upstream_identical": true
+      },
+      {
+        "task": "task_example_03_experiment_design",
+        "path": "environment/README.md",
+        "sha256": "cd7639d713593a6ae529ebbd9913f19f911fca6a12bcff00c6fac31bed61715f",
+        "upstream_identical": true
+      },
+      {
+        "task": "task_example_03_experiment_design",
+        "path": "environment/data/fetch_data.sh",
+        "sha256": "f9afa94acae26e2f9d56fc4faf19d548692a4c9e693e2adbf71b72dbebd155d6",
+        "upstream_identical": true
+      },
+      {
+        "task": "task_example_03_experiment_design",
+        "path": "environment/requirements.txt",
+        "sha256": "b94103d4ddeb60edb7eaffbb2baa874f020b3fc7831aa5b488f27522649150b7",
+        "upstream_identical": true
+      },
+      {
+        "task": "task_example_03_experiment_design",
+        "path": "environment/skills/README.md",
+        "sha256": "50c133cbefeb08c8504d2544463a21e3abb8ac36ed3e89987d0441ff113d64fd",
+        "upstream_identical": true
+      },
+      {
+        "task": "task_example_03_experiment_design",
+        "path": "environment/tools/README.md",
+        "sha256": "1202d907c66894412a60e4caa53033fae3b6f024b7e5d85d241cb9d1452d98ca",
+        "upstream_identical": true
+      },
+      {
+        "task": "task_example_03_experiment_design",
+        "path": "environment/tools/impedance.md",
+        "sha256": "8ea9f5a73273e41f27a76b9f2f0d177ce890ba61a991e9ee7bd86fc1b88058f3",
+        "upstream_identical": true
+      },
+      {
+        "task": "task_example_03_experiment_design",
+        "path": "environment/tools/inspect_transients.py",
+        "sha256": "6256b5574c83bacc5a68e5fbc8b04a7adc9705acdcb58551b754685d954c93cc",
+        "upstream_identical": true
+      },
+      {
+        "task": "task_example_03_experiment_design",
+        "path": "environment/tools/ionmonger.md",
+        "sha256": "b50c1e068debb80144580782061556fc9457ceb7a26f905f8fddd70de44f996b",
+        "upstream_identical": true
+      },
+      {
+        "task": "task_example_03_experiment_design",
+        "path": "environment/tools/lmfit.md",
+        "sha256": "bd32f31f684404658f0c6f08c8a0f94cf19ac3c82cca375c0768b2f4989f3623",
+        "upstream_identical": true
+      },
+      {
+        "task": "task_example_03_experiment_design",
+        "path": "environment/tools/openpyxl.md",
+        "sha256": "3cc41437098bd28c56417727fbd9345efef504bf5b374d808f1df0d513cda2b1",
+        "upstream_identical": true
+      },
+      {
+        "task": "task_example_03_experiment_design",
+        "path": "environment/tools/scaps.md",
+        "sha256": "5e0e6b556f1951b1dff16eb4f6ec5789962664d498550327548c03c85ebac7d2",
+        "upstream_identical": true
+      },
+      {
+        "task": "task_example_03_experiment_design",
+        "path": "environment/tools/scipy.md",
+        "sha256": "60c0e0b857415eeb7911b7f9dd170441737a853c686dbdf9f7ec087d2e15bcd0",
+        "upstream_identical": true
+      }
+    ],
+    "note": "Original tool/skill paths, requirements, Dockerfile and third-task background-data fetch retained byte for byte. New task-specific held-out split retained."
+  },
+  "source_workbook": {
+    "filename": "41467_2026_73269_MOESM4_ESM.xlsx",
+    "sha256": "f6834ffed74b179813a459cc854e3450802a098ef665947bf71bd74a0b2a2355",
+    "publisher_article": "https://www.nature.com/articles/s41467-026-73269-9",
+    "archive": "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC13381688/supplementaryFiles",
+    "standalone_license_found": false
+  }
+}

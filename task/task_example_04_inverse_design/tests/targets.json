@@ -1,0 +1,10 @@
+{
+  "field": "predicted_enrichment",
+  "targets": {
+    "C": 1.857702447634503,
+    "D": 1.7753456722392518,
+    "E": 1.8737172152222108
+  },
+  "numeric_max": 25,
+  "error_scale": 0.2
+}

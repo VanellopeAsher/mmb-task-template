@@ -1,20 +1,82 @@
 {
-  "selected_candidate": "candidate_03",
-  "process_kpis": {
-    "purity": 0.7956276452527686,
-    "recovery": 0.5758060340310058,
-    "working_capacity_mol_kg": 1.6774336043284084,
-    "thermal_energy_MJ_mol": 0.05974742511177806
+  "predicted_enrichment": {
+    "C": 1.857702447634503,
+    "D": 1.7753456722392518,
+    "E": 1.8737172152222108
   },
-  "enrichment": {
-    "x_ch4_0_5": 1.5912552905055373,
-    "x_ch4_0_003": 1.873717215222211
+  "process": [
+    {
+      "cut": 20,
+      "segments": {
+        "A": {
+          "early": 1.290017652525264,
+          "late": 2.437511876332323,
+          "weight": 0.4642525450992831
+        },
+        "B": {
+          "early": 1.2973185274712602,
+          "late": 2.3608054298360757,
+          "weight": 0.47331477402011934
+        }
+      },
+      "weight_only_gap": -0.01039885534147687
+    },
+    {
+      "cut": 30,
+      "segments": {
+        "A": {
+          "early": 1.4549770952764969,
+          "late": 2.79569552527577,
+          "weight": 0.2743064187893053
+        },
+        "B": {
+          "early": 1.4488349590588874,
+          "late": 2.672110834071698,
+          "weight": 0.2876273770009952
+        }
+      },
+      "weight_only_gap": -0.017859654179662857
+    }
+  ],
+  "rich_kpis": {
+    "A": {
+      "purity": 0.7500286885058604,
+      "recovery": 0.5147060627234407,
+      "working_capacity_mol_kg": 0.47736844081840807,
+      "thermal_energy_MJ_mol": 0.10268732252251946
+    },
+    "B": {
+      "purity": 0.7695543259353276,
+      "recovery": 0.5438697559859873,
+      "working_capacity_mol_kg": 1.0765843216163413,
+      "thermal_energy_MJ_mol": 0.06511366457396468
+    },
+    "C": {
+      "purity": 0.7549577846686902,
+      "recovery": 0.5180568677356407,
+      "working_capacity_mol_kg": 0.9009609136307911,
+      "thermal_energy_MJ_mol": 0.07496086413291213
+    },
+    "D": {
+      "purity": 0.7698508983522202,
+      "recovery": 0.5226262814558373,
+      "working_capacity_mol_kg": 0.6877177331776986,
+      "thermal_energy_MJ_mol": 0.08412611755002587
+    },
+    "E": {
+      "purity": 0.7956276452527687,
+      "recovery": 0.5758060340321582,
+      "working_capacity_mol_kg": 1.6774336043284086,
+      "thermal_energy_MJ_mol": 0.05974742511177805
+    }
   },
-  "constraint_check": {
-    "purity": true,
-    "recovery": true,
-    "working_capacity": true,
-    "thermal_energy": true,
-    "dilute_feed_enrichment": true
+  "publicly_eligible": [
+    "E"
+  ],
+  "recommendation": "E",
+  "eligibility_confirmed": false,
+  "reversal_gaps": {
+    "rich": -0.03905127485893445,
+    "dilute": 0.022062176076997897
   }
 }

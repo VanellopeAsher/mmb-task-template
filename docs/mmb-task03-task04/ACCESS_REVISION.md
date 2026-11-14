@@ -1,0 +1,9 @@
+# 资料访问限制的本轮修改
+
+来源MMB_choice_revision，保留所有旧版本，只改本地。两题选择要求、公开科学数据、保留目标、评分权重不变；本轮不声称解决前轮指出的所有科学设计问题。
+
+新增明确的离线使用规则，允许模型通用知识与本地资料，禁止外部查答案和作者目录访问；network_mode统一为no-network。Docker仅安装依赖、复制公开文件，不再自动下载源科研档案。第三题原fetch_data.sh移入作者provenance追溯；tools、skills、requirements字节不变。此处是为落实本次访问限制而必要修改环境入口，未替换科研工具。
+
+新增agent_release供盲测部署、authoring/release_manifest.json、本地发布检查、作者侧运行探针与部署说明。作者完整zip仍含答案，绝不能整包挂载给Agent。旧environment_preservation/format_manifest/choice_validation是历史记录，本轮以access_validation和access_change_manifest为准。
+
+文件白名单、公开/保留划分、工具保留和参考数值复算可本地检查。容器断网、只读权限、外部工具关闭及主机隔离需最终平台实测；没有测试就保持not_run。预训练污染无法由这些限制完全排除。

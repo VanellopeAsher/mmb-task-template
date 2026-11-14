@@ -1,3 +1,3 @@
-# Oracle
+# Reference solution
 
-`solve.sh` computes the recovery and iodine-loss predictions from frozen measured endpoints. The selected plan combines the largest observed recovery with matched XPS controls. The authoring evidence script reproduces the endpoints from the publisher workbook.
+The Oracle writes the structured reference findings and recomputes the original forecast. Example 03 forecasts from the visible time series. Example 04 recomputes full dilute enrichment using author-only traces. Reference observations and checks are documented in the rubric.

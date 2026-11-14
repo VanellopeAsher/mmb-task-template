@@ -4,9 +4,19 @@ on:
   push:
     paths:
       - "task/task_example_04_inverse_design/**"
+      - "agent_release/task_example_04_inverse_design/**"
+      - "scripts/build_harbor_task.py"
+      - ".github/workflows/example_04.yml"
+  pull_request:
+    paths:
+      - "task/task_example_04_inverse_design/**"
+      - "agent_release/task_example_04_inverse_design/**"
       - "scripts/build_harbor_task.py"
       - ".github/workflows/example_04.yml"
   workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   solution-and-verifier:
@@ -15,22 +25,45 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v6
-      - name: Check source precision and rejection cases
-        run: python task/task_example_04_inverse_design/tests/test_adversarial.py
-      - name: Build scientific image and generate source-backed answer
+      - name: Check scoring, invalid answers, and optimized Python
+        run: |
+          python task/task_example_04_inverse_design/tests/test_adversarial.py
+          python -O task/task_example_04_inverse_design/tests/test_adversarial.py
+      - name: Recompute evidence and check the Agent release
+        run: |
+          python task/task_example_04_inverse_design/authoring/test_release_integrity.py
+          python task/task_example_04_inverse_design/authoring/evidence/recompute_baseline.py
+          python task/task_example_04_inverse_design/authoring/check_release.py \
+            --release-root agent_release/task_example_04_inverse_design \
+            --manifest task/task_example_04_inverse_design/authoring/release_manifest.json
+      - name: Build scientific image and generate reference artifact offline
         run: |
           docker build -t mmb-example04-environment task/task_example_04_inverse_design/environment
-          docker run --rm \
+          mkdir -p "$RUNNER_TEMP/mmb-example04-artifacts"
+          docker run --rm --network none \
             -v "$PWD/task/task_example_04_inverse_design/solution:/solution:ro" \
+            -v "$RUNNER_TEMP/mmb-example04-artifacts:/outputs" \
             mmb-example04-environment \
-            python /solution/witness/generate_answer.py --output /tmp/generated_answer.json
+            python /solution/witness/generate_answer.py --output /outputs/answer.json
+      - name: Run an isolated offline numeric verifier
+        run: |
+          docker build -t mmb-example04-verifier task/task_example_04_inverse_design/tests
+          docker run --rm --network none \
+            -v "$RUNNER_TEMP/mmb-example04-artifacts/answer.json:/input/answer.json:ro" \
+            -v "$RUNNER_TEMP/mmb-example04-artifacts:/outputs" \
+            mmb-example04-verifier \
+            python /tests/verify.py --answer /input/answer.json --reward /outputs/reward.txt
+          python task/task_example_04_inverse_design/tests/check_ci_artifacts.py \
+            --answer "$RUNNER_TEMP/mmb-example04-artifacts/answer.json" \
+            --reward "$RUNNER_TEMP/mmb-example04-artifacts/reward.txt" \
+            --status "$RUNNER_TEMP/mmb-example04-artifacts/reward_details.json"
       - name: Check Harbor-compatible staging task
         run: |
           python scripts/build_harbor_task.py \
             --source task/task_example_04_inverse_design \
             --output "$RUNNER_TEMP/mmb-example04-harbor"
           uvx harbor==0.25.0 lint "$RUNNER_TEMP/mmb-example04-harbor"
-      - name: Run oracle and isolated verifier in Harbor
+      - name: Run reference artifact and isolated verifier in Harbor
         run: |
           python scripts/build_harbor_task.py \
             --source task/task_example_04_inverse_design \
@@ -41,16 +74,15 @@ jobs:
             --env docker \
             --jobs-dir "$RUNNER_TEMP/mmb-example04-jobs" \
             --job-name example04-answer
-          python - <<'PY'
-          import json
-          import os
-          from pathlib import Path
-
-          job = Path(os.environ["RUNNER_TEMP"]) / "mmb-example04-jobs" / "example04-answer"
-          trials = [path for path in job.rglob("result.json") if path.parent != job]
-          assert len(trials) == 1, trials
-          result = json.loads(trials[0].read_text(encoding="utf-8"))
-          reward = result.get("verifier_result", {}).get("rewards", {}).get("reward")
-          print(f"Oracle reward: {reward}")
-          assert reward == 1.0, result
-          PY
+          python task/task_example_04_inverse_design/tests/check_ci_artifacts.py \
+            --answer task/task_example_04_inverse_design/solution/answer.json \
+            --harbor-job "$RUNNER_TEMP/mmb-example04-jobs/example04-answer"
+      - name: Preserve CI evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mmb-example04-ci-evidence
+          path: |
+            ${{ runner.temp }}/mmb-example04-artifacts
+            ${{ runner.temp }}/mmb-example04-jobs
+          if-no-files-found: ignore

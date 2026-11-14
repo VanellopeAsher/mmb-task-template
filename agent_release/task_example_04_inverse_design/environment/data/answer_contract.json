@@ -1,0 +1,266 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "predicted_enrichment",
+    "process",
+    "rich_kpis",
+    "publicly_eligible",
+    "recommendation",
+    "eligibility_confirmed",
+    "reversal_gaps"
+  ],
+  "properties": {
+    "predicted_enrichment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "C",
+        "D",
+        "E"
+      ],
+      "properties": {
+        "C": {
+          "type": "number"
+        },
+        "D": {
+          "type": "number"
+        },
+        "E": {
+          "type": "number"
+        }
+      }
+    },
+    "process": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "cut",
+          "segments",
+          "weight_only_gap"
+        ],
+        "properties": {
+          "cut": {
+            "type": "integer"
+          },
+          "segments": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "A",
+              "B"
+            ],
+            "properties": {
+              "A": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "early",
+                  "late",
+                  "weight"
+                ],
+                "properties": {
+                  "early": {
+                    "type": "number"
+                  },
+                  "late": {
+                    "type": "number"
+                  },
+                  "weight": {
+                    "type": "number"
+                  }
+                }
+              },
+              "B": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "early",
+                  "late",
+                  "weight"
+                ],
+                "properties": {
+                  "early": {
+                    "type": "number"
+                  },
+                  "late": {
+                    "type": "number"
+                  },
+                  "weight": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          },
+          "weight_only_gap": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "rich_kpis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E"
+      ],
+      "properties": {
+        "A": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "purity",
+            "recovery",
+            "working_capacity_mol_kg",
+            "thermal_energy_MJ_mol"
+          ],
+          "properties": {
+            "purity": {
+              "type": "number"
+            },
+            "recovery": {
+              "type": "number"
+            },
+            "working_capacity_mol_kg": {
+              "type": "number"
+            },
+            "thermal_energy_MJ_mol": {
+              "type": "number"
+            }
+          }
+        },
+        "B": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "purity",
+            "recovery",
+            "working_capacity_mol_kg",
+            "thermal_energy_MJ_mol"
+          ],
+          "properties": {
+            "purity": {
+              "type": "number"
+            },
+            "recovery": {
+              "type": "number"
+            },
+            "working_capacity_mol_kg": {
+              "type": "number"
+            },
+            "thermal_energy_MJ_mol": {
+              "type": "number"
+            }
+          }
+        },
+        "C": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "purity",
+            "recovery",
+            "working_capacity_mol_kg",
+            "thermal_energy_MJ_mol"
+          ],
+          "properties": {
+            "purity": {
+              "type": "number"
+            },
+            "recovery": {
+              "type": "number"
+            },
+            "working_capacity_mol_kg": {
+              "type": "number"
+            },
+            "thermal_energy_MJ_mol": {
+              "type": "number"
+            }
+          }
+        },
+        "D": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "purity",
+            "recovery",
+            "working_capacity_mol_kg",
+            "thermal_energy_MJ_mol"
+          ],
+          "properties": {
+            "purity": {
+              "type": "number"
+            },
+            "recovery": {
+              "type": "number"
+            },
+            "working_capacity_mol_kg": {
+              "type": "number"
+            },
+            "thermal_energy_MJ_mol": {
+              "type": "number"
+            }
+          }
+        },
+        "E": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "purity",
+            "recovery",
+            "working_capacity_mol_kg",
+            "thermal_energy_MJ_mol"
+          ],
+          "properties": {
+            "purity": {
+              "type": "number"
+            },
+            "recovery": {
+              "type": "number"
+            },
+            "working_capacity_mol_kg": {
+              "type": "number"
+            },
+            "thermal_energy_MJ_mol": {
+              "type": "number"
+            }
+          }
+        }
+      }
+    },
+    "publicly_eligible": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "recommendation": {
+      "type": "string"
+    },
+    "eligibility_confirmed": {
+      "type": "boolean"
+    },
+    "reversal_gaps": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "rich",
+        "dilute"
+      ],
+      "properties": {
+        "rich": {
+          "type": "number"
+        },
+        "dilute": {
+          "type": "number"
+        }
+      }
+    }
+  }
+}

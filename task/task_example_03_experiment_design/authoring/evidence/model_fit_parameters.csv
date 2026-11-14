@@ -1,9 +1,0 @@
-aging_bias,state,sno2_interface_defect_density_m-2,bulk_electron_defect_density_m-3,bulk_hole_defect_density_m-3,spiro_hole_interface_defect_density_m-2
-OC,fresh,100000000000000.0,3e+21,3e+21,2000000000000000.0
-OC,T60,2e+16,1e+22,1e+22,1e+16
-OC,dark_1p5h,2e+16,1.5e+22,1.5e+22,1e+16
-OC,dark_22h,4000000000000000.0,4e+21,1e+21,1e+16
-SC,fresh,100000000000000.0,4e+21,4e+21,2000000000000000.0
-SC,T60,1e+16,2e+22,2e+22,1e+16
-SC,dark_1p5h,4000000000000000.0,6e+21,6e+21,1000000000000000.0
-SC,dark_22h,100000000000000.0,2.5e+21,2.5e+21,100000000000000.0

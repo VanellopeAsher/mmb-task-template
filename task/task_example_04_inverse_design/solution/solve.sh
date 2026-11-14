@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 set -euo pipefail
-ROOT="$(cd "$(dirname "$0")" && pwd)"
-python "$ROOT/witness/generate_answer.py" --output /workspace/results/answer.json
+HERE="$(cd "$(dirname "$0")" && pwd)"
+exec python3 "$HERE/generate_answer.py" "$@"

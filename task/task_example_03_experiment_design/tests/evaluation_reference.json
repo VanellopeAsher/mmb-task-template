@@ -1,0 +1,15 @@
+{
+  "evidence": {
+    "a_recovery_18h": 0.8778437054851377,
+    "a_deficit_18h": 1.8624081579999974,
+    "c_recovery_18h": 0.5513855851022018,
+    "c_deficit_18h": 7.77136492,
+    "control_relative_iodine_loss": 0.2313167259786476,
+    "chelated_relative_iodine_loss": 0.053003533568904526
+  },
+  "budget": {
+    "devices": 12,
+    "power": 30,
+    "xps": 10
+  }
+}

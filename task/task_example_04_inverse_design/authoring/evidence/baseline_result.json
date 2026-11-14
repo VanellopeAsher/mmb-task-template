@@ -1,0 +1,263 @@
+{
+  "predictions": {
+    "C": 1.8271342324523134,
+    "D": 1.8043711192662322,
+    "E": 1.8474355736333394
+  },
+  "held_out": {
+    "C": 1.857702447634503,
+    "D": 1.7753456722392518,
+    "E": 1.8737172152222108
+  },
+  "absolute_error": {
+    "C": 0.03056821518218955,
+    "D": 0.0290254470269804,
+    "E": 0.026281641588871363
+  },
+  "audit": {
+    "A": {
+      "rich": {
+        "purity": 0.7500286885058604,
+        "recovery": 0.5147060627234407,
+        "working_capacity_mol_kg": 0.47736844081840807,
+        "thermal_energy_MJ_mol": 0.10268732252251946,
+        "enrichment": 1.5000573770117207,
+        "negative_steps": 0,
+        "adsorption_feed_in_mol": 1.3981056134365808,
+        "cooling_feed_in_mol": 0.45681110657456603,
+        "cycle_feed_mol": 1.854916720011147,
+        "cycle_balance_residual_mol": 9.150680213565465e-12,
+        "maximum_step_balance_residual_mol": 4.847094947635355e-12
+      },
+      "dilute": {
+        "purity": 0.005468234299243252,
+        "recovery": 0.09983216905324373,
+        "working_capacity_mol_kg": 0.0021518590202679257,
+        "thermal_energy_MJ_mol": 19.2305341986777,
+        "enrichment": 1.8227447664144174,
+        "negative_steps": 0,
+        "adsorption_feed_in_mol": 6.792028045602314,
+        "cooling_feed_in_mol": 0.39289387777847995,
+        "cycle_feed_mol": 7.184921923380794,
+        "cycle_balance_residual_mol": -1.232204560608352e-09,
+        "maximum_step_balance_residual_mol": 2.4174898194395666e-12
+      }
+    },
+    "B": {
+      "rich": {
+        "purity": 0.7695543259353276,
+        "recovery": 0.5438697559859873,
+        "working_capacity_mol_kg": 1.0765843216163413,
+        "thermal_energy_MJ_mol": 0.06511366457396468,
+        "enrichment": 1.5391086518706552,
+        "negative_steps": 0,
+        "adsorption_feed_in_mol": 3.0373421710923423,
+        "cooling_feed_in_mol": 0.9216362783145022,
+        "cycle_feed_mol": 3.9589784494068443,
+        "cycle_balance_residual_mol": 5.551115123125783e-12,
+        "maximum_step_balance_residual_mol": 9.181100324440195e-12
+      },
+      "dilute": {
+        "purity": 0.0054020477710122585,
+        "recovery": 0.13248929557270928,
+        "working_capacity_mol_kg": 0.0029764809195581736,
+        "thermal_energy_MJ_mol": 16.084494463453396,
+        "enrichment": 1.8006825903374195,
+        "negative_steps": 0,
+        "adsorption_feed_in_mol": 6.938635600146902,
+        "cooling_feed_in_mol": 0.5499717037910988,
+        "cycle_feed_mol": 7.488607303938,
+        "cycle_balance_residual_mol": -1.2647348945904469e-08,
+        "maximum_step_balance_residual_mol": 3.5143866983222694e-12
+      }
+    },
+    "C": {
+      "rich": {
+        "purity": 0.7549577846686902,
+        "recovery": 0.5180568677356407,
+        "working_capacity_mol_kg": 0.9009609136307911,
+        "thermal_energy_MJ_mol": 0.07496086413291213,
+        "enrichment": 1.5099155693373805,
+        "negative_steps": 0,
+        "adsorption_feed_in_mol": 2.657443417732319,
+        "cooling_feed_in_mol": 0.8207882967463407,
+        "cycle_feed_mol": 3.47823171447866,
+        "cycle_balance_residual_mol": 6.2807536949094356e-12,
+        "maximum_step_balance_residual_mol": 6.706551980428799e-12
+      },
+      "dilute": {
+        "purity": 0.005573107342903509,
+        "recovery": 0.11026372275259463,
+        "working_capacity_mol_kg": 0.003356900790045524,
+        "thermal_energy_MJ_mol": 15.779281933063702,
+        "enrichment": 1.857702447634503,
+        "negative_steps": 0,
+        "adsorption_feed_in_mol": 9.546871805242809,
+        "cooling_feed_in_mol": 0.6012249765597447,
+        "cycle_feed_mol": 10.148096781802554,
+        "cycle_balance_residual_mol": -2.8465283463674496e-09,
+        "maximum_step_balance_residual_mol": 2.929601006229632e-14
+      }
+    },
+    "D": {
+      "rich": {
+        "purity": 0.7698508983522202,
+        "recovery": 0.5226262814558373,
+        "working_capacity_mol_kg": 0.6877177331776986,
+        "thermal_energy_MJ_mol": 0.08412611755002587,
+        "enrichment": 1.5397017967044404,
+        "negative_steps": 0,
+        "adsorption_feed_in_mol": 2.0028967836629246,
+        "cooling_feed_in_mol": 0.628879526024294,
+        "cycle_feed_mol": 2.6317763096872184,
+        "cycle_balance_residual_mol": 4.420463994847523e-12,
+        "maximum_step_balance_residual_mol": 5.501377131622576e-12
+      },
+      "dilute": {
+        "purity": 0.005326037016717755,
+        "recovery": 0.08881813760937518,
+        "working_capacity_mol_kg": 0.002943650115657291,
+        "thermal_energy_MJ_mol": 16.047335083051255,
+        "enrichment": 1.7753456722392518,
+        "negative_steps": 0,
+        "adsorption_feed_in_mol": 10.495692813139785,
+        "cooling_feed_in_mol": 0.5517883841638266,
+        "cycle_feed_mol": 11.047481197303611,
+        "cycle_balance_residual_mol": -2.0427908253850546e-09,
+        "maximum_step_balance_residual_mol": 2.9726221484338566e-14
+      }
+    },
+    "E": {
+      "rich": {
+        "purity": 0.7956276452527687,
+        "recovery": 0.5758060340321582,
+        "working_capacity_mol_kg": 1.6774336043284086,
+        "thermal_energy_MJ_mol": 0.05974742511177805,
+        "enrichment": 1.5912552905055375,
+        "negative_steps": 0,
+        "adsorption_feed_in_mol": 4.490874005713027,
+        "cooling_feed_in_mol": 1.3355102458793255,
+        "cycle_feed_mol": 5.826384251592353,
+        "cycle_balance_residual_mol": -1.1660006293823244e-11,
+        "maximum_step_balance_residual_mol": 9.095835196148983e-12
+      },
+      "dilute": {
+        "purity": 0.005621151645666633,
+        "recovery": 0.12383108843264139,
+        "working_capacity_mol_kg": 0.004837744217355413,
+        "thermal_energy_MJ_mol": 13.100274241164815,
+        "enrichment": 1.8737172152222108,
+        "negative_steps": 1,
+        "adsorption_feed_in_mol": 12.163492452447137,
+        "cooling_feed_in_mol": 0.8589353255523293,
+        "cycle_feed_mol": 13.022427777999466,
+        "cycle_balance_residual_mol": -7.60287299783613e-09,
+        "maximum_step_balance_residual_mol": 3.3749461558763016e-12
+      }
+    }
+  },
+  "diagnostics": {
+    "20": {
+      "A": {
+        "early": 1.290017652525264,
+        "late": 2.437511876332323,
+        "weight": 0.4642525450992831,
+        "reconstructed": 1.8227447664144174
+      },
+      "B": {
+        "early": 1.2973185274712602,
+        "late": 2.3608054298360757,
+        "weight": 0.47331477402011934,
+        "reconstructed": 1.8006825903374195
+      },
+      "total_A_minus_B": 0.022062176076997897,
+      "composition_first": 0.0324610314184748,
+      "weight_last": -0.01039885534147687,
+      "weight_first": -0.009637561763540983,
+      "composition_last": 0.03169973784053891
+    },
+    "25": {
+      "A": {
+        "early": 1.3704454646369457,
+        "late": 2.6133179237446678,
+        "weight": 0.36391449377049073,
+        "reconstructed": 1.8227447664144174
+      },
+      "B": {
+        "early": 1.3728079013594328,
+        "late": 2.5152632252027978,
+        "weight": 0.37452203166996645,
+        "reconstructed": 1.8006825903374193
+      },
+      "total_A_minus_B": 0.02206217607699812,
+      "composition_first": 0.03524599279119779,
+      "weight_last": -0.013183816714199744,
+      "weight_first": -0.012118638146126298,
+      "composition_last": 0.03418081422312434
+    },
+    "30": {
+      "A": {
+        "early": 1.4549770952764969,
+        "late": 2.79569552527577,
+        "weight": 0.2743064187893053,
+        "reconstructed": 1.8227447664144174
+      },
+      "B": {
+        "early": 1.4488349590588874,
+        "late": 2.672110834071698,
+        "weight": 0.2876273770009952,
+        "reconstructed": 1.8006825903374193
+      },
+      "total_A_minus_B": 0.02206217607699812,
+      "composition_first": 0.03992183025666083,
+      "weight_last": -0.017859654179662857,
+      "weight_first": -0.01629520681241409,
+      "composition_last": 0.038357382889412074
+    }
+  },
+  "baselines_CD": {
+    "rich_ranking": "D",
+    "half_ranking": "C",
+    "observed_ranking": "C"
+  },
+  "checks": {
+    "A": {
+      "purity": false,
+      "recovery": false,
+      "capacity": false,
+      "heat": false,
+      "dilute_enrichment": false
+    },
+    "B": {
+      "purity": false,
+      "recovery": false,
+      "capacity": true,
+      "heat": true,
+      "dilute_enrichment": false
+    },
+    "C": {
+      "purity": false,
+      "recovery": false,
+      "capacity": false,
+      "heat": false,
+      "dilute_enrichment": true
+    },
+    "D": {
+      "purity": false,
+      "recovery": false,
+      "capacity": false,
+      "heat": false,
+      "dilute_enrichment": false
+    },
+    "E": {
+      "purity": true,
+      "recovery": true,
+      "capacity": true,
+      "heat": true,
+      "dilute_enrichment": true
+    }
+  },
+  "feasible": [
+    "E"
+  ]
+}

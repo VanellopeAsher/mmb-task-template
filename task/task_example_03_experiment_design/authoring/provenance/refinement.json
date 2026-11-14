@@ -1,0 +1,26 @@
+{
+  "primary_source": "https://doi.org/10.1038/s41467-026-73269-9",
+  "source_data": "Publisher Source Data XLSX, Supplementary Fig. 3a/c and Fig. 3f endpoints",
+  "scope": "Reuse the original workbook extraction, visible observations and 24 h held-out endpoints. This revision updates only provenance and verification records.",
+  "release_blocker": "Workbook-derived data redistribution not confirmed",
+  "known_limitations": [
+    "final_agent_network_probe",
+    "actual_mounts_and_read_only_permissions",
+    "model_browser_search_and_connectors_disabled",
+    "frontier_agent_trials",
+    "independent_expert_review_and_inter_rater_agreement"
+  ],
+  "verified_ci_baseline": {
+    "tested_commit": "dbec07e33b589b073bf7d013325463ce1655e704",
+    "run_id": 43439937111,
+    "url": "https://github.com/VanellopeAsher/mmb-task-template/actions/runs/43439937111",
+    "docker_build": "passed",
+    "harbor_lint": "passed",
+    "harbor_oracle": "passed",
+    "numeric_tests": "passed",
+    "file_release_integrity": "passed",
+    "numeric_reward": 0.08436284,
+    "review_status": "pending_expert_review"
+  },
+  "evaluation_update": "Automatic scientific section scores replace per-answer expert review. Prior verified_ci_baseline describes the earlier numeric-only scoring."
+}
