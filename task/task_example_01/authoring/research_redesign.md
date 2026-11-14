@@ -1,41 +1,23 @@
-# Next scientific task: phonon scattering selection rules
+# Scientific basis for Example 01
 
-## Problem
+## Question and model
 
-**When are phonon scattering selection rules sufficient to predict the dominant scattering mechanism?**
+The task tests whether an acoustic–optical gap condition alone identifies the dominant total scattering order of below-gap acoustic modes. It uses the published FourPhonon BAs force model at commit `5b814b337e03e72907a15a2c953723171fba7102`, but asks for a new 350 K calculation on 16³ and 20³ reciprocal meshes with `scalebroad=1.0`. The force constants are real upstream model inputs, not measurements. The upstream 300 K output is not the target answer.
 
-This is the research question. The Agent receives material data and a broad scientific software environment. The question does not name a calculation sequence, an experiment to perform, or a preferred explanation.
+The solver patch ports the pinned source to GNU Fortran and starts all six fourth-order sampling loops at one. The original loops indexed the random array before its first element; sampled rates from that binary are invalid. The exact input checksums and the distinction between upstream `CONTROL` and task conditions are recorded in `environment/data/README.md`.
 
-## Output and scoring
+## Independent numerical evidence
 
-The final `problem.md` must specify an `answer.json` contract for the supplied materials and physical conditions. Keep the contract small:
+Corrected 100,000-sample fourth-order runs exited normally at 350 K. The 16³ and 20³ RTA conductivities with both scattering orders are 668.94 and 678.67 W/(m·K), a 1.45% mesh difference. Matched three-only calculations give 1101.57 and 1129.69 W/(m·K). Fourth-order scattering therefore lowers RTA conductivity by 39.27% and 39.92%, respectively.
 
-```json
-{
-  "conditions": {
-    "<condition_id>": {
-      "dominant_scattering": "three_phonon",
-      "three_phonon_rate": 0.0,
-      "four_phonon_rate": 0.0,
-      "thermal_conductivity_three_phonon": 0.0,
-      "thermal_conductivity_full": 0.0,
-      "selection_rule_sufficient": true
-    }
-  },
-  "validity_boundary": "<task-specific numerical condition or interval>"
-}
-```
+Mode acceptance uses both meshes and independent 10,000- and 100,000-sample runs. `evidence/build_ba_reference.py` checks branch-major rate ordering against harmonic frequencies, verifies the three-channel and four-channel rate sums, restricts to acoustic modes below the gap, and retains only modes whose four/three rate ratio is at most 0.4 in all runs or at least 2.0 in all runs. Ten modes satisfy this rule. One robust three-dominated example is q=(1/4,0,0), branch 1, with ratios near 0.10–0.13. One robust four-dominated example is q=(3/4,1/2,1/4), branch 2, with ratios about 3.83–4.33. Both lie below the gap cutoff near 54.5 rad/ps, directly falsifying the claim that the gap condition by itself determines the dominant total scattering order.
 
-Before release, define the mode or mode group, transport direction, units, scattering-rate convention, the `three_phonon`/`four_phonon` enum, and tolerances. Define `selection_rule_sufficient` from a specific, predeclared rule prediction and its agreement with the independently calculated rates, lifetimes, and conductivity. The verifier can derive mode lifetime from the rates; it need not be another scored field. A four-phonon-dominated result is not automatically a failure of the rule: a rule can correctly signal that three-phonon channels are suppressed. The boundary describes where that particular rule prediction ceases to hold within the supplied physical domain.
+The full common-grid acoustic table is stored in `tests/reference_modes.json`. The verifier admits any supported opposing pair and checks independently reported rates on both meshes. It does not require the two examples above.
 
-The independent verifier checks every scored field against an author-held answer produced from the same physical model. It recomputes Boolean labels from the reference numbers and rejects internally inconsistent submissions. It checks that a three-phonon-only result, a symmetry label, or a copied literature value cannot earn a passing score. Numerical tolerances come from the reference calculation's uncertainty and convergence. No LLM judgment is needed for the scored artifact; an optional explanatory analysis can be reviewed separately.
+For the executable 10,000-sample Oracle, q=(1/2,1/2,0), branch 2 is the preferred four-phonon witness. Its 16/20-grid sampled rates in the independent 10,000-sample run were 2.813×10⁻³ and 2.922×10⁻³ ps⁻¹ versus 3.303×10⁻³ and 2.893×10⁻³ ps⁻¹ in the 100,000-sample run. A different strong-ratio candidate, q=(3/4,1/2,1/4), branch 2, fluctuated to 3.549×10⁻³ ps⁻¹ on a later 20-grid 10,000-sample CI run versus the 2.385×10⁻³ ps⁻¹ 100,000-sample estimate, exceeding the declared 35% absolute-rate tolerance while preserving four-phonon dominance. The Oracle therefore prefers the lower-variance validated witness; the Agent and verifier remain free to use other supported modes when their reported rates match the corresponding reference within tolerance.
 
-## Data and environment
+## Scope and remaining validation
 
-Author the example from real, versioned structures, force observations or force models, and second-, third-, and fourth-order force constants sufficient to establish the answer. Include conditions where the rule prediction works and where it does not. Do not manufacture difficulty by adding unrelated metrics, forced method choices, or a hand-built list of decoys. Include usable scientific software for symmetry, lattice dynamics, force-constant extraction, three- and four-phonon rates, and transport. Tool files record official sources and interfaces; Agent Skills remain optional general capabilities. Neither the tools nor the skills should tell the Agent which research route to take.
+The numerical result concerns this force model, temperature, broadening, sampled solver, and RTA definition. It does not establish a universal selection rule or experimental BAs conductivity. At 300 K, the upstream published process counts correspond to `scalebroad=1.0` even though the checked-in `CONTROL` says 0.1. A corrected 100,000-sample reproduction has about 3.01% median and 10.0% 95th-percentile fourth-order mode-rate error against that public output, but its RTA conductivity differs by 5.13%. The benchmark therefore uses independently run 350 K outputs rather than calibrating tolerances against the historical 300 K conductivity.
 
-The present `task_example_01` is an engineering demonstration: it fixes a reciprocal mesh and two triplets and scores only three-phonon coupling statistics. It has no four-phonon rates, mode lifetimes, or transport result in its answer. It therefore does not answer the problem above. The current eight NIMS archives alone cannot support this replacement. [FourPhonon's BAs example](https://github.com/FourPhonon/FourPhonon/tree/main/Example-BAs/input) supplies a real fourth-order-force-constant starting point, and [FourPhonon](https://github.com/FourPhonon/FourPhonon) can calculate three- and four-phonon rates and conductivity. The example's public output must not be the answer key for a new task.
-
-## Source
-
-- [Ravichandran, *Tuning thermal transport using phonon scattering selection rules* (2026)](https://www.nature.com/articles/s44435-026-00018-1): selection rules are a screening tool; actual transition rates also depend on anharmonic matrix elements, occupation, and conservation, and higher-order scattering can change transport.
+The Docker/Harbor end-to-end run and real Agent and expert trials must be reported separately. No simulated expert record is used as evidence of human difficulty.

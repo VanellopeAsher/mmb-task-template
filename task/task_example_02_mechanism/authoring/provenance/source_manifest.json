@@ -23,5 +23,5 @@
       }
     }
   },
-  "answer_source": "Published EXAFS fit and operando XAS/MS interpretation; raw-data reanalysis remains a required pre-release check."
+  "answer_source": "Reaction-stage XANES, MS and post-edge metrics are regenerated from the archived data. The source article provides independent structural context; see authoring/evidence/reaction_mechanism_reference.md."
 }

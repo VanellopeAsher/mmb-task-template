@@ -1,29 +1,5 @@
 {
-  "active_site_model": "well_mixed_AuCu_alloy",
-  "aucu_exafs": {
-    "au_cu_coordination_number": 3.8,
-    "au_au_coordination_number": 3.8
-  },
-  "activation": {
-    "au_reduced_state": "Au0",
-    "cu_reduced_state": "Cu0",
-    "mcr_component_count_au_edge": 2,
-    "mcr_component_count_cu_edge": 3,
-    "cu_reduction_promoted_by_au": true
-  },
-  "reaction": {
-    "au_state": "metallic_stable",
-    "temperature_points_C": [
-      100,
-      130,
-      150
-    ]
-  },
-  "products": {
-    "main_conversion": "butadiene_to_butenes",
-    "overhydrogenation_observed": false
-  },
-  "xanes_state_change": {
+  "reaction_xanes_change": {
     "Au": {
       "100": 0.014295485290237582,
       "130": 0.017803881479090313,
@@ -34,5 +10,76 @@
       "130": 0.04662544590018583,
       "150": 0.047912941151090314
     }
+  },
+  "aucu_ms_signal_median": {
+    "100": {
+      "54": 15.232,
+      "56": 1.5315
+    },
+    "130": {
+      "54": 12.779499999999999,
+      "56": 3.746
+    },
+    "150": {
+      "54": 10.503499999999999,
+      "56": 5.68105
+    }
+  },
+  "control_ms_signal_median": {
+    "Au": {
+      "130": {
+        "54": 3.2907,
+        "56": 11.983
+      },
+      "150": {
+        "54": 2.587,
+        "56": 12.521
+      }
+    },
+    "AuCu3": {
+      "130": {
+        "54": 13.721,
+        "56": 2.5042
+      },
+      "150": {
+        "54": 10.99,
+        "56": 4.6566
+      }
+    }
+  },
+  "control_reaction_xanes_change": {
+    "Au": {
+      "Au": {
+        "130": 0.032543666494908134,
+        "150": 0.03577248326502249
+      }
+    },
+    "Cu": {
+      "Cu": {
+        "130": 0.04118733426116101,
+        "150": 0.04000425658672239
+      }
+    }
+  },
+  "post_edge_fingerprint_correlation": {
+    "au_vs_aucu_reduced_correlation": 0.578515685985699,
+    "aucu_reduced_vs_100_correlation": 0.9884193426402839,
+    "aucu_reduced_vs_130_correlation": 0.9824518919967836,
+    "aucu_reduced_vs_150_correlation": 0.9774468495083348
+  },
+  "process_conclusions": {
+    "reduced_alloy_persists": "supported_by_observations",
+    "same_direction_ms_in_au_control": "supported_by_observations"
+  },
+  "mechanism_status": {
+    "bulk_redox_turnover": "not_supported_as_dominant_explanation",
+    "alloy_demixing_drives_response": "not_supported_as_dominant_explanation",
+    "minority_cu_redistribution_drives_response": "unresolved",
+    "fixed_surface_coverage_kinetics": "unresolved"
+  },
+  "inference_limits": {
+    "fixed_active_sites_established": false,
+    "calibrated_yield_or_selectivity_established": false,
+    "shared_elementary_mechanism_established": false
   }
 }

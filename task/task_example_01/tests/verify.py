@@ -1,4 +1,4 @@
-"""Score data-dependent screw-sector interaction observables."""
+"""Verify independent, mode-selected BAs scattering counterexamples."""
 
 from __future__ import annotations
 
@@ -8,60 +8,101 @@ import math
 from pathlib import Path
 
 
-# Independently transcribed from raw force-model recomputation; see
-# authoring/evidence/check_witness.py for the source-to-reference check.
-EXPECTED = {
-    "GaN": {
-        "normal": (0.07413205196043834, 20.918125536731576),
-        "odd_umklapp": (0.06941766643904153, 21.049920900596906),
-        "odd_normal_total_ratio": 1.0126218060625252,
-    },
-    "AlN": {
-        "normal": (0.07489282926998876, 20.180704367893824),
-        "odd_umklapp": (0.06970912925294218, 20.32738857153253),
-        "odd_normal_total_ratio": 1.0128922269504086,
-    },
-    "ZnS": {
-        "normal": (0.06267054265857831, 23.519386817469933),
-        "odd_umklapp": (0.06218598423687482, 23.580202628195785),
-        "odd_normal_total_ratio": 1.0036113687750507,
-    },
-}
+REFERENCE = json.loads((Path(__file__).with_name("reference_modes.json")).read_text(encoding="utf-8"))
 
 
-def check_number(value: object, expected: float, tolerance: float, name: str) -> None:
+def number(value: object, name: str) -> float:
     if type(value) not in (int, float) or not math.isfinite(value):
         raise ValueError(f"{name} must be a finite number")
-    if abs(value - expected) > tolerance:
+    return float(value)
+
+
+def close(value: object, expected: float, tolerance: float, name: str) -> float:
+    parsed = number(value, name)
+    if abs(parsed - expected) > tolerance:
         raise ValueError(f"Incorrect {name}")
+    return parsed
+
+
+def shape(value: object, keys: set[str], name: str) -> dict:
+    if not isinstance(value, dict) or set(value) != keys:
+        raise ValueError(f"Incorrect {name} fields")
+    return value
+
+
+def check_mode(value: object, label: str, gap: float) -> int:
+    item = shape(value, {"q", "branch", "omega_rad_ps", "rates_ps_inverse"}, label)
+    q = item["q"]
+    if not isinstance(q, list) or len(q) != 3:
+        raise ValueError(f"Invalid {label}/q")
+    coords = [number(x, f"{label}/q") for x in q]
+    branch = item["branch"]
+    if type(branch) is not int or branch not in (1, 2, 3):
+        raise ValueError(f"Invalid {label}/branch")
+    candidates = [m for m in REFERENCE["modes"]
+                  if m["branch"] == branch
+                  and all(abs(a - b) <= 1e-6 for a, b in zip(coords, m["q"]))]
+    if len(candidates) != 1:
+        raise ValueError(f"{label} mode is absent from the common-grid data")
+    expected = candidates[0]
+    samples = expected["samples"]
+    cutoff = min(gap, REFERENCE["gap_cutoff_rad_ps"])
+    if any(not (1e-6 < freq < cutoff - 0.1 and three > 1e-8 and four > 0)
+           for freq, three, four in samples):
+        raise ValueError(f"{label} is not a positive-frequency below-gap mode")
+    ratios = [four / three for _, three, four in samples]
+    order = 3 if max(ratios) < 0.5 else 4 if min(ratios) > 1.5 else None
+    if order is None:
+        raise ValueError(f"{label} does not retain a clear dominant order across runs")
+    frequency = close(item["omega_rad_ps"], samples[1][0], 0.1, f"{label}/omega_rad_ps")
+    if not 0 < frequency < gap:
+        raise ValueError(f"{label} mode must be below the reported gap threshold")
+    rates = shape(item["rates_ps_inverse"], {"16", "20"}, f"{label}/rates")
+    for index, mesh in enumerate(("16", "20")):
+        pair = shape(rates[mesh], {"three", "four"}, f"{label}/{mesh}")
+        _, ref_three, ref_four = samples[index]
+        three = close(pair["three"], ref_three, max(1e-5, 0.05 * ref_three),
+                      f"{label}/{mesh}/three")
+        four_tolerance = 0.45 if order == 3 else 0.35
+        four = close(pair["four"], ref_four, max(1e-5, four_tolerance * ref_four),
+                     f"{label}/{mesh}/four")
+        if three <= 0 or four <= 0:
+            raise ValueError(f"{label}/{mesh} rates must be positive")
+        ratio = four / three
+        if order == 3 and ratio >= 0.5:
+            raise ValueError(f"{label}/{mesh} loses its dominance margin")
+        if order == 4 and ratio <= 1.5:
+            raise ValueError(f"{label}/{mesh} loses its dominance margin")
+
+    return order
 
 
 def verify(answer_path: Path) -> dict[str, object]:
     answer = json.loads(answer_path.read_text(encoding="utf-8"))
-    if not isinstance(answer, dict) or "interaction_checks" not in answer or set(answer) - {"interaction_checks", "analysis"}:
-        raise ValueError("Answer JSON fields do not match the published output shape")
-    checks = answer["interaction_checks"]
-    if not isinstance(checks, dict) or set(checks) != set(EXPECTED):
-        raise ValueError("interaction_checks must contain GaN, AlN, and ZnS")
-    for material, reference in EXPECTED.items():
-        item = checks[material]
-        if not isinstance(item, dict) or set(item) != {"normal", "odd_umklapp", "odd_normal_total_ratio"}:
-            raise ValueError(f"Incorrect interaction check shape for {material}")
-        for case in ("normal", "odd_umklapp"):
-            values = item[case]
-            if not isinstance(values, dict) or set(values) != {"largest_sector_share", "effective_sector_count"}:
-                raise ValueError(f"Incorrect {material}/{case} shape")
-            share, effective_count = reference[case]
-            check_number(values["largest_sector_share"], share, 0.0002, f"{material}/{case}/largest_sector_share")
-            check_number(values["effective_sector_count"], effective_count, 0.05, f"{material}/{case}/effective_sector_count")
-        check_number(item["odd_normal_total_ratio"], reference["odd_normal_total_ratio"], 0.0002, f"{material}/odd_normal_total_ratio")
-    return {
-        "status": "correct",
-        "materials_checked": 3,
-        "triplets_checked": 6,
-        "numeric_values_checked": 15,
-        "analysis_present": bool(answer.get("analysis")),
-    }
+    required = {"gap_cutoff_rad_ps", "transport_W_mK", "modes", "gap_alone_predicts_dominant_order"}
+    if not isinstance(answer, dict) or not required.issubset(answer) or set(answer) - required - {"analysis"}:
+        raise ValueError("Incorrect answer fields")
+    gap = close(answer["gap_cutoff_rad_ps"], REFERENCE["gap_cutoff_rad_ps"], 0.3,
+                "gap_cutoff_rad_ps")
+    transport = shape(answer["transport_W_mK"], {"16", "20"}, "transport_W_mK")
+    for mesh in ("16", "20"):
+        values = shape(transport[mesh], {"three_only", "three_plus_four"}, f"transport/{mesh}")
+        ref = REFERENCE["transport_W_mK"][mesh]
+        three = close(values["three_only"], ref["three_only"], 0.05 * ref["three_only"],
+                      f"transport/{mesh}/three_only")
+        full = close(values["three_plus_four"], ref["three_plus_four"],
+                     0.05 * ref["three_plus_four"], f"transport/{mesh}/three_plus_four")
+        if three <= 0 or full <= 0 or full / three >= 0.7:
+            raise ValueError(f"transport/{mesh} does not show a substantial four-phonon effect")
+    modes = answer["modes"]
+    if not isinstance(modes, list) or len(modes) != 2:
+        raise ValueError("Submit two evidence modes")
+    orders = {check_mode(mode, f"mode {index}", gap) for index, mode in enumerate(modes)}
+    conclusion = answer["gap_alone_predicts_dominant_order"]
+    if orders != {3, 4} or conclusion is not False:
+        raise ValueError("The selected evidence must establish the conclusion for this model")
+    return {"status": "correct", "validated_modes": 2, "validated_meshes": 2,
+            "analysis_present": bool(answer.get("analysis"))}
 
 
 def main() -> int:

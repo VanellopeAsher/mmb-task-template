@@ -5,16 +5,16 @@ artifacts = ["/workspace/results/"]
 
 [task]
 name = "mattermysterybench/task_example_01"
-description = "Quantify screw-sector three-phonon coupling strengths in three wurtzite force models."
+description = "Test whether a phonon gap criterion predicts three- versus four-phonon scattering in a BAs force model."
 authors = []
-keywords = ["phonons", "screw-symmetry", "three-phonon-interactions", "force-constants"]
+keywords = ["phonons", "selection-rules", "four-phonon-scattering", "thermal-transport"]
 
 [metadata]
 task_id = "example_01"
 domain = "physical-sciences"
 field = "materials-science"
 subfield = "lattice-dynamics"
-tags = ["phonons", "crystallography", "anharmonic-coupling"]
+tags = ["phonons", "lattice-dynamics", "anharmonic-transport"]
 
 [metadata.human_baseline]
 expert_count = 5

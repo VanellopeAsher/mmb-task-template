@@ -1,3 +1,3 @@
 # Shortcut audit
 
-A citation-only answer is insufficient: the structured output must report both EXAFS coordination numbers, reduced states, reaction-state stability, and product selectivity. The verifier rejects an Au-only or core-shell model and perturbed coordination values. The raw XAS and MS archives are provided to support independent inspection. Before live evaluation, rerun the reference analysis directly from the downloaded raw spectra and record the software versions and fitting windows.
+Numerical evidence alone cannot pass. The submitted process observations, rival-specific evidence states and inference boundaries must all agree with the independent reference. The grader rejects confident claims about unresolved microscopic alternatives, even with correct numbers. JSON key order is immaterial. Agent difficulty has not been empirically calibrated.

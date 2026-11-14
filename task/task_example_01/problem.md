@@ -1,39 +1,35 @@
 # Problem
 
-围绕晶体对称性选择规则对非谐散射的约束，本任务以纤锌矿 GaN、AlN 和 ZnS 为对象，考察 $6_3$ 螺旋对称性在 Normal 与 odd-axial-Umklapp 三声子过程中的模式分辨相互作用强度表现。
+对给定的 BAs 晶格动力学模型，声学—光学声子能隙限制了部分三声子吸收通道。**仅凭这个能隙条件，能否判断 350 K 时哪些声学模态由三声子或四声子散射主导？** 请使用可见的二、三、四阶力常数和计算环境检验这一判断，找到有明确数值余量的对照模态，并量化四声子散射对热输运的影响。
 
-How does the $6_3$ screw symmetry manifest in the mode-resolved three-phonon interaction strengths of the supplied wurtzite GaN, AlN, and ZnS models, including an axial Umklapp process?
+提交 `/workspace/results/answer.json`。`/workspace/data/ba/` 提供原始 BAs 模型的 `CONTROL` 和三组力常数；`CONTROL` 保留了上游示例的设置，并非本题条件。计算温度为 **350 K**。为使结果可比，采用模型中的非解析修正、`scalebroad=1.0`、各向同性体材料以及 RTA 输运；比较 16×16×16 和 20×20×20 两个倒空间网格。可自行选择软件调用、收敛检查和符合这些物理条件的计算路线。四声子抽样存在随机误差，应选择在两网格及合理抽样变化下仍有明显主导关系的模态。
 
-Submit `/workspace/results/answer.json` with `interaction_checks` for all three materials. The output concerns two all-incoming phonon triplets on a `3 × 3 × 6` reciprocal mesh, expressed as integer grid addresses in the supplied primitive-cell convention:
+数值定义：
 
-- `normal`: `[[0,0,1], [0,0,1], [0,0,-2]]`
-- `odd_umklapp`: `[[0,0,2], [0,0,2], [0,0,2]]`
-
-For screw-eigenvalue labels, use the $6_3$ operation with a $+60^\circ$ rotation about the positive crystal $c$ axis and translation $c/2$. On its invariant reciprocal-space line, define $q_z$ in primitive-cell reciprocal-lattice units and $m\in\{0,1,2,3,4,5\}$ by $\lambda_m(q_z)=\exp[2\pi i(m/6-q_z/2)]$. Resolve degenerate phonon subspaces into eigenmodes of this screw operation before assigning scalar labels. The listed triplets use the all-incoming convention, so $G_z=q_{1z}+q_{2z}+q_{3z}$ is an integer; an allowed label sector satisfies $m_1+m_2+m_3-3G_z\equiv0\pmod 6$. Thus the Normal triplet has $G_z=0$ and the odd axial Umklapp triplet has $G_z=1$.
-
-For each triplet, group the squared three-phonon interaction strengths by the three screw-eigenvalue labels of the participating modes. For each symmetry-allowed label sector, sum its strengths, then divide by the sum across all allowed sectors. Report `largest_sector_share`, the largest resulting share, and `effective_sector_count`, the reciprocal of the sum of squared shares. Also report `odd_normal_total_ratio`, the total squared interaction strength in allowed sectors for `odd_umklapp` divided by that for `normal`. These quantities are dimensionless and refer to the supplied force models. The verifier accepts absolute errors of `0.0002` for each share and ratio, and `0.05` for each effective sector count.
+- `gap_cutoff_rad_ps`：每个网格上最小光学支频率减去最大声学支频率，以 20 网格结果报告，单位 rad/ps。
+- `transport_W_mK`：在两个网格上分别报告仅含三声子散射及同时含三、四声子散射的 RTA 晶格热导率，单位 W/(m·K)。使用 RTA 输出，不使用迭代输运的末次值。
+- `modes`：自行挑选两个**频率低于上述能隙阈值**、同时出现在两网格不可约 q 点表中的声学模态。提交两个能够支撑你判断的模态，顺序不限。`q` 是原胞倒格矢坐标，`branch` 是从 1 开始的声学支序号；`omega_rad_ps` 是 20 网格频率。`rates_ps_inverse` 中的 `three` 和 `four` 分别是总三声子与总四声子散射率，单位 ps⁻¹；不是某个单独通道的速率。
+- `gap_alone_predicts_dominant_order`：判断“低于能隙阈值”这一条件本身能否确定上述模态的总散射主导阶数。
 
 ```json
 {
-  "interaction_checks": {
-    "GaN": {
-      "normal": {"largest_sector_share": 0.0, "effective_sector_count": 0.0},
-      "odd_umklapp": {"largest_sector_share": 0.0, "effective_sector_count": 0.0},
-      "odd_normal_total_ratio": 0.0
-    },
-    "AlN": {
-      "normal": {"largest_sector_share": 0.0, "effective_sector_count": 0.0},
-      "odd_umklapp": {"largest_sector_share": 0.0, "effective_sector_count": 0.0},
-      "odd_normal_total_ratio": 0.0
-    },
-    "ZnS": {
-      "normal": {"largest_sector_share": 0.0, "effective_sector_count": 0.0},
-      "odd_umklapp": {"largest_sector_share": 0.0, "effective_sector_count": 0.0},
-      "odd_normal_total_ratio": 0.0
-    }
+  "gap_cutoff_rad_ps": 0.0,
+  "transport_W_mK": {
+    "16": {"three_only": 0.0, "three_plus_four": 0.0},
+    "20": {"three_only": 0.0, "three_plus_four": 0.0}
   },
-  "analysis": "Optional research notes; this field does not affect reward"
+  "modes": [
+    {
+      "q": [0.0, 0.0, 0.0], "branch": 1, "omega_rad_ps": 0.0,
+      "rates_ps_inverse": {
+        "16": {"three": 0.0, "four": 0.0},
+        "20": {"three": 0.0, "four": 0.0}
+      }
+    }
+  ],
+  "gap_alone_predicts_dominant_order": "<boolean>",
+  "analysis": "可选的证据解释；不计分"
 }
 ```
 
-`analysis` may be omitted or left empty. Only the numerical `interaction_checks` fields determine the reward.
+示意 JSON 仅展示一个条目的结构，实际应提交两个条目。数值是占位符，`gap_alone_predicts_dominant_order` 应提交 JSON 布尔值。`analysis` 可以省略。验证器允许多个满足网格、抽样稳定性和主导余量的模态选择，不要求某个指定 q 点。数值容差为：阈值 ±0.3 rad/ps、频率 ±0.1 rad/ps、热导率相对 5%、三声子率相对 5%；四声子率在三声子主导模态为相对 45%，在四声子主导模态为相对 35%。较宽的前者容差对应较小的次要散射率在独立 10k 抽样中的波动；主导比值余量仍须通过验证。这些容差不表示实验不确定度。只报告能隙或三声子结果不足以完成任务。

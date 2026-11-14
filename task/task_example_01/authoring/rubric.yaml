@@ -1,25 +1,39 @@
-# Author-side scoring contract for the data-dependent interaction task.
-version: 2
+version: 3
 artifact: /workspace/results/answer.json
 reward:
   pass: 1
   fail: 0
-  rule: All 15 numerical values in interaction_checks must pass.
-materials: [GaN, AlN, ZnS]
-triplets:
-  normal: [[0, 0, 1], [0, 0, 1], [0, 0, -2]]
-  odd_umklapp: [[0, 0, 2], [0, 0, 2], [0, 0, 2]]
-per_triplet:
-  largest_sector_share:
-    absolute_tolerance: 0.0002
-    source: Reconstructed three-phonon strengths grouped in the screw eigenbasis.
-  effective_sector_count:
-    absolute_tolerance: 0.05
-    source: Inverse sum of squared shares of allowed screw-label sectors.
-per_material:
-  odd_normal_total_ratio:
-    absolute_tolerance: 0.0002
-    source: Ratio of total allowed interaction strengths for the two specified triplets.
+  rule: All source-derived transport values, two robust opposing modes, and the gap-sufficiency judgment must pass.
+physical_model:
+  source: FourPhonon Example-BAs input at commit 5b814b337e03e72907a15a2c953723171fba7102
+  temperature_K: 350
+  scalebroad: 1.0
+  grids: [16, 20]
+  transport: RTA
+scored_outputs:
+  gap_cutoff_rad_ps:
+    absolute_tolerance: 0.3
+  transport_W_mK:
+    relative_tolerance: 0.05
+    grids: [16, 20]
+    conditions: [three_only, three_plus_four]
+  modes:
+    count: 2
+    selection: Any two validated below-gap acoustic modes on both meshes with opposing dominant orders.
+    frequency_absolute_tolerance_rad_ps: 0.1
+    three_phonon_rate_relative_tolerance: 0.05
+    four_phonon_rate_relative_tolerance:
+      three_dominated_mode: 0.45
+      four_dominated_mode: 0.35
+    dominance_margin:
+      three_phonon_max_four_to_three: 0.5
+      four_phonon_min_four_to_three: 1.5
+  gap_alone_predicts_dominant_order:
+    expected: false
 unscored_optional: [analysis]
-excluded_shortcuts: [selection_rule, ratio_300K, all_wurtzite_higher]
-reference_crosscheck: authoring/evidence/check_witness.py
+reference: tests/reference_modes.json
+reference_generation: authoring/evidence/build_ba_reference.py
+shortcut_audit:
+  - The public 300 K repository output is for a different physical condition.
+  - Three-phonon-only results cannot establish fourth-order dominance or the transport reduction.
+  - A copied q label without matching independent mode rates on both grids fails.

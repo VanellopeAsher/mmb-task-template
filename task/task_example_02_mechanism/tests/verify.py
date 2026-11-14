@@ -1,51 +1,116 @@
 #!/usr/bin/env python3
-import argparse, json, math
+"""Verify reaction observations, inference limits and mechanism evidence states."""
+
+import argparse
+import json
+import math
 from pathlib import Path
 
+
+REFERENCE = Path(__file__).with_name("reference_answer.json")
+def require_map(value, keys, label):
+    if not isinstance(value, dict) or set(value) != set(keys):
+        raise ValueError(f"Incorrect fields in {label}")
+    return value
+
+
+def require_number(value, target, tolerance, label):
+    if type(value) not in (int, float) or not math.isfinite(value):
+        raise ValueError(f"Non-finite or non-numeric {label}")
+    if abs(value - target) > tolerance:
+        raise ValueError(f"Incorrect {label}")
+    return float(value)
+
+
+def compare_numeric_block(reported, expected, tolerance, label):
+    require_map(reported, expected, label)
+    for group, targets in expected.items():
+        values = require_map(reported[group], targets, f"{label}.{group}")
+        for key, target in targets.items():
+            local_tolerance = tolerance(key) if callable(tolerance) else tolerance
+            require_number(values[key], target, local_tolerance, f"{label}.{group}.{key}")
+
+
+def compare_control_block(reported, expected, tolerance, label):
+    require_map(reported, expected, label)
+    for sample, expected_groups in expected.items():
+        groups = require_map(reported[sample], expected_groups, f"{label}.{sample}")
+        compare_numeric_block(groups, expected_groups, tolerance, f"{label}.{sample}")
+
+
 def verify(payload):
-    expected = json.loads(Path(__file__).with_name("reference_answer.json").read_text(encoding="utf-8"))["xanes_state_change"]
-    reported = payload["xanes_state_change"]
-    if not isinstance(reported, dict) or set(reported) != set(expected):
-        raise ValueError("Expected Au and Cu XANES results")
-    for edge, stages in expected.items():
-        values = reported[edge]
-        if not isinstance(values, dict) or set(values) != set(stages):
-            raise ValueError(f"Incorrect reaction stages for {edge}")
-        for stage, target in stages.items():
-            value = values[stage]
-            if type(value) not in (int, float) or not math.isfinite(value) or value < 0 or abs(value - target) > 0.002:
-                raise ValueError(f"Incorrect XANES change for {edge} at {stage} C")
-    assert payload["active_site_model"] == "well_mixed_AuCu_alloy"
-    assert abs(float(payload["aucu_exafs"]["au_cu_coordination_number"]) - 3.8) <= 0.6
-    assert abs(float(payload["aucu_exafs"]["au_au_coordination_number"]) - 3.8) <= 0.7
-    assert payload["activation"]["au_reduced_state"] == "Au0"
-    assert payload["activation"]["cu_reduced_state"] == "Cu0"
-    assert payload["activation"]["mcr_component_count_au_edge"] == 2
-    assert payload["activation"]["mcr_component_count_cu_edge"] == 3
-    assert payload["activation"]["cu_reduction_promoted_by_au"] is True
-    assert payload["reaction"]["au_state"] == "metallic_stable"
-    assert payload["reaction"]["temperature_points_C"] == [100, 130, 150]
-    assert payload["products"]["main_conversion"] == "butadiene_to_butenes"
-    assert payload["products"]["overhydrogenation_observed"] is False
+    reference = json.loads(REFERENCE.read_text(encoding="utf-8"))
+    if not isinstance(payload, dict):
+        raise ValueError("Expected answer object")
+    require_map({k: v for k, v in payload.items() if k != "follow_up"}, reference, "answer")
+    if "follow_up" in payload and not isinstance(payload["follow_up"], str):
+        raise ValueError("Optional follow_up must be text")
+    for block in ("process_conclusions", "mechanism_status", "inference_limits"):
+        expected = reference[block]
+        reported = require_map(payload[block], expected, block)
+        for key, value in expected.items():
+            if type(reported[key]) is not type(value) or reported[key] != value:
+                raise ValueError(f"Incorrect evidence judgment: {block}.{key}")
+    compare_numeric_block(payload["reaction_xanes_change"], reference["reaction_xanes_change"],
+                          0.002, "reaction_xanes_change")
+    compare_numeric_block(payload["aucu_ms_signal_median"], reference["aucu_ms_signal_median"],
+                          lambda mass: 0.2 if mass == "54" else 0.1,
+                          "aucu_ms_signal_median")
+    compare_control_block(payload["control_ms_signal_median"],
+                          reference["control_ms_signal_median"],
+                          lambda mass: 0.3 if mass == "54" else 0.2,
+                          "control_ms_signal_median")
+    compare_control_block(payload["control_reaction_xanes_change"],
+                          reference["control_reaction_xanes_change"], 0.005,
+                          "control_reaction_xanes_change")
+    fingerprint = require_map(payload["post_edge_fingerprint_correlation"],
+                              reference["post_edge_fingerprint_correlation"],
+                              "post_edge_fingerprint_correlation")
+    for key, target in reference["post_edge_fingerprint_correlation"].items():
+        require_number(fingerprint[key], target,
+                       0.08 if key.startswith("au_vs") else 0.025, key)
+
+    # Require the submitted contrasts to agree with the process conclusion.
+    control = payload["control_ms_signal_median"]["Au"]
+    alloy = payload["aucu_ms_signal_median"]
+    for sample, readings in (("Au", control), ("AuCu", alloy)):
+        if not (readings["150"]["54"] < readings["130"]["54"]
+                and readings["150"]["56"] > readings["130"]["56"]):
+            raise ValueError(f"{sample}: submitted MS direction contradicts the process conclusion")
+
+
+def unique_object(pairs):
+    result = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError(f"Duplicate JSON field: {key}")
+        result[key] = value
+    return result
+
+
+def reject_constant(value):
+    raise ValueError(f"Non-finite JSON constant: {value}")
+
 
 def main():
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--answer", default="/workspace/results/answer.json")
-    ap.add_argument("--reward", default="/logs/verifier/reward.txt")
-    args = ap.parse_args()
-    ok = False
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--answer", default="/workspace/results/answer.json")
+    parser.add_argument("--reward", default="/logs/verifier/reward.txt")
+    args = parser.parse_args()
+    accepted = False
     try:
-        payload = json.loads(Path(args.answer).read_text(encoding="utf-8"))
-        payload.pop("analysis", None)
+        payload = json.loads(Path(args.answer).read_text(encoding="utf-8"),
+                             object_pairs_hook=unique_object, parse_constant=reject_constant)
         verify(payload)
-        ok = True
-    except Exception as exc:
+        accepted = True
+    except (OSError, ValueError, TypeError, KeyError, OverflowError, RecursionError) as exc:
         print(f"Verifier rejected answer: {exc}")
     reward = Path(args.reward)
     reward.parent.mkdir(parents=True, exist_ok=True)
-    reward.write_text("1\n" if ok else "0\n", encoding="utf-8")
-    print("PASS" if ok else "FAIL")
+    reward.write_text("1\n" if accepted else "0\n", encoding="utf-8")
+    print("PASS" if accepted else "FAIL")
     return 0
+
 
 if __name__ == "__main__":
     raise SystemExit(main())

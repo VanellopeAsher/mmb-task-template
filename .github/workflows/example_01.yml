@@ -1,44 +1,37 @@
-name: Validate example_01 engineering pilot
+name: Validate example_01 phonon evidence
 
 on:
   push:
     paths:
       - "task/task_example_01/**"
+      - "scripts/build_harbor_task.py"
       - ".github/workflows/example_01.yml"
   workflow_dispatch:
 
 jobs:
   solution-and-verifier:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v6
-      - name: Check five-expert simulated record protocol
-        run: python task/task_example_01/authoring/provenance/validate_sample_records.py
-      - name: Check source archives independently of the oracle
-        run: python task/task_example_01/authoring/provenance/validate_sources.py
-      - name: Check scientific signal in the agent image
+      - name: Check verifier rejection cases
         run: |
-          docker build -t mmb-example01-environment task/task_example_01/environment
-          docker run --rm \
-            -v "$PWD/task/task_example_01/solution:/solution:ro" \
-            mmb-example01-environment bash /solution/check_sources.sh
-      - name: Recompute scientific witness
-        run: |
-          docker run --rm \
-            -v "$PWD/task/task_example_01/solution:/solution:ro" \
-            -v "$PWD/task/task_example_01/authoring/evidence:/evidence:ro" \
-            mmb-example01-environment python /evidence/check_witness.py
-      - name: Check objective verifier against wrong answers
-        run: python task/task_example_01/authoring/evidence/check_verifier.py
+          python task/task_example_01/tests/test_adversarial.py
+          python -O task/task_example_01/tests/test_adversarial.py
+      - name: Build scientific image
+        run: docker build -t mmb-example01-environment task/task_example_01/environment
       - name: Check Harbor-compatible staging task
         run: |
-          python task/task_example_01/authoring/provenance/build_harbor_task.py --output "$RUNNER_TEMP/mmb-example01-harbor"
+          python scripts/build_harbor_task.py \
+            --source task/task_example_01 \
+            --output "$RUNNER_TEMP/mmb-example01-harbor"
           uvx harbor==0.25.0 lint "$RUNNER_TEMP/mmb-example01-harbor"
-      - name: Run the engineering-pilot oracle and verifier
+      - name: Run oracle and isolated verifier in Harbor
         run: |
-          python task/task_example_01/authoring/provenance/build_harbor_task.py --output "$RUNNER_TEMP/mmb-example01-answer-harbor"
+          python scripts/build_harbor_task.py \
+            --source task/task_example_01 \
+            --output "$RUNNER_TEMP/mmb-example01-answer-harbor"
           uvx harbor==0.25.0 run \
             --path "$RUNNER_TEMP/mmb-example01-answer-harbor" \
             --agent oracle \
@@ -56,10 +49,10 @@ jobs:
           trials = [path for path in job.rglob("result.json") if path.parent != job]
           assert len(trials) == 1, trials
           result = json.loads(trials[0].read_text(encoding="utf-8"))
-          reward = result.get("verifier_result", {}).get("rewards", {}).get("reward")
-          assessments = list(trials[0].parent.rglob("assessment.json"))
-          assert len(assessments) == 1, assessments
-          assessment = json.loads(assessments[0].read_text(encoding="utf-8"))
-          print(f"Oracle reward: {reward}; assessment: {assessment['status']}")
-          assert reward == 1.0 and assessment["status"] == "correct", result
+          reward = (result.get("verifier_result") or {}).get("rewards", {}).get("reward")
+          print(f"Oracle reward: {reward}")
+          for name in ("assessment.json", "answer.json", "reward.txt"):
+              for artifact in trials[0].parent.rglob(name):
+                  print(f"{artifact}: {artifact.read_text(encoding='utf-8')[:5000]}")
+          assert reward == 1.0, result
           PY

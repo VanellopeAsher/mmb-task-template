@@ -1,6 +1,6 @@
 # pyMCR
 
-External interface. Check availability in the shared sandbox before use.
+Python interface installed and import-checked in the Agent image.
 
 Official source or manual: https://pages.nist.gov/pyMCR/
 

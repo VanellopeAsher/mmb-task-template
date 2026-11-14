@@ -8,19 +8,22 @@ import zipfile
 import numpy as np
 
 
-def measure(source):
+def measure(source, sample="AuCu", stages=None):
     if source.is_dir():
         paths = {str(p.relative_to(source).as_posix()): p for p in source.rglob("norm_*.txt")}
-        return measure_spectra(paths, lambda name: paths[name].read_bytes())
+        return measure_spectra(paths, lambda name: paths[name].read_bytes(), sample, stages)
     with zipfile.ZipFile(source) as archive:
-        return measure_spectra(archive.namelist(), archive.read)
+        return measure_spectra(archive.namelist(), archive.read, sample, stages)
 
 
-def measure_spectra(names, read):
-    spectra = [name for name in names if name.startswith("DataXAS/AuCu/")
+def measure_spectra(names, read, sample="AuCu", stages=None):
+    stages = {"100": "6_", "130": "8_", "150": "9_"} if stages is None else stages
+    spectra = [name for name in names if name.startswith(f"DataXAS/{sample}/")
                and "/normalized/norm_" in name and name.endswith(".txt")]
     result = {}
     for edge, energy in (("Au", 11919), ("Cu", 8979)):
+        if sample in ("Au", "Cu") and edge != sample:
+            continue
         grid = np.arange(energy - 10, energy + 31, dtype=float)
 
         def stage(prefix):
@@ -42,9 +45,17 @@ def measure_spectra(names, read):
         activation = np.linalg.norm(fresh - reduced)
         if activation <= 0:
             raise ValueError(f"No activation contrast for {edge}")
-        result[edge] = {str(t): float(np.linalg.norm(stage(prefix) - reduced) / activation)
-                        for t, prefix in ((100, "6_"), (130, "8_"), (150, "9_"))}
+        result[edge] = {temperature: float(np.linalg.norm(stage(prefix) - reduced) / activation)
+                        for temperature, prefix in stages.items()}
     return result
+
+
+def measure_controls(source):
+    return {
+        "Au": measure(source, "Au", {"130": "6_", "150": "7_"}),
+        "Cu": measure(source, "Cu", {"130": "6_", "150": "7_"}),
+        "AuCu": measure(source, "AuCu", {"130": "8_", "150": "9_"}),
+    }
 
 
 if __name__ == "__main__":

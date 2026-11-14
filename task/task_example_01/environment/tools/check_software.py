@@ -8,24 +8,8 @@ import shutil
 import sys
 
 
-MODULES = (
-    "ase",
-    "hiphive",
-    "matplotlib",
-    "mp_api",
-    "numpy",
-    "pandas",
-    "phono3py",
-    "phonopy",
-    "pymatgen",
-    "pypolymlp",
-    "scipy",
-    "seekpath",
-    "spglib",
-    "symfc",
-    "sympy",
-)
-EXECUTABLES = ("ase", "phonopy", "phono3py", "pypolymlp-calc")
+MODULES = ("numpy", "scipy")
+EXECUTABLES = ("fourphonon-shengbte", "mpirun")
 
 
 def main() -> int:
