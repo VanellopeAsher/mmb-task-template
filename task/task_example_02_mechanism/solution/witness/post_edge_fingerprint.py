@@ -59,10 +59,12 @@ def calculate(source: Path, k_low=3.5, k_high=9.7, smooth_points=101) -> dict[st
 
         mono = fingerprint("Au", "4_")
         alloy = fingerprint("AuCu", "4_")
-        reaction130 = fingerprint("AuCu", "8_")
+
         return {
             "au_vs_aucu_reduced_correlation": float(np.corrcoef(mono, alloy)[0, 1]),
-            "aucu_reduced_vs_130_correlation": float(np.corrcoef(alloy, reaction130)[0, 1]),
+            **{f"aucu_reduced_vs_{temperature}_correlation":
+               float(np.corrcoef(alloy, fingerprint("AuCu", stage))[0, 1])
+               for temperature, stage in ((100, "6_"), (130, "8_"), (150, "9_"))},
         }
     finally:
         archive.close()

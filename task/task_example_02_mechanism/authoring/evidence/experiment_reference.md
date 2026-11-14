@@ -1,3 +1,5 @@
+> Historical design notes. The current scored reaction-stage target is defined in the rubric and reaction mechanism reference. Activation causality and follow-up design are outside the scored question.
+
 # Reference for discriminating experiments
 
 The archived ramps show earlier apparent Cu reduction in bimetallic samples, and the reaction scans show small bulk XAS changes despite changing mass signals. The archive contains no matched dose intervention or direct measurement of a changing surface Cu site population. These observations motivate the following conditional tests without supplying a numerical effect size. See [the primary operando study](https://doi.org/10.1002/cctc.202500379) and [the data archive](https://doi.org/10.57745/EQL6HT).

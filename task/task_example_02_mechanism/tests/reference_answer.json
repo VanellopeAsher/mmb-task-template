@@ -1,20 +1,4 @@
 {
-  "activation_midpoint_C": {
-    "Au": {
-      "Au": 54.954175168527634
-    },
-    "Cu": {
-      "Cu": 88.29031667328815
-    },
-    "AuCu": {
-      "Au": 68.09080025843325,
-      "Cu": 69.88192515523085
-    },
-    "AuCu3": {
-      "Au": 70.42581871597206,
-      "Cu": 74.49355940984846
-    }
-  },
   "reaction_xanes_change": {
     "Au": {
       "100": 0.014295485290237582,
@@ -79,74 +63,11 @@
   },
   "post_edge_fingerprint_correlation": {
     "au_vs_aucu_reduced_correlation": 0.578515685985699,
-    "aucu_reduced_vs_130_correlation": 0.9824518919967836
+    "aucu_reduced_vs_100_correlation": 0.9884193426402839,
+    "aucu_reduced_vs_130_correlation": 0.9824518919967836,
+    "aucu_reduced_vs_150_correlation": 0.9774468495083348
   },
-  "mechanism_comparison": {
-    "observed_signature": {
-      "large_bulk_redox": false,
-      "nonalloy_control_has_ms_sign": true,
-      "aucu_post_edge_reaction_similar": true
-    },
-    "necessary_predictions": {
-      "bulk_redox_required": {
-        "large_bulk_redox": true,
-        "nonalloy_control_has_ms_sign": null,
-        "aucu_post_edge_reaction_similar": null
-      },
-      "aucu_only_reconstruction_required": {
-        "large_bulk_redox": null,
-        "nonalloy_control_has_ms_sign": false,
-        "aucu_post_edge_reaction_similar": null
-      },
-      "stable_reduced_sites_temperature_response": {
-        "large_bulk_redox": false,
-        "nonalloy_control_has_ms_sign": null,
-        "aucu_post_edge_reaction_similar": null
-      },
-      "minority_surface_redistribution": {
-        "large_bulk_redox": false,
-        "nonalloy_control_has_ms_sign": null,
-        "aucu_post_edge_reaction_similar": null
-      }
-    },
-    "compatible_reaction_models": [
-      "stable_reduced_sites_temperature_response",
-      "minority_surface_redistribution"
-    ],
-    "compatible_early_Cu_explanations": [
-      "hydrogen_spillover",
-      "cu_precursor_dispersion",
-      "cu_o_bonding",
-      "metal_nucleation_kinetics",
-      "xray_photoreduction",
-      "sample_dependent_bed_temperature",
-      "local_h2_h2o_transport"
-    ],
-    "unique_rate_mechanism_identified": false,
-    "unique_early_Cu_cause_identified": false,
-    "unique_alloy_morphology_identified": false,
-    "molecular_selectivity_quantified": false
-  },
-  "discriminating_experiment": {
-    "factor": "Incident photon dose",
-    "contrast": "Compare irradiated and dark runs",
-    "controls": [
-      "Match measured catalyst bed temperature profile",
-      "Match hydrogen feed",
-      "Aliquots from the same catalyst batch",
-      "Match sample packing and reactor geometry",
-      "Use a common low-dose readout exposure",
-      "Use fresh matched aliquots for each arm"
-    ],
-    "endpoint": "Temperature at half Cu reduction",
-    "assay": "Cu K-edge XANES",
-    "context_readouts": [],
-    "predictions": {
-      "beam_or_temperature_bias": "Predicts a resolvable change",
-      "hydrogen_spillover": "Predicts no systematic response"
-    },
-    "scope": "Beam contribution at matched bed temperature",
-    "detection_check": "Estimate the detection limit using matched repeats",
-    "null_interpretation": "A null result only bounds the tested effect"
-  }
+  "mechanisms": [
+    "persistent_reduced_alloy_temperature_response"
+  ]
 }

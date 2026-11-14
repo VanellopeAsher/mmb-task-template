@@ -1,5 +1,3 @@
 # Objective verifier
 
-The verifier checks measured evidence and mechanism compatibility. For the proposed experiment it checks an independent causal reference: manipulated factor, matched controls, admissible endpoint and assay, model-specific response, and inference scope. It supports several protocols and assays within the scored contrasts. The source data contain no matched intervention result, so no numerical effect size is scored. See the authoring reference for the physical assumptions.
-
-Experiment fields take short descriptions. The verifier normalizes terminology and recognizes whole-clause paraphrases before checking the causal relationships. Recognition is bounded to the documented scientific contrasts and supported phrasings.
+Verify the accepted reaction-mechanism answer set and source-derived XANES, MS and post-edge evidence with explicit tolerances. The combined answer and its equivalent two-part expression earn the same reward. Missing pieces, extra unsupported mechanisms and incorrect raw observations fail. Optional follow-up content is unscored.

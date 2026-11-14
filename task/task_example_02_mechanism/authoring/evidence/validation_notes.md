@@ -1,3 +1,5 @@
+> Historical design notes. The current scored reaction-stage target is defined in the rubric and reaction mechanism reference. Activation causality and follow-up design are outside the scored question.
+
 # Validation notes
 
 The complete XAS archive matched the Dataverse MD5 `085ecb1b86089a542f909c5d867d50b0` and passed ZIP CRC validation. The Oracle computes six activation midpoints and six dimensionless AuCu XANES reaction-change ratios from normalized spectra and raw scan headers. The latter quantify spectral change relative to activation. Published EXAFS coordination numbers and MCR component counts are no longer scored.

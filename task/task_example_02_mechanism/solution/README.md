@@ -1,3 +1,3 @@
 # Reference solution
 
-`answer.json` is the frozen author-side reference output. `solve.sh` recomputes it from `/workspace/data/raw` with `witness/generate_answer.py` and checks the result before writing `/workspace/results/answer.json`. The witness reads both source ZIPs or their extracted directory form. It now compares AuCu against Au and AuCu₃ mass-channel controls, Au/Cu reaction XANES controls, and a model-free Au-edge post-edge fingerprint. The resulting mechanism comparison rejects two necessary predictions contradicted by the observations, retains compatible alternatives, and gives a controlled test with divergent predictions. Keep this directory unavailable to evaluated Agents.
+The Oracle recalculates the reaction-stage evidence from the released XAS and MS archives. The reaction mechanism label is grounded in the author-side scientific reference. The solution and verifier are private.

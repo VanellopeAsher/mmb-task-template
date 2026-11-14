@@ -1,3 +1,5 @@
+> Historical design notes. The current scored reaction-stage target is defined in the rubric and reaction mechanism reference. Activation causality and follow-up design are outside the scored question.
+
 # Scientific brief
 
 ## Original candidate from the expert question list

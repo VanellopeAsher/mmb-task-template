@@ -1,31 +1,9 @@
-version: 3
-artifact: /workspace/results/answer.json
-reward:
-  pass: 1
-  fail: 0
-  rule: Raw evidence, rival-mechanism comparison, and a falsifiable controlled test must all pass.
-core_assessment:
-  representation: Observed Boolean signature, necessary-prediction matrix with nullable entries, and the resulting compatible-model set.
-  observed_signature:
-    large_bulk_redox: max reaction XANES contrast >= 0.1
-    nonalloy_control_has_ms_sign: Au-only m/z 54 decreases and 56 increases from 130 to 150 C
-    aucu_post_edge_reaction_similar: within-AuCu post-edge correlation > 0.9
-  rejection_logic: Reject a model only if a non-null necessary prediction conflicts with a source-derived observation.
-  compatible_models: [stable_reduced_sites_temperature_response, minority_surface_redistribution]
-  reduction_explanations: [hydrogen_spillover, cu_precursor_dispersion, cu_o_bonding, metal_nucleation_kinetics, xray_photoreduction, sample_dependent_bed_temperature, local_h2_h2o_transport]
-  activation_evidence: evidence/early_cu_identifiability.md
-  identifiability_limits: [rate_mechanism, early_Cu_cause, unique_morphology, molecular_selectivity]
-discriminating_experiments:
-  automatic: Verify intervention, controls, assay, endpoint, and model predictions against the causal reference.
-  reference: evidence/experiment_reference.md
-evidence_gates:
-  activation_midpoint_C: {units: resistor_temperature_C, absolute_tolerance: 2.0}
-  reaction_xanes_change: {units: dimensionless, absolute_tolerance: 0.002}
-  control_reaction_xanes_change: {units: dimensionless, absolute_tolerance: 0.005}
-  aucu_ms_signal_median: {units: raw_signal, tolerance: {mz54: 0.2, mz56: 0.1}}
-  control_ms_signal_median: {units: raw_signal, tolerance: {mz54: 0.3, mz56: 0.2}}
-  post_edge_fingerprint_correlation: {units: Pearson_r, tolerance: {between_sample: 0.08, within_sample: 0.025}}
-shortcut_audit:
-  - Numerical reductions alone fail without mechanism comparison and a valid discriminating test.
-  - Published coordination numbers, MCR components, and morphology labels earn no score.
-  - Treating correlation, uncalibrated mass peaks, or an earlier Cu midpoint as unique causal identification fails.
+version: 4
+reward: binary
+scientific_target: Temperature-dependent response during hydrogenation on a persistent predominantly reduced alloy
+accepted_mechanism_answers:
+  - [persistent_reduced_alloy_temperature_response]
+  - [persistent_reduced_alloy, shared_temperature_response]
+independent_evidence: evidence/reaction_mechanism_reference.md
+required_numeric_evidence: tests/reference_answer.json
+unscored_optional: [follow_up]
