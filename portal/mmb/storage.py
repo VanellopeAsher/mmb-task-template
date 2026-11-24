@@ -15,8 +15,8 @@ from pathlib import Path
 from tempfile import NamedTemporaryFile
 from zipfile import BadZipFile, ZipFile
 
-MAX_UPLOAD = 128 * 1024 * 1024
-MAX_UNPACKED = 256 * 1024 * 1024
+MAX_UPLOAD = 512 * 1024 * 1024
+MAX_UNPACKED = 1024 * 1024 * 1024
 PUBLIC_FILES = {"problem.md", "instruction.md", "input_data_description.md", "provided_tools.md"}
 PUBLIC_DIRS = {"environment", "data"}
 PRIVATE_COMPONENTS = re.compile(
@@ -54,17 +54,28 @@ def public_path(path):
     parts = safe_parts(path)
     if Path(path).suffix.lower() in {".zip", ".tar", ".tgz", ".gz", ".bz2", ".xz", ".7z", ".rar"}:
         return False
-    return not any(PRIVATE_COMPONENTS.search(part) for part in parts
-                   if part not in {"answer_contract.json", "answer_schema.json", "output_schema.json"}) and (
+    schema_files = {"answer_contract.json", "answer_schema.json", "output_schema.json"}
+    def public_component(index, part):
+        if part in schema_files:
+            return True
+        if parts[:2] == ["environment", "skills"] and index == 3 and part == "references":
+            return True
+        if parts[:2] == ["environment", "tools"] and index == 2 and part == "smoke_test.py":
+            return True
+        return not PRIVATE_COMPONENTS.search(part)
+    return all(public_component(index, part) for index, part in enumerate(parts)) and (
         path in PUBLIC_FILES or (len(parts) > 1 and parts[0] in PUBLIC_DIRS)
     )
 
 
-def unpack(raw):
-    if not raw or len(raw) > MAX_UPLOAD:
+@contextmanager
+def archive_entries(raw):
+    source = io.BytesIO(raw) if isinstance(raw, bytes) else raw
+    if not source or not 0 < source.seek(0, os.SEEK_END) <= MAX_UPLOAD:
         raise Rejected("ZIP size is outside the upload limit")
+    source.seek(0)
     try:
-        with ZipFile(io.BytesIO(raw)) as archive:
+        with ZipFile(source) as archive:
             entries = archive.infolist()
             if len(entries) > 4096 or sum(info.file_size for info in entries) > MAX_UNPACKED:
                 raise Rejected("ZIP exceeds file count or expanded size limit")
@@ -80,18 +91,23 @@ def unpack(raw):
                     if key in seen:
                         raise Rejected("Duplicate archive path")
                     seen.add(key)
-                    files["/".join(parts)] = archive.read(info)
-    except (BadZipFile, NotImplementedError, RuntimeError, OSError) as exc:
+                    files["/".join(parts)] = info
+            if not files:
+                raise Rejected("ZIP contains no files")
+            while all("/" in name for name in files) and len({name.split("/")[0] for name in files}) == 1:
+                files = {name.split("/", 1)[1]: info for name, info in files.items()}
+            folded = {unicodedata.normalize("NFC", key).casefold() for key in files}
+            for path in folded:
+                if any("/".join(path.split("/")[:i]) in folded for i in range(1, len(path.split("/")))):
+                    raise Rejected("ZIP has a file and directory collision")
+            yield archive, files
+    except (BadZipFile, NotImplementedError, RuntimeError, OSError, EOFError) as exc:
         raise Rejected("Could not read ZIP archive") from exc
-    if not files:
-        raise Rejected("ZIP contains no files")
-    while all("/" in name for name in files) and len({name.split("/")[0] for name in files}) == 1:
-        files = {name.split("/", 1)[1]: data for name, data in files.items()}
-    folded = {unicodedata.normalize("NFC", key).casefold() for key in files}
-    for path in folded:
-        if any("/".join(path.split("/")[:i]) in folded for i in range(1, len(path.split("/")))):
-            raise Rejected("ZIP has a file and directory collision")
-    return files
+
+
+def unpack(raw):
+    with archive_entries(raw) as (archive, entries):
+        return {name: archive.read(info) for name, info in entries.items()}
 
 
 SCHEMA = (
@@ -154,36 +170,56 @@ class Store:
             connection.close()
 
     def put(self, data):
-        digest = sha256(data)
-        target = self.directory / "objects" / digest[:2] / digest
-        target.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
-        if not target.exists():
-            with NamedTemporaryFile(dir=target.parent, delete=False) as file:
-                temporary = Path(file.name)
-                try:
-                    file.write(data)
-                    file.close()
-                    os.replace(temporary, target)
-                finally:
-                    temporary.unlink(missing_ok=True)
-        return digest
+        return self.put_stream(io.BytesIO(data))
 
     def get(self, digest):
+        return self.verified_path(digest).read_bytes()
+
+    def put_stream(self, source):
+        objects = self.directory / "objects"
+        objects.mkdir(exist_ok=True, mode=0o700)
+        hasher = hashlib.sha256()
+        with NamedTemporaryFile(dir=objects, delete=False) as file:
+            temporary = Path(file.name)
+            try:
+                for chunk in iter(lambda: source.read(1024 * 1024), b""):
+                    hasher.update(chunk)
+                    file.write(chunk)
+                file.close()
+                digest = hasher.hexdigest()
+                target = self.object_path(digest)
+                target.parent.mkdir(exist_ok=True, mode=0o700)
+                if not target.exists():
+                    try:
+                        os.replace(temporary, target)
+                    except PermissionError:
+                        if not target.exists():
+                            raise
+                return digest
+            finally:
+                temporary.unlink(missing_ok=True)
+
+    def object_path(self, digest):
         if not re.fullmatch(r"[0-9a-f]{64}", digest):
             raise Rejected("Invalid object hash")
-        data = (self.directory / "objects" / digest[:2] / digest).read_bytes()
-        if sha256(data) != digest:
-            raise Rejected("Asset integrity verification failed")
-        return data
+        return self.directory / "objects" / digest[:2] / digest
 
-    def bundle(self, files, raw):
-        return {
-            "archive": self.put(raw),
-            "files": {
-                name: {"sha256": self.put(data), "size": len(data), "public": public_path(name)}
-                for name, data in sorted(files.items())
-            },
-        }
+    def verified_path(self, digest):
+        target = self.object_path(digest)
+        with target.open("rb") as file:
+            if hashlib.file_digest(file, "sha256").hexdigest() != digest:
+                raise Rejected("Asset integrity verification failed")
+        return target
+
+    def bundle(self, raw):
+        source = io.BytesIO(raw) if isinstance(raw, bytes) else raw
+        files = {}
+        with archive_entries(source) as (archive, entries):
+            for name, info in sorted(entries.items()):
+                with archive.open(info) as file:
+                    files[name] = {"sha256": self.put_stream(file), "size": info.file_size, "public": public_path(name)}
+        source.seek(0)
+        return {"archive": self.put_stream(source), "files": files}
 
     def git(self, *args, data=None, repo=True):
         command = ["git"]

@@ -3,6 +3,7 @@ import argparse
 import io
 import json
 import os
+import shutil
 from pathlib import Path
 from zipfile import ZIP_DEFLATED, ZipFile, ZipInfo
 
@@ -64,8 +65,8 @@ def main():
     if args.command == "export":
         with store.transaction(write=False) as db:
             version, manifest = flow.version(db, args.task, args.version)
-        with args.output.open("xb") as file:
-            file.write(store.get(manifest["archive"]))
+        with store.verified_path(manifest["archive"]).open("rb") as source, args.output.open("xb") as file:
+            shutil.copyfileobj(source, file)
         print(encode({"task": args.task, "version": args.version, "commit_sha": version["sha"]}))
     elif args.command == "ingest":
         worker = {"id": "isolated-worker", "role": "worker"}
@@ -79,8 +80,12 @@ def main():
             source = (args.manifest.resolve().parent / item["path"]).resolve()
             actor = {"id": item["owner"], "role": "author", "teams": [item["team"]]}
             try:
-                raw = folder_zip(source) if source.is_dir() else source.read_bytes()
-                task = flow.intake(actor, item["team"], item.get("title", source.stem), raw, args.simulated)
+                title = item.get("title", source.stem)
+                if source.is_dir():
+                    task = flow.intake(actor, item["team"], title, folder_zip(source), args.simulated)
+                else:
+                    with source.open("rb") as file:
+                        task = flow.intake(actor, item["team"], title, file, args.simulated)
                 if args.static:
                     with store.transaction(write=False) as db:
                         _, state = flow.row(db, task)

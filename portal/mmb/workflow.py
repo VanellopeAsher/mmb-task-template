@@ -5,7 +5,7 @@ import secrets
 import uuid
 from datetime import datetime, timedelta, timezone
 
-from .storage import Rejected, encode, unpack
+from .storage import Rejected, encode
 
 TEAMS = {
     "thermal": ("Thermal Functional Materials", "郝红霞教授团队", "A3"),
@@ -164,8 +164,7 @@ class Workflow:
         allow(team in actor.get("teams", TEAMS))
         require(team in TEAMS, "Unknown team")
         text_fields({"title": title}, "title")
-        files = unpack(raw)
-        manifest = self.store.bundle(files, raw)
+        manifest = self.store.bundle(raw)
         with self.store.transaction() as db:
             task_id = "MMB-" + hashlib.sha256(
                 encode([team, actor["id"], manifest["archive"], bool(simulated)]).encode()
@@ -229,7 +228,7 @@ class Workflow:
         require(state["stage"] in REVISION_STAGES | {"CALIBRATION"}, "Task is not awaiting a revision")
         text_fields(payload, "note")
         require(not state["simulated"] or state["version"] < 3, "Simulation revision limit reached")
-        fresh = self.store.bundle(unpack(raw or b""), raw)
+        fresh = self.store.bundle(raw or b"")
         changed, invalidated, redo_domain = impact(manifest["files"], fresh["files"])
         require(changed, "Uploaded revision has no file changes")
         number = state["version"] + 1
@@ -354,7 +353,7 @@ class Workflow:
         require(kind in CHECKS and status in {"PASS", "FAIL", "NEEDS EVIDENCE", "INVALID RUN"},
                 "Invalid check kind or verdict")
         require(data.get("commit_sha") == sha, "Check commit SHA does not match this version")
-        preflight = state["stage"] == "PREFLIGHT" and kind in {*PRECHECKS, "rubric"}
+        preflight = state["stage"] in {"PREFLIGHT", "NEEDS_AUTHOR_INPUT"} and kind in {*PRECHECKS, "rubric"}
         running = state["stage"] in {"TECHNICAL_REVIEW", "AGENT_EVALUATION"} and kind not in PRECHECKS
         require(preflight or running, "Check is unavailable in this phase")
         text_fields(data, "criterion_id", "evidence_location", "log")
@@ -389,7 +388,8 @@ class Workflow:
                 self.block_revision(state, data["problem_description"])
         elif status == "INVALID RUN":
             state["blocker"] = "Execution invalid. Repair the worker or verifier and retry."
-        elif preflight and all(state["checks"].get(k, {}).get("status") == "PASS" for k in PRECHECKS):
+        elif (preflight and state["stage"] == "PREFLIGHT"
+              and all(state["checks"].get(k, {}).get("status") == "PASS" for k in PRECHECKS)):
             state.update(stage=state["resume_stage"] or "AWAITING_DOMAIN_REVIEWER", blocker="", resume_stage="")
         elif not any(check["status"] == "INVALID RUN" for check in state["checks"].values()):
             state["blocker"] = ""

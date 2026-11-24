@@ -1,6 +1,5 @@
 """Portal HTTP interface. Role membership is assigned by the deployment operator."""
 import hmac
-import io
 import json
 import os
 import re
@@ -171,7 +170,7 @@ def create_app(config=None):
             try:
                 title = request.form.get("title", "").strip() if len(uploads) == 1 else ""
                 task = flow.intake(g.actor, team, title or Path(upload.filename).stem,
-                                   upload.stream.read(MAX_UPLOAD + 1))
+                                   upload.stream)
                 results.append({"task": task})
             except Denied:
                 raise
@@ -223,7 +222,7 @@ def create_app(config=None):
             meta = manifest["files"].get(name)
             if not meta or (not meta["public"] and not can_read_private(task, state, g.actor)):
                 abort(404)
-        return send_file(io.BytesIO(store.get(meta["sha256"])), mimetype="application/octet-stream",
+        return send_file(store.verified_path(meta["sha256"]), mimetype="application/octet-stream",
                          as_attachment=True, download_name=Path(name).name)
 
     @app.post("/task/<task_id>/<action>")
@@ -234,7 +233,7 @@ def create_app(config=None):
             upload = request.files.get("archive")
             require(upload is not None, "Upload a revised ZIP")
             payload = {"note": request.form.get("note"), "revision": request.form.get("revision", type=int)}
-            return jsonify(flow.command(task_id, g.actor, action, payload, upload.stream.read(MAX_UPLOAD + 1)))
+            return jsonify(flow.command(task_id, g.actor, action, payload, upload.stream))
         require(request.is_json, "Command requires JSON")
         return jsonify(flow.command(task_id, g.actor, action, request.get_json()))
 

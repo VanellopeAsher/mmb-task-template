@@ -1,4 +1,5 @@
 """Trusted, read-only checks. Files supplied by authors are never executed here."""
+import ast
 import importlib.util
 import re
 import tempfile
@@ -77,6 +78,20 @@ def static_reports(files, diagnostics=None):
                 problems = ["Verifier source could not be analyzed as text."]
             problems = [problem.replace(str(root) + str(Path("/")), "").replace(str(root), "")
                         for problem in problems]
+            for filename, data in files.items():
+                if filename.startswith("tests/") and filename.endswith(".py"):
+                    try:
+                        nodes = ast.walk(ast.parse(data))
+                        for node in nodes:
+                            if not isinstance(node, ast.Assign) or not any(
+                                isinstance(target, ast.Name) and target.id == "reward" for target in node.targets
+                            ):
+                                continue
+                            if any(isinstance(value, ast.BinOp) and isinstance(value.op, ast.Div)
+                                   for value in ast.walk(node.value)):
+                                problems.append(f"{filename}: reward is assigned from a division")
+                    except (SyntaxError, ValueError, RecursionError):
+                        continue
             advisory = [problem for problem in problems if "no write to it could be identified" in problem]
             if diagnostics is not None:
                 diagnostics.extend(advisory)
