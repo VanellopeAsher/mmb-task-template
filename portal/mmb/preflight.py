@@ -25,7 +25,7 @@ def load(name):
     return module
 
 
-def static_reports(files):
+def static_reports(files, diagnostics=None):
     reference = "problem.md" if "problem.md" in files else "instruction.md"
     issues = []
     if reference not in files:
@@ -75,9 +75,15 @@ def static_reports(files):
                 problems = load("check-binary-reward").check_task(root)
             except (UnicodeError, SyntaxError, RecursionError, ValueError):
                 problems = ["Verifier source could not be analyzed as text."]
-            if problems:
+            problems = [problem.replace(str(root) + str(Path("/")), "").replace(str(root), "")
+                        for problem in problems]
+            advisory = [problem for problem in problems if "no write to it could be identified" in problem]
+            if diagnostics is not None:
+                diagnostics.extend(advisory)
+            confirmed = [problem for problem in problems if problem not in advisory]
+            if confirmed:
                 issues.append(("T4", "tests/", "Use binary reward writes and address static diagnostics: "
-                               + str(problems)[:1200]))
+                               + str(confirmed)[:1200]))
     return [
         {"criterion_id": criterion, "status": "NEEDS EVIDENCE" if path not in files and path != "tests/" else "FAIL",
          "evidence_location": path, "problem_description": change, "required_changes": change,
@@ -137,9 +143,10 @@ def report(workflow, task_id, actor):
                          "status": "PASS", "log": "Advisory public-prompt comparison", **result})
     if "static" in state["checks"] and state["checks"]["static"]["status"] == "PASS":
         return []
-    issues = static_reports(files)
+    diagnostics = []
+    issues = static_reports(files, diagnostics)
     evidence = {"kind": "static", "criterion_id": "T1", "evidence_location": "task.toml",
-                "status": "PASS", "log": "Static package and verifier checks completed"}
+                "status": "PASS", "log": "Static package and verifier checks completed", "diagnostics": diagnostics}
     if issues:
         evidence.update(issues[0], findings=issues, log="Static findings require repair or additional evidence")
     workflow.command(task_id, worker, "check", {**info, **evidence})

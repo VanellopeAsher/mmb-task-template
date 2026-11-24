@@ -76,8 +76,9 @@ def run_bundle(raw, commit_sha, version):
                 exception = f"{kind} {type(error).__name__}"
                 log = exception
             reward = None
-            if kind != "build" and not exception:
-                reward, exception = trial_reward(jobs)
+            if kind != "build":
+                if not exception:
+                    reward, exception = trial_reward(jobs)
                 if jobs.exists():
                     shutil.rmtree(jobs)
             status = "INVALID RUN" if exception else "PASS" if kind == "build" or reward == int(kind == "oracle") else "FAIL"

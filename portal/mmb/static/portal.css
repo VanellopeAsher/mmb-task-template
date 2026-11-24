@@ -32,7 +32,6 @@ th{background:#e9efe8;font-size:.79rem}tr:last-child td{border-bottom:0}td small
 .blocking{display:block;color:var(--warn);font-size:.8rem;max-width:390px;margin-top:5px}
 .empty{padding:36px;text-align:center;color:var(--muted)}
 .panel{background:var(--paper);border:1px solid var(--line);border-radius:8px;margin:0 0 14px;padding:18px;min-width:0}
-# import{scroll-margin-top:12px}
 #import{margin-top:22px}.auth{max-width:450px;margin:55px auto}.auth h1{margin-bottom:18px}.auth label{margin:14px 0}
 .task-layout{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:16px}
 .priority{border-left:4px solid var(--accent)}.back{display:inline-block;margin-top:25px}
