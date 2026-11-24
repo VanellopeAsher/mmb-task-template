@@ -123,7 +123,8 @@ class WorkflowTest(unittest.TestCase):
         self.assertEqual(reviewer.get(secret).status_code, 404)
         self.assertNotIn(b"solution/answer.json", reviewer.get(f"/task/{task}").data)
         self.post("reviewer", task, "baseline", BASELINE)
-        self.assertIn(b"DO_NOT_EXPOSE", reviewer.get(secret).data)
+        with reviewer.get(secret) as dossier:
+            self.assertIn(b"DO_NOT_EXPOSE", dossier.data)
         self.post("reviewer", task, "baseline", BASELINE, 422)
         self.post("reviewer", task, "escalate", {"reason": "No outstanding issue"}, 422)
         self.post("reviewer", task, "uncertainty", {"criterion_id": "S8", "major": True,

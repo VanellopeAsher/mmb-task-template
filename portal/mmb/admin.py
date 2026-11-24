@@ -23,7 +23,8 @@ def folder_zip(directory):
                 raise ValueError("Task package contains a symbolic link")
             if path.is_file():
                 relative = path.relative_to(directory).as_posix()
-                if any(part.startswith(".") or part == "__pycache__" for part in relative.split("/")):
+                if any(part.startswith(".") and part != ".dockerignore" or part == "__pycache__"
+                       for part in relative.split("/")):
                     continue
                 info = ZipInfo(relative)
                 info.compress_type = ZIP_DEFLATED

@@ -88,6 +88,7 @@ def static_reports(files, diagnostics=None):
                             ):
                                 continue
                             if any(isinstance(value, ast.BinOp) and isinstance(value.op, ast.Div)
+                                   and isinstance(value.right, ast.Constant) and type(value.right.value) in {int, float}
                                    for value in ast.walk(node.value)):
                                 problems.append(f"{filename}: reward is assigned from a division")
                     except (SyntaxError, ValueError, RecursionError):

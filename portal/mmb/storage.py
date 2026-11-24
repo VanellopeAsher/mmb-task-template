@@ -41,7 +41,8 @@ def safe_parts(path):
     safe = path.replace("\\", "/")
     parts = safe.rstrip("/").split("/")
     if not all(
-        part and part not in {".", ".."} and not part.startswith(".") and not part.endswith((" ", "."))
+        part and part not in {".", ".."} and (not part.startswith(".") or part == ".dockerignore" and len(parts) >= 2
+             and parts[-2] in {"environment", "tests"} and parts[-1] == part) and not part.endswith((" ", "."))
         and not re.search(r'[<>:"|?*\x00-\x1f]', part)
         and not re.fullmatch(r"(?:CON|PRN|AUX|NUL|CONIN\$|CONOUT\$|COM[1-9¹²³]|LPT[1-9¹²³])(?:\..*)?", part, re.I)
         for part in parts
@@ -58,7 +59,10 @@ def public_path(path):
     def public_component(index, part):
         if part in schema_files:
             return True
-        if parts[:2] == ["environment", "skills"] and index == 3 and part == "references":
+        if parts[:2] == ["environment", "skills"] and (
+            index == 3 and part == "references" or index == 4 and parts[3] == "references"
+            and part == "test_selection_guide.md"
+        ):
             return True
         if parts[:2] == ["environment", "tools"] and index == 2 and part == "smoke_test.py":
             return True
