@@ -254,7 +254,7 @@ class Store:
         return sha
 
 
-def github_commit(task, version, data):
+def github_client(permissions):
     import time
     import jwt
     repository = os.environ["MMB_GITHUB_REPOSITORY"]
@@ -275,19 +275,44 @@ def github_commit(task, version, data):
                            Path(os.environ["MMB_GITHUB_APP_KEY_FILE"]).read_bytes(), algorithm="RS256")
     installation = os.environ["MMB_GITHUB_INSTALLATION_ID"]
     token = api(f"app/installations/{installation}/access_tokens", jwt_token,
-                {"repositories": [repository.split("/")[1]], "permissions": {"contents": "write"}})["token"]
+                {"repositories": [repository.split("/")[1]], "permissions": permissions})["token"]
     root = f"repos/{repository}"
     if api(root, token)["private"] is not True:
         raise Rejected("Manifest repository must be private")
-    path = f"{root}/contents/manifests/{task}/v{version}.json"
+    def request(path, payload=None, method=None):
+        return api(root + "/" + path, token, payload, method)
+    return request
+
+
+def github_commit(task, version, data):
+    request = github_client({"contents": "write"})
+    path = f"contents/manifests/{task}/v{version}.json"
     try:
-        response = api(path, token, {"message": f"{task} v{version}",
+        response = request(path, {"message": f"{task} v{version}",
                                      "content": base64.b64encode(data).decode()}, "PUT")
         return response["commit"]["sha"]
     except urllib.error.HTTPError as exc:
         if exc.code not in {409, 422}:
             raise
-        previous = api(path, token)
+        previous = request(path)
         if base64.b64decode(previous["content"]) != data:
             raise Rejected("GitHub version already exists with a different manifest") from exc
-        return api(f"{root}/commits?path=manifests/{task}/v{version}.json&per_page=1", token)[0]["sha"]
+        return request(f"commits?path=manifests/{task}/v{version}.json&per_page=1")[0]["sha"]
+
+
+def publish_github_check(task, report):
+    request = github_client({"checks": "write"})
+    sha = report["commit_sha"]
+    kind = report["kind"]
+    name = f"MMB / {kind}"
+    external_id = f"{task}/v{report['version']}/{kind}"
+    verdict = {"PASS": "success", "FAIL": "failure", "NEEDS EVIDENCE": "action_required",
+               "INVALID RUN": "action_required"}[report["status"]]
+    output = {"title": f"{kind}: {report['status']}",
+              "summary": f"Criterion {report['criterion_id']} · Evidence: {report['evidence_location']}"}
+    current = request(f"commits/{sha}/check-runs?check_name=MMB%20%2F%20{kind}&filter=all&per_page=100")
+    payload = {"name": name, "status": "completed", "conclusion": verdict, "external_id": external_id, "output": output}
+    for check in current["check_runs"]:
+        if check["external_id"] == external_id:
+            return request(f"check-runs/{check['id']}", payload, "PATCH")
+    return request("check-runs", {**payload, "head_sha": sha}, "POST")

@@ -1,0 +1,25 @@
+MMB local Windows integration, Python 3.13.5
+PASS browser sign-in, ZIP import, static preflight, author-forwarded invitation, blind lock, dossier access
+PASS test_domain_escalation_and_formal_admission
+PASS test_harbor_result_parser
+PASS test_invalid_is_not_zero_and_upload_is_safe
+PASS test_revision_preserves_history_and_relocks
+PASS test_webhook_replay
+
+GitHub Actions run 45438084904
+PASS integration (sqlite)
+PASS integration (postgres)
+PASS public-reference-preflight, public Example 05 at c6de6b8a7bb33c81b40942bb9f6f0019ea392cde
+  Docker Build   exit 0
+  Harbor Oracle  exit 0, reward 1
+  Harbor NOP     exit 0, reward 0
+
+Private local batch
+101 task packages imported
+77 awaiting author input
+24 awaiting isolated execution evidence
+
+Private isolated three-case workflow rehearsal
+evidence          NEEDS_AUTHOR_INPUT      [0]    11 issues
+engineering       NEEDS_AUTHOR_INPUT      [0,1]   5 issues
+public-reference  NEEDS_AUTHOR_EVIDENCE   [0]     1 issue

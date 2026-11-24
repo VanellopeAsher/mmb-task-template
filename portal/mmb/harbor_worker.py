@@ -10,6 +10,7 @@ import re
 import shutil
 import subprocess
 import tempfile
+import uuid
 from pathlib import Path
 
 from .preflight import static_reports
@@ -83,7 +84,8 @@ def run_bundle(raw, commit_sha, version):
                     shutil.rmtree(jobs)
             status = "INVALID RUN" if exception else "PASS" if kind == "build" or reward == int(kind == "oracle") else "FAIL"
             result = {"kind": kind, "status": status, "criterion_id": criterion, "commit_sha": commit_sha,
-                      "version": version, "evidence_location": f"harbor:{commit_sha}/{kind}", "log": log}
+                      "version": version, "evidence_location": f"harbor:{commit_sha}/{kind}", "log": log,
+                      "run_id": uuid.uuid4().hex}
             if kind != "build":
                 result.update(reward=reward, exception=exception)
             if status == "FAIL":

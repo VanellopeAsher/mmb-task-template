@@ -2,13 +2,13 @@
 
 MMB target is [VanellopeAsher/mmb-task-template](https://github.com/VanellopeAsher/mmb-task-template), based on main `c6de6b8a7bb33c81b40942bb9f6f0019ea392cde`. The project directory contains the eight-team intake materials and a nested checkout of the public template repository. No Portal, authentication, database, deployment or workflow state store existed in that checkout. Existing Python task packaging, six example folders, and task-specific GitHub Actions remain in place. The examples are prior reference packages. The private collaboration intake has separate provenance.
 
-`git ls-remote` reported upstream HEAD and main at the design's [e84fba709382ba3d7d4c129e24c904254991dc32](https://github.com/harbor-framework/terminal-bench-science/tree/e84fba709382ba3d7d4c129e24c904254991dc32). Its code is Apache-2.0. The selected scripts and rubric retain their upstream text and license in the Portal vendor directory. The upstream repository is read-only for this work.
+`git ls-remote` reported upstream HEAD and main at the design's [e84fba709382ba3d7d4c129e24c904254991dc32](https://github.com/harbor-framework/terminal-bench-science/tree/e84fba709382ba3d7d4c129e24c904254991dc32). Its code is Apache-2.0. The selected Python scripts and rubric retain their upstream text and license in the Portal vendor directory. The upstream repository is read-only for this work.
 
 ## Direct reuse
 
 | Upstream path | Interface and MMB use |
 | --- | --- |
-| `ci_checks/check-binary-reward.py`, `ci_checks/check-separate-verifier.sh`, `ci_checks/check-test-sh-sanity.sh`, `ci_checks/check-allow-internet.sh` | Local static analysis of staged task files, using trusted upstream scripts. Python and Bash dependencies. Static verdicts are diagnostic evidence. |
+| `ci_checks/check-binary-reward.py`, `ci_checks/check-separate-verifier.sh`, `ci_checks/check-test-sh-sanity.sh`, `ci_checks/check-allow-internet.sh` | The binary source analyzer runs directly. The other upstream checks define the contract for MMB's Python checks on explicit separate-verifier settings, artifact declarations and no-network policy. |
 | `ci_checks/check-similarity.py` | TF-IDF cosine similarity via scikit-learn. MMB calls the comparison function against local public prompts. Similarity flags are advisory. |
 | `.github/workflows/validate-task{,-auto,-report}.yml`, `retry_docker_build.py`, `check-verifier-output.py` | Public build context, Harbor Docker evaluation, Oracle and NOP reward assertions, and separate reporting. MMB keeps commit-bound structured evidence. A Docker/Harbor executor must run separately from the Portal. |
 | `.github/workflows/run-oracle.yml`, `run-trials.yml` | Harbor `run -p PATH --env docker --agent oracle/nop` and model trials. Upstream reads trial JSON and records logs, costs and Hub links. MMB accepts versioned per-trial results with invalid-run semantics. |

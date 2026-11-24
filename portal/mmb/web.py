@@ -5,6 +5,7 @@ import os
 import re
 import secrets
 from pathlib import Path
+from collections import Counter
 
 from flask import Flask, abort, g, jsonify, redirect, render_template, request, send_file, session, url_for
 from werkzeug.security import check_password_hash
@@ -199,13 +200,19 @@ def create_app(config=None):
                     events.append({**dict(row), "data": data if private else {"stage": data.get("stage", "")}})
             versions = db.execute("SELECT version, sha FROM versions WHERE task=? ORDER BY version DESC",
                                   (task_id,)).fetchall()
+        models = {}
+        for trial in state["trials"]:
+            if trial["mode"] == "formal" and trial["status"] == "VALID":
+                key = (trial["model"], trial["model_version"])
+                stats = models.setdefault(key, Counter())
+                stats.update({"valid": 1, "passed": trial["reward"]})
         issue_view = state["issues"] if private else {}
         prompts = [name for name, meta in files if name in {"problem.md", "instruction.md"}]
         return render_template("task.html", task=display(task, state), issues=issue_view,
                                uncertainties=state["uncertainties"] if private else {},
                                files=files, private=private, events=events, versions=versions, sha=version["sha"],
                                check_details=state["checks"] if private else {},
-                               trial_details=state["trials"] if private else [],
+                               trial_details=state["trials"] if private else [], model_rates=models if private else {},
                                active=state.get("active_reviewer") == g.actor["id"], domain=DOMAIN,
                                technical=TECHNICAL, check_kinds=CHECKS, prompts=prompts,
                                previous_reviewers=state.get("previous_reviewers", []) if private else [])

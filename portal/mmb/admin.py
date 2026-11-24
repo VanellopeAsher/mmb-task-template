@@ -10,7 +10,7 @@ from zipfile import ZIP_DEFLATED, ZipFile, ZipInfo
 from werkzeug.security import generate_password_hash
 
 from .preflight import report
-from .storage import Store, encode
+from .storage import Store, encode, publish_github_check
 from .web import create_app
 from .workflow import Workflow
 
@@ -49,7 +49,9 @@ def main():
     ingest = commands.add_parser("ingest")
     ingest.add_argument("task")
     ingest.add_argument("report", type=Path)
+    ingest.add_argument("--publish-checks", action="store_true")
     commands.add_parser("serve")
+    commands.add_parser("static-sweep")
     args = parser.parse_args()
 
     if args.command == "hash-password":
@@ -63,7 +65,18 @@ def main():
         return
     store = Store(args.data, os.getenv("MMB_DATABASE_URL", ""))
     flow = Workflow(store)
-    if args.command == "export":
+    if args.command == "static-sweep":
+        with store.transaction(write=False) as db:
+            rows = db.execute("SELECT id, state FROM tasks ORDER BY id").fetchall()
+        for row in rows:
+            state = json.loads(row["state"])
+            if state["stage"] in {"IMPORTED", "PREFLIGHT"}:
+                try:
+                    results = report(flow, row["id"], {"id": "static-sweep", "role": "technical"})
+                    print(encode({"task": row["id"], "findings": results}))
+                except (OSError, ValueError) as error:
+                    print(encode({"task": row["id"], "error": str(error)}))
+    elif args.command == "export":
         with store.transaction(write=False) as db:
             version, manifest = flow.version(db, args.task, args.version)
         with store.verified_path(manifest["archive"]).open("rb") as source, args.output.open("xb") as file:
@@ -75,6 +88,15 @@ def main():
         for item in results:
             action = "check" if "kind" in item else "trial"
             print(encode(flow.command(args.task, worker, action, item)))
+            if args.publish_checks and action == "check":
+                with store.transaction(write=False) as db:
+                    _, state = flow.row(db, args.task)
+                if state["simulated"]:
+                    raise ValueError("Simulated checks stay in the simulation ledger")
+                effective = state["checks"][item["kind"]]
+                if effective["commit_sha"] != item["commit_sha"]:
+                    raise ValueError("Cannot publish mismatched check evidence")
+                publish_github_check(args.task, effective)
     else:
         items = json.loads(args.manifest.read_text(encoding="utf-8"))
         for item in items:

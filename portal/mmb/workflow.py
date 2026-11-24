@@ -34,7 +34,8 @@ LATE_CHECKS = ("verifier_qa", "isolation", "leakage", "cheat")
 CHECKS = PRECHECKS + LATE_CHECKS + ("baseline", "rubric", "trace")
 ROUTES = ("READY_MAIN", "CALIBRATION", "REVISION_REQUIRED", "NEEDS_AUTHOR_EVIDENCE", "EXCLUDED")
 POSITIVE = {"canonical", "independent", "equivalent", "units", "boundary"}
-NEGATIVE = {"nop", "empty", "partial", "wrong", "near_miss", "fabricated_evidence", "irrelevant_keywords"}
+NEGATIVE = {"nop", "empty", "partial", "wrong", "near_miss", "fabricated_evidence",
+            "irrelevant_keywords", "hardcoded_response"}
 CHEAT_CATEGORIES = {"Answer Leakage", "Verifier Permissiveness", "Grader Tampering", "Constraint Evasion"}
 FAILURES = {"Scientific Reasoning", "Domain Knowledge", "Data Analysis", "Tool Use", "Execution",
             "Task Specification", "Environment", "Verifier"}
@@ -99,7 +100,7 @@ def impact(before, after):
     if all(p.startswith("authoring/formatting/") for p in changed):
         return changed, {"static"}, False
     if all(p.startswith("tests/") for p in changed):
-        return changed, {"static", "build", "oracle", "nop", *LATE_CHECKS}, True
+        return changed, {"static", "build", "oracle", "nop", "baseline", "trace", *LATE_CHECKS}, True
     return changed, set(CHECKS), True
 
 
@@ -125,7 +126,7 @@ def can_read_private(task, state, actor):
 def new_state(simulated):
     return {"stage": "IMPORTED", "version": 0, "level": 1, "checks": {}, "trials": [],
             "reviews": {}, "uncertainties": {}, "issues": {}, "invite": None, "blocker": "",
-            "final_route": "", "simulated": simulated, "review_return": [], "technical": {},
+            "final_route": "", "simulated": simulated, "review_return": [], "technical": {}, "baseline_scores": {},
             "domain": {}, "resume_stage": "", "updated": now()}
 
 
@@ -196,6 +197,9 @@ class Workflow:
 
     def command(self, task_id, actor, action, payload, raw=None):
         require(isinstance(payload, dict), "Command payload must be an object")
+        for field in ("version", "revision"):
+            if field in payload:
+                require(type(payload[field]) is int and payload[field] >= 0, f"Invalid {field}")
         with self.store.transaction() as db:
             task, state = self.row(db, task_id, lock=True)
             version, manifest = self.version(db, task_id, state["version"])
@@ -205,6 +209,15 @@ class Workflow:
                 raise Conflict("Task changed; reload before submitting")
             if action not in {"accept", "decline"}:
                 allow(can_list(task, state, actor))
+            run_id = payload.get("run_id")
+            if action == "trial" or run_id is not None:
+                text_fields(payload, "run_id")
+                if action not in {"check", "trial"}:
+                    raise Rejected("Run identifier applies to worker evidence only")
+                actor_role(actor, "worker")
+                previous = self.worker_replay(db, task_id, state["version"], action, run_id, payload)
+                if previous:
+                    return {"stage": state["stage"], "version": state["version"], "duplicate": True}
             if state["stage"] in {"READY_MAIN", "EXCLUDED"}:
                 raise Conflict("This task is frozen")
             result = {}
@@ -220,8 +233,23 @@ class Workflow:
                 event = {**state["checks"][payload["kind"]], "stage": state["stage"]}
             if action == "trial":
                 event = {**state["trials"][-1], "stage": state["stage"]}
+            if run_id is not None:
+                event["payload_digest"] = token_digest(encode(payload))
             self.save(db, task, state, actor, action.upper(), event, sha)
             return {"stage": state["stage"], "version": state["version"], **result}
+
+    def worker_replay(self, db, task, version, action, run_id, payload):
+        previous = db.execute(
+            "SELECT data FROM events WHERE task=? AND version=? AND kind=?",
+            (task, version, action.upper()),
+        ).fetchall()
+        for event in previous:
+            prior = json.loads(event["data"])
+            if prior.get("run_id") == run_id:
+                if prior.get("payload_digest") != token_digest(encode(payload)):
+                    raise Conflict("Worker report identifier already used with different evidence")
+                return True
+        return False
 
     def revise(self, db, task, state, actor, version, manifest, payload, raw):
         allow(task["owner"] == actor["id"] and actor["role"] == "author")
@@ -237,11 +265,11 @@ class Workflow:
         resume = state["stage"]
         if redo_domain:
             state["previous_reviewers"] = list(state["reviews"])
-            state.update(domain={}, technical={}, reviews={}, invite=None, review_return=[], level=1)
+            state.update(domain={}, technical={}, reviews={}, baseline_scores={}, invite=None, review_return=[], level=1)
             state["uncertainties"] = {key: {**item, "status": "REVALIDATION_REQUIRED"}
                                       for key, item in state["uncertainties"].items()}
             state["trials"] = []
-        state.update(stage="PREFLIGHT", version=number, final_route="", blocker="",
+        state.update(stage="PREFLIGHT", version=number, final_route="", blocker="", blocker_adjudication=False,
                      resume_stage=("DOMAIN_REVIEW_COMPLETE" if state["domain"] else ""),
                      checks={k: v for k, v in state["checks"].items() if k not in invalidated})
         event = {"note": payload["note"], "changed": sorted(changed), "rerun": sorted(invalidated),
@@ -322,10 +350,15 @@ class Workflow:
             require(state["checks"].get("cheat", {}).get("status") == "PASS", "Defensive controls must pass")
             text_fields(data, "difficulty", "evidence_location")
             if not any(t["reward"] == 1 for t in formal):
-                require(any(t["mode"] == "hinted" for t in state["trials"]) and
+                require(any(t["mode"] == "hinted" and t["status"] == "VALID" for t in state["trials"]) and
                         state["checks"].get("trace", {}).get("status") == "PASS",
                         "All-fail results require hinted trials and trace diagnosis")
             state.update(stage="FINAL_REVIEW", difficulty=data["difficulty"])
+        elif action == "request_adjudication":
+            actor_role(actor, "technical")
+            require(stage in REVISION_STAGES, "Adjudication of a blocker needs an open revision stage")
+            text_fields(data, "reason", "evidence_location")
+            state.update(stage="FINAL_REVIEW", blocker=data["reason"], blocker_adjudication=True)
         elif action == "decision":
             self.decision(task, state, actor, data)
         elif action == "issue":
@@ -363,6 +396,11 @@ class Workflow:
             status = valid if valid == "INVALID RUN" else (
                 "PASS" if kind == "baseline" or reward == int(kind == "oracle") else "FAIL")
             report["reward"] = reward
+            if kind == "baseline":
+                reviewer = data.get("reviewer")
+                require(isinstance(reviewer, str) and state["reviews"].get(reviewer, {}).get("baseline_locked"),
+                        "Baseline scoring requires the account that locked the attempt")
+                state.setdefault("baseline_scores", {})[reviewer] = {"status": status, "reward": reward, "commit_sha": sha}
         if kind == "verifier_qa" and status == "PASS":
             controls = data.get("controls", {})
             require(isinstance(controls, dict) and all(
@@ -475,12 +513,16 @@ class Workflow:
         require(route in ROUTES, "Invalid final route")
         text_fields(data, "reason", "evidence_location")
         if route in {"READY_MAIN", "CALIBRATION"}:
+            require(not state.get("blocker_adjudication") and set(state["domain"]) == set(DOMAIN)
+                    and set(state["technical"]) == set(TECHNICAL),
+                    "Positive admission requires the ordinary workflow and signed rubrics")
             require(not any(i["status"] == "OPEN" for i in state["issues"].values()), "Open revisions remain")
             require(all(v["status"] == "PASS" for k, v in state["domain"].items() if k != "S11")
                     and all(v["status"] == "PASS" for v in state["technical"].values()),
                     "Applicable scientific and technical gates must pass")
-            require(state["checks"].get("baseline", {}).get("status") == "PASS",
-                    "Score the locked baseline with the task verifier before admission")
+            require(state["reviews"] and all(state.get("baseline_scores", {}).get(reviewer, {}).get("status") == "PASS"
+                                            for reviewer in state["reviews"]),
+                    "Score each locked baseline with the task verifier before admission")
         if route == "READY_MAIN":
             require(not state["simulated"] and all(v["status"] == "PASS" for v in state["domain"].values()),
                     "Main requires real expert review and all scientific gates")

@@ -31,7 +31,7 @@ def run():
     task_path = Path("../task/task_example_05_boundary_discovery")
     archive = folder_zip(task_path)
     accounts = {
-        name: {"role": role, "teams": ["pv"] if role in {"author", "reviewer"} else [],
+        name: {"role": role, "teams": ["catalysis"] if role in {"author", "reviewer"} else [],
                "password_hash": generate_password_hash("only-for-browser-test", method="pbkdf2:sha256:1000")}
         for name, role in (("pv-author", "author"), ("team-reviewer", "reviewer"), ("technical-lead", "technical"))
     }
@@ -59,8 +59,8 @@ def run():
                 author.goto(base + link.get_attribute("href"))
                 real_path = author.url
                 expect(author.get_by_role("heading", name="Author workspace")).to_be_visible()
-                test_actor = {"id": "pv-author", "role": "author", "teams": ["pv"]}
-                simulated = flow.intake(test_actor, "pv", "Electroreduction review rehearsal", archive, simulated=True)
+                test_actor = {"id": "pv-author", "role": "author", "teams": ["catalysis"]}
+                simulated = flow.intake(test_actor, "catalysis", "Electroreduction review rehearsal", archive, simulated=True)
                 technical = browser.new_page(viewport={"width": 1440, "height": 1000})
                 login(technical, base, "technical-lead")
                 technical.goto(real_path)

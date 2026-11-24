@@ -148,19 +148,27 @@ class WorkflowTest(unittest.TestCase):
         self.check(task, "verifier_qa", controls={key: int(key in POSITIVE) for key in POSITIVE | NEGATIVE})
         self.check(task, "isolation")
         self.check(task, "leakage")
-        self.check(task, "baseline", reward=0)
+        for account in ("reviewer", "other", "third"):
+            self.check(task, "baseline", reward=0, reviewer=account)
         self.post("technical", task, "technical", {"verdicts": verdicts(TECHNICAL)})
         self.check(task, "cheat", controls={key: {"passed": True, "evidence_location": key,
                    "repair_guidance": "Test evidence only"} for key in CHEAT_CATEGORIES})
         with self.flow.store.transaction(write=False) as db:
             version, _ = self.flow.version(db, task, 0)
         for model, reward, mode in [("a", 1, "formal"), ("b", 0, "formal"), ("h", 1, "hinted")]:
-            response = self.worker.post(f"/api/worker/{task}/trial", headers=CREDENTIALS, json={
+            trial = {
                 "version": 0, "commit_sha": version["sha"], "mode": mode, "model": model, "model_version": "test",
+                "run_id": "test-" + model,
                 "parameters": {}, "trace": "artifact://trace", "seconds": 1, "cost": 0, "reward": reward,
                 "failure": "Scientific Reasoning",
-            })
+            }
+            endpoint = f"/api/worker/{task}/trial"
+            response = self.worker.post(endpoint, headers=CREDENTIALS, json=trial)
             self.assertEqual(response.status_code, 200, response.get_data(as_text=True))
+            replay = self.worker.post(endpoint, headers=CREDENTIALS, json=trial)
+            self.assertTrue(replay.get_json()["duplicate"])
+            amended = self.worker.post(endpoint, headers=CREDENTIALS, json={**trial, "seconds": 2})
+            self.assertEqual(amended.status_code, 409)
         self.post("technical", task, "finish_evaluation", {"difficulty": "Calibrated", "evidence_location": "trials"})
         result = self.post("final", task, "decision", {"route": "READY_MAIN", "reason": "Synthetic test",
                                                        "evidence_location": "audit"})

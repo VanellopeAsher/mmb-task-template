@@ -26,7 +26,7 @@
 <td><span class="badge {{ 'blocked' if task.blocker else '' }}">{{ task.stage.replace('_',' ')|title }}</span><small>L{{ task.level }} · {{ task.invite_status|title }}</small><small>{{ task.uncertainties }} open uncertainties</small></td>
 <td><strong>{{ task.current_owner }}</strong><small>{{ task.next_action }}</small>{% if task.blocker %}<span class="blocking">{{ task.blocker }}</span>{% endif %}</td>
 <td>{% for name in ('static','build','oracle','nop','verifier_qa') %}<small>{{ name.replace('_',' ')|title }} · {{ task.checks.get(name,'Pending') }}</small>{% endfor %}
-<small>Formal rate · {{ task.pass_rate|string + '%' if task.pass_rate is not none else '—' }}</small><small>{{ task.updated[:10] }}</small></td></tr>
+<small>Formal rate · {{ task.pass_rate|string + '%' if task.pass_rate is not none else '—' }}</small><small><time datetime="{{ task.updated }}">{{ task.updated[:10] }} UTC</time></small></td></tr>
 {% else %}<tr><td colspan="4" class="empty">No tasks match the current view.</td></tr>{% endfor %}</tbody>
 </table></div></section></div>
 {% if actor.role == 'author' %}

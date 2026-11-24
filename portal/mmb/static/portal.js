@@ -1,4 +1,8 @@
 const csrf = document.querySelector('meta[name="csrf-token"]').content;
+const calendar = new Intl.DateTimeFormat('en-CA', { dateStyle: 'medium' });
+for (const stamp of document.querySelectorAll('time[datetime]')) {
+  stamp.textContent = calendar.format(new Date(stamp.dateTime));
+}
 
 function dataFor(form) {
   const data = Object.fromEntries(new FormData(form));

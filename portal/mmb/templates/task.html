@@ -65,6 +65,13 @@
 {% call form('finish_evaluation') %}<label>Difficulty assessment<textarea name="difficulty" required></textarea></label><label>Evidence location<input name="evidence_location" required></label><button>Send to final review</button>{% endcall %}
 {% endif %}
 {% if task.stage in ('PREFLIGHT','TECHNICAL_REVIEW','AGENT_EVALUATION') %}<p>Build, verifier and agent evidence is submitted by the isolated worker for this commit.</p>{% endif %}
+{% if task.stage in ('NEEDS_AUTHOR_INPUT','NEEDS_AUTHOR_EVIDENCE','REVISION_REQUIRED') %}
+<details><summary>Refer a blocking issue to final review</summary>
+{% call form('request_adjudication') %}
+<label>Reason<textarea name="reason" required></textarea></label>
+<label>Evidence location<input name="evidence_location" required></label>
+<button>Refer for adjudication</button>
+{% endcall %}</details>{% endif %}
 </section>{% endif %}
 {% if actor.role == 'final' and task.stage == 'FINAL_REVIEW' %}
 <section class="panel"><h2>Final review</h2>
@@ -91,6 +98,7 @@
 <ul class="assets">{% for name, meta in files %}<li><a href="{{ url_for('asset', task_id=task.id, number=task.version, name=name) }}">{{ name }}</a><small>{{ 'Public' if meta.public else 'Private' }}</small></li>{% endfor %}</ul></section>
 {% if private %}<section class="panel"><h2>Evaluation evidence</h2>
 <p>Formal pass rate <b>{{ task.pass_rate|string + '%' if task.pass_rate is not none else '—' }}</b> · {{ task.trial_count }} valid trials</p>
+{% if model_rates %}<ul class="assets">{% for key, stats in model_rates.items() %}<li><b>{{ key[0] }} · {{ key[1] }}</b><small>{{ stats.passed }}/{{ stats.valid }} passed</small></li>{% endfor %}</ul>{% endif %}
 {% for key, item in check_details.items() %}<details><summary>{{ key.replace('_',' ')|title }} · {{ item.status }}</summary><pre>{{ item|tojson(indent=2) }}</pre></details>{% endfor %}
 {% for item in trial_details %}<details><summary>{{ item.model }} · {{ item.mode|title }} · {{ item.status }}{% if item.reward is not none %} · reward {{ item.reward }}{% endif %}</summary><pre>{{ item|tojson(indent=2) }}</pre></details>{% endfor %}
 </section>{% endif %}
