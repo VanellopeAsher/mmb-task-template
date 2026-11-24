@@ -46,6 +46,11 @@ def main():
     export.add_argument("task")
     export.add_argument("version", type=int)
     export.add_argument("output", type=Path)
+    baseline = commands.add_parser("export-baseline")
+    baseline.add_argument("task")
+    baseline.add_argument("version", type=int)
+    baseline.add_argument("reviewer")
+    baseline.add_argument("output", type=Path)
     ingest = commands.add_parser("ingest")
     ingest.add_argument("task")
     ingest.add_argument("report", type=Path)
@@ -82,6 +87,16 @@ def main():
         with store.verified_path(manifest["archive"]).open("rb") as source, args.output.open("xb") as file:
             shutil.copyfileobj(source, file)
         print(encode({"task": args.task, "version": args.version, "commit_sha": version["sha"]}))
+    elif args.command == "export-baseline":
+        with store.transaction(write=False) as db:
+            result = db.execute("SELECT sha, data FROM events WHERE task=? AND version=? AND kind='BASELINE' AND actor=?",
+                                (args.task, args.version, args.reviewer)).fetchone()
+        if not result:
+            parser.error("No locked baseline matches the version and reviewer")
+        with args.output.open("x", encoding="utf-8") as file:
+            file.write(encode(json.loads(result["data"])["answer"]))
+        print(encode({"task": args.task, "version": args.version, "reviewer": args.reviewer,
+                      "commit_sha": result["sha"]}))
     elif args.command == "ingest":
         worker = {"id": "isolated-worker", "role": "worker"}
         results = json.loads(args.report.read_text(encoding="utf-8"))

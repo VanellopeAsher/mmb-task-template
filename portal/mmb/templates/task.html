@@ -103,7 +103,7 @@
 {% for item in trial_details %}<details><summary>{{ item.model }} · {{ item.mode|title }} · {{ item.status }}{% if item.reward is not none %} · reward {{ item.reward }}{% endif %}</summary><pre>{{ item|tojson(indent=2) }}</pre></details>{% endfor %}
 </section>{% endif %}
 <section class="panel"><h2>Version history</h2>
-<ul class="assets">{% for item in versions %}<li><b>v{{ item.version }}</b><code title="{{ item.sha }}">{{ item.sha[:12] }}</code></li>{% endfor %}</ul>
+<ul class="assets">{% for item in versions %}<li><b>v{{ item.version }}</b>{% if private and item.version %}<a href="{{ url_for('version_diff', task_id=task.id, number=item.version) }}">View changes</a>{% endif %}<code title="{{ item.sha }}">{{ item.sha[:12] }}</code></li>{% endfor %}</ul>
 </section><section class="panel"><h2>Timeline</h2>
 {% for event in events %}<details><summary>{{ event.kind.replace('_',' ')|title }} · v{{ event.version }}{% if event.simulated %} · SIMULATED{% endif %}</summary>
 <small>{{ event.occurred }} · {{ event.actor }}</small>{% if event.data %}<pre>{{ event.data|tojson(indent=2) }}</pre>{% endif %}</details>{% endfor %}

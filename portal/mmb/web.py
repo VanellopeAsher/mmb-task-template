@@ -1,4 +1,5 @@
 """Portal HTTP interface. Role membership is assigned by the deployment operator."""
+import difflib
 import hmac
 import json
 import os
@@ -231,6 +232,41 @@ def create_app(config=None):
                 abort(404)
         return send_file(store.verified_path(meta["sha256"]), mimetype="application/octet-stream",
                          as_attachment=True, download_name=Path(name).name)
+
+    @app.get("/task/<task_id>/diff/<int:number>")
+    def version_diff(task_id, number):
+        if number < 1:
+            abort(404)
+        with store.transaction(write=False) as db:
+            task, state = flow.row(db, task_id)
+            if not can_list(task, state, g.actor):
+                abort(404)
+            if g.actor["role"] == "reviewer" and not can_read_private(task, state, g.actor):
+                abort(404)
+            _, prior = flow.version(db, task_id, number - 1)
+            _, current = flow.version(db, task_id, number)
+        changes = []
+        left, right = prior["files"], current["files"]
+        for name in sorted(left.keys() | right.keys()):
+            before, after = left.get(name), right.get(name)
+            if before == after:
+                continue
+            material = [item for item in (before, after) if item]
+            if g.actor["role"] == "reviewer" and not all(item["public"] for item in material):
+                continue
+            diff = ""
+            if len(changes) < 100 and all(item["size"] <= 48 * 1024 for item in material):
+                try:
+                    old = store.get(before["sha256"]).decode("utf-8") if before else ""
+                    new = store.get(after["sha256"]).decode("utf-8") if after else ""
+                    if "\x00" not in old + new:
+                        diff = "\n".join(difflib.unified_diff(old.splitlines(), new.splitlines(),
+                                                              f"v{number-1}/{name}", f"v{number}/{name}"))
+                except UnicodeDecodeError:
+                    pass
+            changes.append((name, "Modified" if before and after else "Added" if after else "Removed",
+                            (before or {}).get("sha256"), (after or {}).get("sha256"), diff))
+        return render_template("diff.html", task=task, version=number, changes=changes)
 
     @app.post("/task/<task_id>/<action>")
     def command(task_id, action):

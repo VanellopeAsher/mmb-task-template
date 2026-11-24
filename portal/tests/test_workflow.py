@@ -197,9 +197,13 @@ class WorkflowTest(unittest.TestCase):
         self.preflight(task)
         self.invite(task, "reviewer")
         client = self.clients["reviewer"]
+        diff_url = f"/task/{task}/diff/1"
+        self.assertIn(b"solution/answer.json", self.clients["author"].get(diff_url).data)
+        self.assertEqual(client.get(diff_url).status_code, 404)
         self.assertEqual(client.get(f"/task/{task}/asset/0/solution/answer.json").status_code, 403)
         self.assertEqual(client.get(f"/task/{task}/asset/1/solution/answer.json").status_code, 404)
         self.post("reviewer", task, "baseline", BASELINE)
+        self.assertNotIn(b"solution/answer.json", client.get(diff_url).data)
         self.post("reviewer", task, "close_issue", {"issue_id": key, "evidence_location": "solution/answer.json",
                                                     "acceptance_result": "Independently confirmed"})
         with self.flow.store.transaction(write=False) as db:
