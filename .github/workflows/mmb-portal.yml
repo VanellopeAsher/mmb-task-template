@@ -1,0 +1,82 @@
+name: MMB Portal
+on:
+  pull_request:
+    paths:
+      - 'portal/**'
+      - '.github/workflows/mmb-portal.yml'
+  push:
+    branches:
+      - 'feature/mmb-v2-admission'
+    paths:
+      - 'portal/**'
+      - '.github/workflows/mmb-portal.yml'
+permissions:
+  contents: read
+jobs:
+  integration:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: mmb
+          POSTGRES_PASSWORD: test-only
+          POSTGRES_DB: mmb
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U mmb"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 8
+    strategy:
+      matrix:
+        database: [sqlite, postgres]
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -r portal/requirements.txt
+      - name: Workflow integration
+        working-directory: portal
+        env:
+          MMB_TEST_DATABASE_URL: ${{ matrix.database == 'postgres' && 'postgresql://mmb:test-only@localhost:5432/mmb' || '' }}
+        run: python -m unittest discover -s tests -v
+  public-reference-preflight:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Provision Harbor 0.25.0
+        run: python -m pip install harbor==0.25.0
+      - name: Run public example 03 without injected credentials
+        working-directory: portal
+        run: |
+          set -o pipefail
+          git diff --exit-code c6de6b8a7bb33c81b40942bb9f6f0019ea392cde -- ../task/task_example_03_experiment_design
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from mmb.harbor_worker import run_bundle
+          from zipfile import ZipFile, ZIP_DEFLATED
+          from io import BytesIO
+          source = Path("../task/task_example_03_experiment_design")
+          bundle = BytesIO()
+          with ZipFile(bundle, "w", ZIP_DEFLATED) as archive:
+              for file in sorted(source.rglob("*")):
+                  if file.is_file():
+                      archive.write(file, file.relative_to(source))
+          reports = run_bundle(bundle.getvalue(), "c6de6b8a7bb33c81b40942bb9f6f0019ea392cde", 0)
+          print(json.dumps(reports, indent=2))
+          assert [row["kind"] for row in reports] == ["build", "oracle", "nop"]
+          assert all(row["status"] == "PASS" for row in reports)
+          PY

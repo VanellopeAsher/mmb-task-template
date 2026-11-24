@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="auth panel"><h1>Domain review invitation</h1>
+<p>{{ task_id }}</p>
+{% if actor and actor.role == 'reviewer' %}
+<form class="command invitation" action="{{ url_for('command', task_id=task_id, action='accept') }}" data-accepted="{{ url_for('detail', task_id=task_id) }}">
+<input type="hidden" name="token"><p>Accept to begin the blind baseline for this version.</p>
+<button>Accept invitation</button>
+<button class="quiet" formaction="{{ url_for('command', task_id=task_id, action='decline') }}">Decline</button>
+<output aria-live="polite"></output>
+</form>
+{% elif not actor %}
+<p>Sign in with your team reviewer account and return to this invitation.</p>
+<a class="button" href="{{ url_for('login', next=request.path) }}" target="_blank" rel="noopener">Sign in in a new tab</a>
+<p><button class="quiet" id="reload-invite">Refresh this page</button></p>
+{% else %}<p>This invitation requires a team reviewer account.</p>{% endif %}
+</section>
+{% endblock %}

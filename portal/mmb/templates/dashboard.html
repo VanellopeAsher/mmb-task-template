@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Admission pipeline · MatterMysteryBench{% endblock %}
+{% block content %}
+<div class="page-title"><div><h1>Admission pipeline</h1><p>{{ total }} tasks across {{ teams|length }} teams</p></div>
+{% if actor.role == 'author' %}<a class="button" href="#import">Import tasks</a>{% endif %}</div>
+<section aria-label="Admission routes" class="route-summary">
+{% for route in routes %}<a href="{{ url_for('dashboard', stage=route) }}"><span>{{ route.replace('_',' ')|title }}</span><strong>{{ totals[route] }}</strong></a>{% endfor %}
+</section>
+<div class="dashboard">
+<aside aria-label="Teams"><h2>Teams</h2>
+<a class="team {% if not selected %}selected{% endif %}" href="{{ url_for('dashboard', stage=stage) }}"><span>All teams</span><b>{{ total }}</b></a>
+{% for key, team in teams.items() %}
+<a class="team {% if selected == key %}selected{% endif %}" href="{{ url_for('dashboard', team=key, stage=stage) }}">
+<span><span class="taxonomy">{{ team[2] }}</span>{{ team[0] }}<small>{{ team[1] }}</small></span><b>{{ counts[key] }}</b></a>
+{% endfor %}</aside>
+<section class="pipeline" aria-label="Task table">
+<form class="filters" method="get"><input type="hidden" name="team" value="{{ selected }}">
+<label>Find a task<input name="q" placeholder="Title or task ID" value="{{ query }}"></label>
+<label>Stage<select name="stage"><option value="">All stages</option>
+{% for key in stages %}<option value="{{ key }}" {% if stage == key %}selected{% endif %}>{{ key.replace('_',' ')|title }}</option>{% endfor %}
+</select></label><button class="quiet">Filter</button></form>
+<div class="table-scroll"><table>
+<thead><tr><th>Task / version</th><th>Stage</th><th>Ball in court / next action</th><th>Checks</th></tr></thead>
+<tbody>{% for task in items %}
+<tr><td><a class="task-link" href="{{ url_for('detail', task_id=task.id) }}">{{ task.title }}</a><small>{{ task.id }} · v{{ task.version }}</small><small>{{ teams[task.team][0] }}{% if task.simulated %} · SIMULATED{% endif %}</small></td>
+<td><span class="badge {{ 'blocked' if task.blocker else '' }}">{{ task.stage.replace('_',' ')|title }}</span><small>L{{ task.level }} · {{ task.invite_status|title }}</small><small>{{ task.uncertainties }} open uncertainties</small></td>
+<td><strong>{{ task.current_owner }}</strong><small>{{ task.next_action }}</small>{% if task.blocker %}<span class="blocking">{{ task.blocker }}</span>{% endif %}</td>
+<td>{% for name in ('static','build','oracle','nop','verifier_qa') %}<small>{{ name.replace('_',' ')|title }} · {{ task.checks.get(name,'Pending') }}</small>{% endfor %}
+<small>Formal rate · {{ task.pass_rate|string + '%' if task.pass_rate is not none else '—' }}</small><small>{{ task.updated[:10] }}</small></td></tr>
+{% else %}<tr><td colspan="4" class="empty">No tasks match the current view.</td></tr>{% endfor %}</tbody>
+</table></div></section></div>
+{% if actor.role == 'author' %}
+<section id="import" class="panel"><h2>Import existing task packages</h2>
+<form class="multipart fields" action="{{ url_for('intake') }}" method="post" enctype="multipart/form-data">
+<input type="hidden" name="csrf" value="{{ csrf }}">
+<label>Team<select name="team" required>{% for key, team in teams.items() if key in actor.teams %}<option value="{{ key }}">{{ team[0] }}</option>{% endfor %}</select></label>
+<label>Title for a single task <small>Optional</small><input name="title"></label>
+<label>Task ZIP packages<input type="file" name="archive" accept=".zip" multiple required></label>
+<button>Import</button><output aria-live="polite"></output>
+</form></section>
+{% endif %}
+{% endblock %}
