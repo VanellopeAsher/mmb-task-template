@@ -127,13 +127,19 @@ def create_app(config=None):
     def display(task, state):
         stage = state["stage"]
         holder, next_action = NEXT[stage]
+        waiting_isolation = stage == "PREFLIGHT" and all(
+            state["checks"].get(kind, {}).get("status") == "PASS" for kind in ("static", "similarity")
+        )
+        if waiting_isolation:
+            holder = "Isolation test owner"
+            next_action = "Await isolated Build, Oracle and NOP results"
         invite = state["invite"] or {}
         blind = g.actor["role"] == "reviewer" and not can_read_private(task, state, g.actor)
         valid = [r["reward"] for r in state["trials"] if r["mode"] == "formal" and r["status"] == "VALID"]
         return {
             "id": task["id"], "title": task["title"], "team": task["team"], "domain": TEAMS[task["team"]][0],
             "owner": task["owner"], "version": state["version"], "revision": task["revision"],
-            "stage": stage, "role": holder, "current_owner": task["owner"] if holder == "Author" else (
+            "stage": stage, "role": holder, "waiting_isolation": waiting_isolation, "current_owner": task["owner"] if holder == "Author" else (
                 state.get("active_reviewer") if holder == "Reviewer" and stage != "REVIEWER_INVITED" else holder),
             "next_action": next_action, "blocker": "" if blind else state["blocker"], "level": state["level"],
             "invite_status": invite.get("status", "NONE"), "checks": {} if blind else {k: v["status"] for k, v in state["checks"].items()},

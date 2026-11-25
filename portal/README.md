@@ -53,14 +53,16 @@ Team IDs are `thermal`, `piezo`, `polymers`, `mof`, `pv`, `battery`, `catalysis`
 
 The technical team starts Static and Similarity from the task page. A trusted service timer can run `python -m mmb.admin static-sweep` to process newly imported tasks. When preflight completes, the author creates an invitation and forwards the link. Reviewers sign in to a team account, accept, submit an independent baseline, then access the dossier and sign the domain review. Authors upload a full replacement ZIP for each revision.
 
-## Isolated execution and result transfer
+## Isolated testing handoff
+
+The isolation test owner is responsible for Docker and Harbor execution. The Portal marks tasks waiting for their Build, Oracle and NOP evidence. The Portal team's scope covers static checks, progress tracking and version-bound result intake.
 
 1. From a trusted host, use `python -m mmb.admin export TASK VERSION /private/path/task.zip`. Record the returned SHA.
 2. Transfer the ZIP to a dedicated Linux worker with Docker and Harbor 0.25.0. Use a restricted worker network with approved dependency sources for builds and no network for solver and verifier containers. Use one disposable worker per untrusted job.
 3. Run `python -m mmb.harbor_worker --archive task.zip --commit MANIFEST_SHA --version VERSION` and capture its JSON output. Do not mount Portal or GitHub credentials into the worker. The Oracle and verifier are separate from formal solver exposure.
 4. On the trusted transfer host, import the results with `python -m mmb.admin ingest TASK report.json` or POST each report to `/api/worker/TASK/check` with the bearer credential. Post completed trial records to `/api/worker/TASK/trial`. Reports carry version, exact commit SHA, criterion, evidence location and log. Trial rows also carry a unique `run_id`, mode, model/version, parameters, cost, time, trace, score or exception, and failure category. Baseline results identify the reviewer account. Add `--publish-checks` to the trusted ingest command to publish check conclusions to the corresponding private GitHub commit. That path also needs the App's Checks write permission.
 
-Production preflight requires solver and verifier runtime networking disabled, a separate verifier environment, and explicit output artifacts. Domain-allowlist execution requires a separate deployment adapter. The source-controlled CI executes the independent public fixture only. The Portal records verified webhook deliveries for audit and does not treat arbitrary GitHub check titles as authoritative gate results.
+Production preflight requires solver and verifier runtime networking disabled, a separate verifier environment, and explicit output artifacts. Domain-allowlist execution requires a separate deployment adapter. The Portal CI runs application integration tests. The historical public reference job is linked in the verification report. The Portal records verified webhook deliveries for audit and does not treat arbitrary GitHub check titles as authoritative gate results.
 
 ## Verification
 

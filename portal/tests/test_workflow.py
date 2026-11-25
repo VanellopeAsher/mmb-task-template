@@ -224,6 +224,9 @@ class WorkflowTest(unittest.TestCase):
         self.assertIn("oracle", impact({"tests/test.sh": 1}, {"tests/test.sh": 2})[1])
         task = self.create()
         self.post("technical", task, "static_preflight")
+        dashboard = self.clients["technical"].get("/").data
+        self.assertIn(b"Isolation test owner", dashboard)
+        self.assertIn(b"Await isolated Build, Oracle and NOP results", dashboard)
         self.check(task, "oracle", reward=0, exception="worker unavailable")
         page = self.clients["technical"].get(f"/task/{task}").data
         self.assertIn(b"INVALID RUN", page)

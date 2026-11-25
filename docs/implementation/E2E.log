@@ -17,7 +17,7 @@ PASS public-reference-preflight, public Example 05 at c6de6b8a7bb33c81b40942bb9f
 Private local intake reconciliation
 69 active tasks from four submitted batches
 45 awaiting author input
-24 awaiting isolated execution evidence
+24 awaiting results from the isolation test owner
 32 historical or standalone records retained under Archived intake
 
 Private isolated three-case workflow rehearsal

@@ -42,7 +42,7 @@ FAILURES = {"Scientific Reasoning", "Domain Knowledge", "Data Analysis", "Tool U
 REVISION_STAGES = {"NEEDS_AUTHOR_INPUT", "REVISION_REQUIRED", "NEEDS_AUTHOR_EVIDENCE"}
 NEXT = {
     "IMPORTED": ("MMB Technical Team", "Start preflight"),
-    "PREFLIGHT": ("MMB Technical Team", "Complete pending preflight checks"),
+    "PREFLIGHT": ("MMB Technical Team", "Complete static and similarity checks"),
     "NEEDS_AUTHOR_INPUT": ("Author", "Repair the preflight issues or supply evidence"),
     "AWAITING_DOMAIN_REVIEWER": ("Author", "Create and forward an L1 invitation"),
     "REVIEWER_INVITED": ("Reviewer", "Accept or decline the author’s invitation"),

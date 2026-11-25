@@ -55,7 +55,7 @@
 {% endif %}</section>{% endif %}
 {% if actor.role == 'technical' %}
 <section class="panel"><h2>Technical workspace</h2>
-{% if task.stage in ('IMPORTED','PREFLIGHT') %}
+{% if task.stage in ('IMPORTED','PREFLIGHT') and not task.waiting_isolation %}
 {% call form('static_preflight') %}<button>Run static and similarity checks</button>{% endcall %}
 {% elif task.stage == 'DOMAIN_REVIEW_COMPLETE' %}
 {% call form('technical_start') %}<button>Start technical review</button>{% endcall %}
@@ -64,7 +64,7 @@
 {% elif task.stage == 'AGENT_EVALUATION' %}
 {% call form('finish_evaluation') %}<label>Difficulty assessment<textarea name="difficulty" required></textarea></label><label>Evidence location<input name="evidence_location" required></label><button>Send to final review</button>{% endcall %}
 {% endif %}
-{% if task.stage in ('PREFLIGHT','TECHNICAL_REVIEW','AGENT_EVALUATION') %}<p>Build, verifier and agent evidence is submitted by the isolated worker for this commit.</p>{% endif %}
+{% if task.waiting_isolation or task.stage in ('TECHNICAL_REVIEW','AGENT_EVALUATION') %}<p>The isolation test owner runs isolated checks. This workspace records their results against the task commit.</p>{% endif %}
 {% if task.stage in ('NEEDS_AUTHOR_INPUT','NEEDS_AUTHOR_EVIDENCE','REVISION_REQUIRED') %}
 <details><summary>Refer a blocking issue to final review</summary>
 {% call form('request_adjudication') %}
