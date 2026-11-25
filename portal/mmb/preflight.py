@@ -6,7 +6,7 @@ import tempfile
 import tomllib
 from pathlib import Path
 
-from .workflow import DOMAIN, TECHNICAL
+from .review import DOMAIN_CRITERIA, TECHNICAL_CRITERIA
 from .storage import Rejected, public_path
 
 VENDOR = Path(__file__).resolve().parents[1] / "vendor"
@@ -120,7 +120,7 @@ def similarity(prompt, references):
 
 def rubric_catalog():
     return {"implementation": tomllib.loads((VENDOR / "task-implementation.toml").read_text(encoding="utf-8"))["criteria"],
-            "scientific": DOMAIN, "technical": TECHNICAL}
+            "scientific": DOMAIN_CRITERIA, "technical": TECHNICAL_CRITERIA}
 
 
 def report(workflow, task_id, actor):
@@ -149,8 +149,8 @@ def report(workflow, task_id, actor):
     files.update({name: b"" for name in manifest["files"] if name.startswith(("environment/", "data/"))
                   and name not in files})
     info = {"commit_sha": version["sha"], "version": state["version"]}
-    if state["stage"] == "IMPORTED":
-        workflow.command(task_id, actor, "preflight", info)
+    if state["stage"] not in {"ENGINEERING_CHECKS", "ENGINEERING_REVIEW_1"}:
+        raise Rejected("环境构建交接后才能运行静态和相似度检查。")
     prompt = files.get("problem.md", files.get("instruction.md", b"")).decode("utf-8", "replace")
     if "similarity" not in state["checks"]:
         result = similarity(prompt, refs)

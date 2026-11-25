@@ -12,7 +12,7 @@ The password command prompts without echo. Create a UTF-8 account file outside t
 ```json
 {
   "author-name": {"role": "author", "teams": ["thermal"], "password_hash": "<generated hash>"},
-  "reviewer-name": {"role": "reviewer", "teams": ["thermal"], "password_hash": "<generated hash>"},
+  "reviewer-name": {"role": "reviewer", "display_name": "Reviewer Name", "teams": ["thermal"], "reviewer_types": ["domain"], "password_hash": "<generated hash>"},
   "engineering": {"role": "technical", "teams": [], "password_hash": "<generated hash>"},
   "adjudicator": {"role": "final", "teams": [], "password_hash": "<generated hash>"}
 }
@@ -51,7 +51,17 @@ python -m mmb.admin import C:/private/incoming/manifest.json --static
 
 Team IDs are `thermal`, `piezo`, `polymers`, `mof`, `pv`, `battery`, `catalysis` and `bioactive`. Relative paths in the batch manifest are resolved next to the manifest. Use one entry per candidate, with the owner corresponding to a configured Portal author.
 
-The technical team starts Static and Similarity from the task page. A trusted service timer can run `python -m mmb.admin static-sweep` to process newly imported tasks. When preflight completes, the author creates an invitation and forwards the link. Reviewers sign in to a team account, accept, submit an independent baseline, then access the dossier and sign the domain review. Authors upload a full replacement ZIP for each revision.
+The current workflow has three stages. A technical reviewer signs for Stage 1. The coordinator records the environment handoff in Stage 2, runs Static and Similarity and collects externally executed Build, Oracle and NOP results. Engineering reviewer 1 diagnoses the execution evidence, and engineering reviewer 2 independently signs the review. Stage 3 assigns three distinct domain reviewers. Each locks an independent baseline before signing. Unanimous conclusions apply directly. Disagreement goes to the assigned senior expert. Authors upload a replacement ZIP for each revision.
+
+### Register reviewer accounts
+
+Every reviewer account in the UTF-8 account directory has `role: "reviewer"`, `display_name`, a nonempty `teams` array, a nonempty `reviewer_types` array and a password hash. Types are `technical`, `engineering_1`, `engineering_2`, `domain`, and `senior`. The coordinator uses the existing `technical` operator login to assign qualified accounts from each task page.
+
+```powershell
+python -m mmb.admin reviewer-account reviewer-id --display-name "Reviewer Name" --team thermal --reviewer-type domain --accounts-file C:/private/accounts.json
+```
+
+The command prompts for the password. Restart the Portal after adding accounts. The roster and task approval tracks show the account's team and type. To migrate a ledger created under the previous admission model, run `python -m mmb.admin --data data/intake migrate-workflow`. The migration preserves earlier evidence and history and resets undecided tasks to Stage 1.
 
 ## Isolated testing handoff
 

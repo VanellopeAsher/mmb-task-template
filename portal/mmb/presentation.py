@@ -1,21 +1,9 @@
 """Chinese Portal labels and the read-only workflow visualization."""
 import re
 
-from .workflow import NEXT, PRECHECKS, REVISION_STAGES
+from .review import STAGES as REVIEW_STAGES
 
-STAGES = dict(zip(NEXT, (
-    "已导入", "自动预审", "待作者补充或修订", "待邀请领域审核人", "待接受审核邀请",
-    "盲测进行中", "领域审核中", "待升级审核", "领域审核已签署", "技术审核中",
-    "智能体评估中", "待最终裁决", "纳入主评测集", "纳入校准集", "需要修订",
-    "待作者补证", "已排除",
-)))
-ACTIONS = dict(zip(NEXT, (
-    "开始预审", "完成静态检查与相似度检查", "修复预审问题或补充证据", "创建并转发 L1 审核邀请",
-    "接受或拒绝作者的邀请", "独立作答并锁定盲测基线", "核对科学准则并签署领域审核",
-    "为未决科学问题转发升级邀请", "开始技术审核", "完成验证器质检并签署技术审核",
-    "记录正式评估并诊断失败", "根据证据作出最终裁决", "主评测版本已冻结",
-    "已保留校准版本", "修订并提交新版本", "补充缺失证据并提交新版本", "已记录排除决定",
-)))
+STAGES = {key: value[0] for key, value in REVIEW_STAGES.items()}
 TEAMS = dict(zip(
     ("thermal", "piezo", "polymers", "mof", "pv", "battery", "catalysis", "bioactive"),
     ("热功能材料", "压电陶瓷", "导热聚合物", "MOF / COF", "光伏材料", "电池材料", "催化化学", "生物活性分子"),
@@ -40,19 +28,9 @@ LABELS = {
     "TECHNICAL_START": "启动技术审核", "TECHNICAL": "签署技术审核", "TRIAL": "记录智能体结果",
     "FINISH_EVALUATION": "完成智能体评估", "DECISION": "记录最终裁决", "ISSUE": "创建修订项",
     "CLOSE_ISSUE": "关闭修订项", "REVISE": "提交新版本", "REQUEST_ADJUDICATION": "提交阻塞事项裁决",
-    "Added": "新增", "Modified": "修改", "Removed": "移除",
+    "ASSIGN": "指派审核人", "REVIEW": "签署审核", "ENVIRONMENT_READY": "登记环境交接",
+    "MECHANISM_UPDATED": "迁移到三阶段机制", "Added": "新增", "Modified": "修改", "Removed": "移除",
 }
-DOMAIN = dict(zip(
-    ("C1", "C3", *(f"S{i}" for i in range(1, 12))),
-    ("化学与物质科学基础", "开放式研究范围", "研究来源", "科学问题的明确性", "真实未知性",
-     "问题与评分的一致性", "方法自主性", "迭代研究与判断", "客观正确答案", "答案证据与可解性",
-     "独立验证", "数据充分性与条件匹配", "捷径排查与实际难度"),
-))
-TECHNICAL = {f"T{i}": name for i, name in enumerate((
-    "数据来源与版本", "研究工具", "参考解可复现性", "确定性的二元验证", "题面与测试一致性",
-    "隔离与评分保护", "执行可复现性", "客观评分", "防止误判为失败", "防止错误答案通过", "数据泄漏审查",
-), 1)}
-
 MESSAGES = {
     "Access denied": "当前账号没有操作权限。",
     "Task version changed": "任务版本已变化，请刷新后重试。",
@@ -89,46 +67,3 @@ def message(value):
     if match := re.fullmatch(r"Rerun preflight and confirm (\w+) passes for (.+)\.", value):
         return f"重新运行预审，确认 {match[2]} 通过 {match[1]} 检查。"
     return value
-
-
-PHASES = (
-    ("intake", "任务入库"),
-    ("preflight", "自动预审"),
-    ("domain", "领域审核与盲测"),
-    ("technical", "技术审核"),
-    ("evaluation", "智能体评估"),
-    ("final", "最终裁决"),
-)
-PHASE_BY_STAGE = {
-    "IMPORTED": "intake", "PREFLIGHT": "preflight", "NEEDS_AUTHOR_INPUT": "preflight",
-    "AWAITING_DOMAIN_REVIEWER": "domain", "REVIEWER_INVITED": "domain",
-    "BASELINE_IN_PROGRESS": "domain", "DOMAIN_REVIEW": "domain", "DOMAIN_ESCALATION": "domain",
-    "DOMAIN_REVIEW_COMPLETE": "domain", "TECHNICAL_REVIEW": "technical", "AGENT_EVALUATION": "evaluation",
-    "FINAL_REVIEW": "final", "READY_MAIN": "final", "CALIBRATION": "final", "EXCLUDED": "final",
-}
-
-
-def pipeline(state, events, waiting_isolation, blocker):
-    stage = state["stage"]
-    returning = stage in REVISION_STAGES
-    if stage in {"REVISION_REQUIRED", "NEEDS_AUTHOR_EVIDENCE"}:
-        current = next((PHASE_BY_STAGE[previous] for _, previous in events
-                        if previous in PHASE_BY_STAGE), "preflight")
-    else:
-        current = PHASE_BY_STAGE[stage]
-    visited = {previous for _, previous in events}
-    complete = {
-        "intake": stage != "IMPORTED",
-        "preflight": all(state["checks"].get(kind, {}).get("status") == "PASS" for kind in PRECHECKS),
-        "domain": bool(visited & {"DOMAIN_REVIEW_COMPLETE", "TECHNICAL_REVIEW", "AGENT_EVALUATION"}),
-        "technical": "AGENT_EVALUATION" in visited,
-        "evaluation": ("FINISH_EVALUATION", "FINAL_REVIEW") in events,
-        "final": stage in {"READY_MAIN", "CALIBRATION", "EXCLUDED"},
-    }
-    steps = []
-    for code, label in PHASES:
-        status = "done" if complete[code] else "upcoming"
-        if code == current:
-            status = "blocked" if (returning or waiting_isolation or blocker) else "current"
-        steps.append({"code": code, "label": label, "status": status, "current": code == current})
-    return steps, returning

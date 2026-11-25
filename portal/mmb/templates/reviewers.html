@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}审核人名册 · MatterMysteryBench{% endblock %}
+{% block content %}
+<a class="back" href="{{ url_for('dashboard') }}">← 任务总览</a>
+<div class="page-title"><h1>审核人名册</h1></div>
+<div class="table-scroll"><table>
+<thead><tr><th>审核人</th><th>登录账号</th><th>团队</th><th>审核类型</th></tr></thead>
+<tbody>{% for id, profile in profiles %}
+<tr><td>{{ profile.display_name or id }}</td><td>{{ id }}</td>
+<td>{% for team in profile.teams %}{{ team_labels[team] }}{% if not loop.last %}、{% endif %}{% endfor %}</td>
+<td>{% for kind in profile.reviewer_types %}{{ reviewer_types[kind] }}{% if not loop.last %}、{% endif %}{% endfor %}</td></tr>
+{% else %}<tr><td colspan="4" class="empty">暂无已配置的审核人账号。</td></tr>{% endfor %}</tbody>
+</table></div>
+{% endblock %}

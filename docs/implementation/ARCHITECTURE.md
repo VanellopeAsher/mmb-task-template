@@ -1,58 +1,29 @@
-# MMB admission architecture
+# MMB 三阶段审批机制
 
-The Portal is a Flask application with server-rendered reviewer and author workspaces. PostgreSQL is supported for deployed ledgers and SQLite for a local, single-host instance. Account membership and role come from the operator-managed account directory. Team IDs are stable and independent of overlapping taxonomy labels.
+Portal 使用 Flask、SQLite 或 PostgreSQL、私有文件存储和版本化 Git 清单。审批签署、任务版本、证据、修订与迁移均保留在任务时间线中。来源为《MMB Task Review and Iteration Mechanism》及配套三阶段流程图。
 
-## Persistence
+| 阶段 | 关键节点 | 决策责任 |
+| --- | --- | --- |
+| 1 技术审核 | 五项材料与评分可行性准则；机审及工具证据按需提供 | 一位技术审核人签署通过、退作者或交 Coding Agent 修复 |
+| 2 环境构建与工程审核 | 环境交接；静态、相似度和执行三类检查；执行下设沙盒构建、Oracle、NOP | 工程审核人 1 检查结果并出具意见；工程审核人 2 复核后签署 |
+| 3 难度验证与领域审核 | 新颖性、代理性、人类基线；机审、Agent 试跑、提示和轨迹作为证据 | 三位领域专家独立签署；一致按结论处理，有分歧才交资深专家裁决 |
 
-| Record | Persistence |
-| --- | --- |
-| Teams | Eight entries in the workflow registry |
-| Task | Identity, owning team, account, title, latest state and revision counter |
-| Version | Immutable version row, content-addressed ZIP, per-file SHA256 and classification, Git manifest commit |
-| Public and private assets | Same storage volume with separate authorization on every retrieval. Only dossier-cleared roles receive private object paths through the application. |
-| Invitations, baseline, criterion verdicts, domain and technical sign-off, uncertainty transitions, checks, trials, revision and final decisions | Append-only, actor-attributed events, each carrying the task version and SHA. Latest state is a transactionally updated projection. |
-| Webhooks | Repository-scoped, signature-checked delivery IDs and payload digests |
+Stage 3 支持通过、不可解或证据不足、难度不足。后两类转作者修订。对模拟记录，流程通过显示为模拟通过。机器审查或工具证据不能代替人工签署。Build、Oracle 和 NOP 由隔离测试负责人执行，Portal 按版本接收结果。Oracle 和 NOP 的正常预期分别为 1 和 0，运行故障单列为无效。
 
-The original upload and individual files are addressed by SHA256. Archive names are validated before materialization and opaque archives embedded under data are quarantined. Filename classification is a conservative packaging check. The leakage gate still requires verification of actual file contents, mounts and image layers.
+## 审核人账号
 
-The development Git backend stores immutable version refs in a separate bare repository. The GitHub App backend writes one manifest per version to an initialized private repository. The public code repository receives only application code, published example test evidence and screenshots from public reference examples. No dossier is written to the public repository.
+账号目录为每名审核人保存唯一登录名、显示名、所属团队和审核类型。技术协调员可在单任务页指派账号。后端校验团队和类型，每道任务的审核席位由不同账号承担。领域审核人单独锁定盲测基线后解锁本任务的私有资料。三位领域审核人签署期间，其他人的审核意见不在其页面或时间线展示。发生分歧后，资深专家可查阅三位专家意见并签署裁决。
 
-## State transitions
+任务页顶部显示当前阶段、责任人、下一步和阻塞原因。三张阶段卡标明环境检查和审核席位的实时状态。原始任务名、工具证据和 SHA 保留源内容。
 
-```mermaid
-stateDiagram-v2
-  [*] --> IMPORTED
-  IMPORTED --> PREFLIGHT
-  PREFLIGHT --> NEEDS_AUTHOR_INPUT: findings
-  PREFLIGHT --> AWAITING_DOMAIN_REVIEWER: required checks pass
-  AWAITING_DOMAIN_REVIEWER --> REVIEWER_INVITED
-  REVIEWER_INVITED --> BASELINE_IN_PROGRESS: contracted team account accepts
-  BASELINE_IN_PROGRESS --> DOMAIN_REVIEW: lock answer
-  DOMAIN_REVIEW --> DOMAIN_ESCALATION: outstanding criterion
-  DOMAIN_ESCALATION --> REVIEWER_INVITED: author forwards
-  DOMAIN_REVIEW --> DOMAIN_REVIEW: specialist signs and returns to prior reviewer
-  DOMAIN_REVIEW --> DOMAIN_REVIEW_COMPLETE: L1 signs
-  DOMAIN_REVIEW_COMPLETE --> TECHNICAL_REVIEW
-  TECHNICAL_REVIEW --> AGENT_EVALUATION: technical QA gates pass
-  AGENT_EVALUATION --> FINAL_REVIEW: required trials and defensive evidence
-  FINAL_REVIEW --> READY_MAIN
-  FINAL_REVIEW --> CALIBRATION
-  FINAL_REVIEW --> EXCLUDED
-  FINAL_REVIEW --> REVISION_REQUIRED
-  FINAL_REVIEW --> NEEDS_AUTHOR_EVIDENCE
-  REVISION_REQUIRED --> PREFLIGHT: new version
-  NEEDS_AUTHOR_INPUT --> PREFLIGHT: new version
-  NEEDS_AUTHOR_EVIDENCE --> PREFLIGHT: new version
-```
+## 修订与旧记录迁移
 
-L2 and L3 use the same invitation, blind lock and review roles. The unresolved criteria and return reviewer stay attached to the task. The same account must submit and lock its independent attempt to gain dossier access. Reviewers have no access to prior version files before the new review, including by direct URL. Domain sign-off gates Technical Review. Technical and scientific defects open an evidence-linked revision issue. Further work stays with the assigned author.
+修订生成新的任务版本和 Git 清单。仅格式说明修改从退修阶段复审，并沿用未受影响的检查证据。环境工程文件修改至少返回环境构建。科学输入、参考答案或评分规则改动返回技术审核。保留的结论绑定原始 SHA。修订项由审核人或技术协调员在新版本上验证后关闭。
 
-The version matrix runs only Static for changes confined to the dedicated formatting notes. Verifier changes reopen the verifier controls and affected review. Scientific, data or environment changes invalidate the broader check set. Carried-forward evidence retains the SHA it was collected on. Earlier outcomes remain in the timeline. Issues stay open until a later version and explicit acceptance evidence are recorded.
+Coding Agent 分支提供修复交接和产物回传。技术组可提交修复后的 ZIP。该入口只接受环境工程文件和格式说明的修改。外部 Agent 执行器由部署方接入。
 
-Verifier rewards accept numeric 0 or 1 with no coercion. Missing, non-binary or faulted runs have a null reward and appear as invalid. Formal pass rate uses valid unhinted trials only. Final decisions require human-signed gates and evidence. All simulation records are labeled and the simulated ledger cannot route a task to Main or Excluded.
+`python -m mmb.admin --data data/intake migrate-workflow` 为旧入库记录登记机制切换事件，将尚未裁决的记录置于 Stage 1。原检查、附件、版本和历史时间线可查。旧版阶段与审核结果不能替代新版人工关卡。已有终局历史保留原去向。
 
-## Execution boundary
+## 数据与权限
 
-The Portal never executes uploaded Dockerfiles or scripts. Static scan uses the pinned TBS similarity and source analyzers. Run Docker and Harbor on a disposable Linux worker. Use a public-only environment build context, separate verifier mode, declared result artifacts, and an explicit no-network policy during solving and verification. The host that ingests results can hold the Portal submission credential. The untrusted execution process does not need that credential, the database URL, a GitHub token, the application key, or model provider keys.
-
-The isolation test owner runs Build, Oracle and NOP. The Portal records the handoff and ingests results. The standalone execution adapter is available to the isolation test owner. The worker API accepts version-bound verifier QA, isolation, leakage, hinted/formal trials, trace and defensive findings from a trusted evaluation harness. Automated model routing and private-run dispatch remain deployment work. The implementation does not run autonomous verifier bypass attempts. The four defensive findings are represented as test evidence.
+账户及团队权限在后端核验。任务文件存放在私有内容寻址存储，版本清单记录 SHA。GitHub App 可将清单写到指定私有仓库。工作器报告按任务 ID、版本、Git SHA 和运行标识写回，重复报文可识别。Portal 保留审核证据和审批历史，隔离测试执行由外部环境承担。

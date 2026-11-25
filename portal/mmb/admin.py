@@ -10,9 +10,10 @@ from zipfile import ZIP_DEFLATED, ZipFile, ZipInfo
 from werkzeug.security import generate_password_hash
 
 from .preflight import report
+from . import review
 from .storage import Store, encode, publish_github_check
 from .web import create_app
-from .workflow import Workflow
+from .workflow import TEAMS, Workflow
 
 
 def folder_zip(directory):
@@ -38,6 +39,13 @@ def main():
     commands = parser.add_subparsers(dest="command", required=True)
     account = commands.add_parser("hash-password")
     account.add_argument("--method", default="scrypt")
+    reviewer = commands.add_parser("reviewer-account")
+    reviewer.add_argument("username")
+    reviewer.add_argument("--display-name", required=True)
+    reviewer.add_argument("--team", choices=TEAMS, action="append", required=True)
+    reviewer.add_argument("--reviewer-type", choices=review.REVIEWER_TYPES, action="append", required=True)
+    reviewer.add_argument("--accounts-file", type=Path, default=os.getenv("MMB_ACCOUNTS_FILE"))
+    commands.add_parser("migrate-workflow")
     intake = commands.add_parser("import")
     intake.add_argument("manifest", type=Path)
     intake.add_argument("--static", action="store_true")
@@ -63,6 +71,23 @@ def main():
         from getpass import getpass
         print(generate_password_hash(getpass(), method=args.method))
         return
+    if args.command == "reviewer-account":
+        from getpass import getpass
+        import re
+        if not args.accounts_file or not re.fullmatch(r"[A-Za-z0-9_.-]+", args.username):
+            parser.error("Specify an accounts file and a valid, unique login name")
+        accounts = json.loads(args.accounts_file.read_text(encoding="utf-8"))
+        if args.username in accounts:
+            parser.error("This username already exists")
+        password = getpass("Reviewer password: ")
+        if not password or password != getpass("Confirm reviewer password: "):
+            parser.error("Passwords must match and be nonempty")
+        accounts[args.username] = {"role": "reviewer", "display_name": args.display_name, "teams": args.team,
+                                   "reviewer_types": args.reviewer_type,
+                                   "password_hash": generate_password_hash(password)}
+        args.accounts_file.write_text(encode(accounts) + "\n", encoding="utf-8")
+        print("Reviewer account created. Restart the Portal to load it.")
+        return
     if args.command == "serve":
         from waitress import serve
         serve(create_app({"MMB_DATA": args.data}), host=os.getenv("MMB_BIND", "127.0.0.1"),
@@ -70,12 +95,25 @@ def main():
         return
     store = Store(args.data, os.getenv("MMB_DATABASE_URL", ""))
     flow = Workflow(store)
-    if args.command == "static-sweep":
+    if args.command == "migrate-workflow":
+        migrated = 0
+        with store.transaction() as db:
+            rows = db.execute("SELECT id FROM tasks ORDER BY id").fetchall()
+            for row in rows:
+                task, state = flow.row(db, row["id"], lock=True)
+                if json.loads(task["state"]).get("mechanism") == 3:
+                    continue
+                version, _ = flow.version(db, task["id"], state["version"])
+                flow.save(db, task, state, {"id": "workflow-migration"}, "MECHANISM_UPDATED",
+                          {"previous_stage": state["legacy_stage"], "stage": state["stage"]}, version["sha"])
+                migrated += 1
+        print(encode({"migrated": migrated}))
+    elif args.command == "static-sweep":
         with store.transaction(write=False) as db:
             rows = db.execute("SELECT id, state FROM tasks ORDER BY id").fetchall()
         for row in rows:
-            state = json.loads(row["state"])
-            if state["stage"] in {"IMPORTED", "PREFLIGHT"}:
+            state = review.upgrade_state(json.loads(row["state"]))
+            if state["stage"] == "ENGINEERING_CHECKS":
                 try:
                     results = report(flow, row["id"], {"id": "static-sweep", "role": "technical"})
                     print(encode({"task": row["id"], "findings": results}))
@@ -108,7 +146,11 @@ def main():
                     _, state = flow.row(db, args.task)
                 if state["simulated"]:
                     raise ValueError("Simulated checks stay in the simulation ledger")
-                effective = state["checks"][item["kind"]]
+                effective = next((report for report in reversed([*state["checks"].values(), *state["support"].values()])
+                                  if report.get("kind") == item["kind"] and report.get("commit_sha") == item["commit_sha"]
+                                  and report.get("run_id") == item.get("run_id")), None)
+                if not effective:
+                    raise ValueError("No matching stored check evidence")
                 if effective["commit_sha"] != item["commit_sha"]:
                     raise ValueError("Cannot publish mismatched check evidence")
                 publish_github_check(args.task, effective)
@@ -127,7 +169,7 @@ def main():
                 if args.static:
                     with store.transaction(write=False) as db:
                         _, state = flow.row(db, task)
-                    if state["stage"] in {"IMPORTED", "PREFLIGHT"}:
+                    if state["stage"] == "ENGINEERING_CHECKS":
                         report(flow, task, {"id": "mmb-import", "role": "technical"})
                 print(encode({"task": task, "source": str(source), "simulated": args.simulated}))
             except (OSError, ValueError) as error:

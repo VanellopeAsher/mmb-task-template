@@ -1,10 +1,10 @@
 """Workflow commands and versioned records. Commands run in a single transaction."""
 import hashlib
 import json
-import secrets
 import uuid
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 
+from . import review
 from .storage import Rejected, encode
 
 TEAMS = {
@@ -17,50 +17,11 @@ TEAMS = {
     "catalysis": ("Catalytic Chemistry", "罗三中教授团队", "B2"),
     "bioactive": ("Bioactive Molecules", "刘磊教授团队", "B4"),
 }
-DOMAIN = dict(zip(
-    ["C1", "C3", *[f"S{i}" for i in range(1, 12)]],
-    ["Chemistry / matter-science grounding", "Open research scope", "Research provenance",
-     "Specific scientific question", "Genuine unknownness", "Problem–score alignment", "Method autonomy",
-     "Iterative investigation and judgment", "Objective correct answer", "Answer evidence and solvability",
-     "Independent verification", "Data sufficiency and condition match", "No shortcut / meaningful difficulty"],
-))
-TECHNICAL = {f"T{i}": label for i, label in enumerate([
-    "Data provenance and version", "Research tools", "Oracle reproducibility", "Deterministic binary verification",
-    "Instruction–test alignment", "Isolation and reward protection", "Reproducible execution",
-    "Objective scoring", "False-negative resistance", "False-positive resistance", "Data-leakage audit",
-], 1)}
 PRECHECKS = ("static", "similarity", "build", "oracle", "nop")
 LATE_CHECKS = ("verifier_qa", "isolation", "leakage", "cheat")
 CHECKS = PRECHECKS + LATE_CHECKS + ("baseline", "rubric", "trace")
-ROUTES = ("READY_MAIN", "CALIBRATION", "REVISION_REQUIRED", "NEEDS_AUTHOR_EVIDENCE", "EXCLUDED")
-POSITIVE = {"canonical", "independent", "equivalent", "units", "boundary"}
-NEGATIVE = {"nop", "empty", "partial", "wrong", "near_miss", "fabricated_evidence",
-            "irrelevant_keywords", "hardcoded_response"}
-CHEAT_CATEGORIES = {"Answer Leakage", "Verifier Permissiveness", "Grader Tampering", "Constraint Evasion"}
 FAILURES = {"Scientific Reasoning", "Domain Knowledge", "Data Analysis", "Tool Use", "Execution",
             "Task Specification", "Environment", "Verifier"}
-REVISION_STAGES = {"NEEDS_AUTHOR_INPUT", "REVISION_REQUIRED", "NEEDS_AUTHOR_EVIDENCE"}
-NEXT = {
-    "IMPORTED": ("MMB Technical Team", "Start preflight"),
-    "PREFLIGHT": ("MMB Technical Team", "Complete static and similarity checks"),
-    "NEEDS_AUTHOR_INPUT": ("Author", "Repair the preflight issues or supply evidence"),
-    "AWAITING_DOMAIN_REVIEWER": ("Author", "Create and forward an L1 invitation"),
-    "REVIEWER_INVITED": ("Reviewer", "Accept or decline the author’s invitation"),
-    "BASELINE_IN_PROGRESS": ("Reviewer", "Solve independently and lock the baseline"),
-    "DOMAIN_REVIEW": ("Reviewer", "Assess the scientific criteria and sign the review"),
-    "DOMAIN_ESCALATION": ("Author", "Forward an invitation for the unresolved criteria"),
-    "DOMAIN_REVIEW_COMPLETE": ("MMB Technical Team", "Start technical review"),
-    "TECHNICAL_REVIEW": ("MMB Technical Team", "Complete verifier QA and sign technical review"),
-    "AGENT_EVALUATION": ("MMB Technical Team", "Record formal trials and diagnose failures"),
-    "FINAL_REVIEW": ("Final Reviewer", "Decide the route using the evidence"),
-    "READY_MAIN": ("Final Reviewer", "Main version frozen"),
-    "CALIBRATION": ("Final Reviewer", "Calibration version retained"),
-    "REVISION_REQUIRED": ("Author", "Submit a revised version addressing the open issues"),
-    "NEEDS_AUTHOR_EVIDENCE": ("Author", "Supply the missing evidence as a new version"),
-    "EXCLUDED": ("Final Reviewer", "Exclusion decision recorded"),
-}
-
-
 class Denied(Rejected):
     pass
 
@@ -93,17 +54,6 @@ def token_digest(value):
     return hashlib.sha256(value.encode()).hexdigest()
 
 
-def impact(before, after):
-    changed = {p for p in before.keys() | after.keys() if before.get(p) != after.get(p)}
-    if not changed:
-        return changed, {"static"}, False
-    if all(p.startswith("authoring/formatting/") for p in changed):
-        return changed, {"static"}, False
-    if all(p.startswith("tests/") for p in changed):
-        return changed, {"static", "build", "oracle", "nop", "baseline", "trace", *LATE_CHECKS}, True
-    return changed, set(CHECKS), True
-
-
 def score(reward, exception=None):
     if exception or type(reward) not in {float, int} or reward not in {0, 1}:
         return "INVALID RUN", None
@@ -111,23 +61,24 @@ def score(reward, exception=None):
 
 
 def can_list(task, state, actor):
-    return actor["role"] in {"technical", "final", "worker"} or task["owner"] == actor["id"] or (
-        actor["role"] == "reviewer" and any(i["reviewer"] == actor["id"] for i in state["reviews"].values())
-    )
+    return (actor["role"] in {"technical", "final", "worker"} or task["owner"] == actor["id"]
+            or review.reviewer_slot(task, state, actor) is not None)
 
 
 def can_read_private(task, state, actor):
     if task["owner"] == actor["id"] or actor["role"] in {"technical", "final"}:
         return True
-    review = state["reviews"].get(actor["id"], {})
-    return actor["role"] == "reviewer" and bool(review.get("baseline_locked"))
+    slot = review.reviewer_slot(task, state, actor)
+    if slot == "senior":
+        return state["stage"] == "SENIOR_REVIEW" or slot in state["decisions"]
+    return slot is not None and (slot not in review.DOMAIN_SLOTS or slot in state["baselines"])
 
 
 def new_state(simulated):
-    return {"stage": "IMPORTED", "version": 0, "level": 1, "checks": {}, "trials": [],
-            "reviews": {}, "uncertainties": {}, "issues": {}, "invite": None, "blocker": "",
-            "final_route": "", "simulated": simulated, "review_return": [], "technical": {}, "baseline_scores": {},
-            "domain": {}, "resume_stage": "", "updated": now()}
+    return {"mechanism": 3, "stage": "TECHNICAL_REVIEW", "version": 0, "checks": {}, "trials": [],
+            "assignments": {}, "decisions": {}, "baselines": {}, "baseline_scores": {},
+            "issues": {}, "support": {}, "environment": None, "return_stage": None, "outcome": "",
+            "blocker": "", "final_route": "", "simulated": simulated, "updated": now()}
 
 
 def actor_role(actor, role):
@@ -135,15 +86,16 @@ def actor_role(actor, role):
 
 
 class Workflow:
-    def __init__(self, store):
+    def __init__(self, store, accounts=None):
         self.store = store
+        self.accounts = accounts or {}
 
     def row(self, db, task_id, lock=False):
         row = db.execute("SELECT * FROM tasks WHERE id=?" + (" FOR UPDATE" if lock and db.postgres else ""),
                          (task_id,)).fetchone()
         if not row:
             raise KeyError(task_id)
-        return dict(row), json.loads(row["state"])
+        return dict(row), review.upgrade_state(json.loads(row["state"]))
 
     def save(self, db, task, state, actor, kind, data, sha):
         state["updated"] = now()
@@ -189,7 +141,8 @@ class Workflow:
         text_fields(details, "evidence_location", "problem_description", "required_changes", "acceptance_test")
         key = next((key for key, value in state["issues"].items()
                     if value["criterion_id"] == criterion and value["status"] != "RESOLVED"
-                    and value["evidence_location"] == details["evidence_location"]), uuid.uuid4().hex[:12])
+                    and value["evidence_location"] == details["evidence_location"]
+                    and value["problem_description"] == details["problem_description"]), uuid.uuid4().hex[:12])
         state["issues"][key] = {**{field: details[field] for field in (
             "evidence_location", "problem_description", "required_changes", "acceptance_test")},
             "issue_id": key, "criterion_id": criterion, "severity": severity, "assigned_to": owner,
@@ -207,8 +160,7 @@ class Workflow:
                 raise Conflict("Task version changed")
             if "revision" in payload and payload["revision"] != task["revision"]:
                 raise Conflict("Task changed; reload before submitting")
-            if action not in {"accept", "decline"}:
-                allow(can_list(task, state, actor))
+            allow(can_list(task, state, actor))
             run_id = payload.get("run_id")
             if action == "trial" or run_id is not None:
                 text_fields(payload, "run_id")
@@ -218,7 +170,7 @@ class Workflow:
                 previous = self.worker_replay(db, task_id, state["version"], action, run_id, payload)
                 if previous:
                     return {"stage": state["stage"], "version": state["version"], "duplicate": True}
-            if state["stage"] in {"READY_MAIN", "EXCLUDED"}:
+            if state["stage"] in review.LOCKED:
                 raise Conflict("This task is frozen")
             result = {}
             event = dict(payload)
@@ -227,10 +179,12 @@ class Workflow:
             else:
                 sha = version["sha"]
                 result = self.transition(task, state, actor, action, payload, sha)
-            event.pop("token", None)
             event["stage"] = state["stage"]
+            if action == "review":
+                event["slot"] = review.reviewer_slot(task, state, actor)
             if action == "check":
-                event = {**state["checks"][payload["kind"]], "stage": state["stage"]}
+                event = {**result, "stage": state["stage"]}
+                result = {}
             if action == "trial":
                 event = {**state["trials"][-1], "stage": state["stage"]}
             if run_id is not None:
@@ -252,145 +206,201 @@ class Workflow:
         return False
 
     def revise(self, db, task, state, actor, version, manifest, payload, raw):
-        allow(task["owner"] == actor["id"] and actor["role"] == "author")
-        require(state["stage"] in REVISION_STAGES | {"CALIBRATION"}, "Task is not awaiting a revision")
+        stage = state["stage"]
+        require(stage in review.REPAIR, "当前任务没有待提交的修订。")
+        allow((stage == "REVISION_REQUIRED" and task["owner"] == actor["id"] and actor["role"] == "author")
+              or (stage == "AUTO_REPAIR" and actor["role"] == "technical"))
         text_fields(payload, "note")
-        require(not state["simulated"] or state["version"] < 3, "Simulation revision limit reached")
         fresh = self.store.bundle(raw or b"")
-        changed, invalidated, redo_domain = impact(manifest["files"], fresh["files"])
-        require(changed, "Uploaded revision has no file changes")
+        before, after = manifest["files"], fresh["files"]
+        changed = {path for path in before.keys() | after.keys() if before.get(path) != after.get(path)}
+        require(changed, "新任务包没有文件变更。")
+        if stage == "AUTO_REPAIR":
+            require(all(path.startswith("authoring/formatting/") or
+                        (path.startswith("environment/") and not path.startswith("environment/data/"))
+                        for path in changed), "自动修复提交仅接受环境工程文件或格式说明的修改。")
+        origin = state["return_stage"]
+        restart, invalidated = review.repair_stage(origin, changed)
         number = state["version"] + 1
         sha = self.store.commit(task["id"], number, fresh, version["sha"])
         db.execute("INSERT INTO versions VALUES (?,?,?,?)", (task["id"], number, sha, encode(fresh)))
-        resume = state["stage"]
-        if redo_domain:
-            state["previous_reviewers"] = list(state["reviews"])
-            state.update(domain={}, technical={}, reviews={}, baseline_scores={}, invite=None, review_return=[], level=1)
-            state["uncertainties"] = {key: {**item, "status": "REVALIDATION_REQUIRED"}
-                                      for key, item in state["uncertainties"].items()}
-            state["trials"] = []
-        state.update(stage="PREFLIGHT", version=number, final_route="", blocker="", blocker_adjudication=False,
-                     resume_stage=("DOMAIN_REVIEW_COMPLETE" if state["domain"] else ""),
-                     checks={k: v for k, v in state["checks"].items() if k not in invalidated})
-        event = {"note": payload["note"], "changed": sorted(changed), "rerun": sorted(invalidated),
-                 "redo_domain": redo_domain, "previous_stage": resume}
-        return sha, event
+        checks = {k: v for k, v in state["checks"].items()
+                  if invalidated is not None and k not in invalidated and k != "baseline"}
+        decisions = {key: value for key, value in state["decisions"].items()
+                     if review.STAGES[review.SLOTS[key][2]][1] < restart}
+        reassess = {key for key in state["decisions"] if key not in decisions}
+        carried_baselines = state["baselines"] if invalidated == set() else {}
+        state.update(stage={1: "TECHNICAL_REVIEW", 2: "ENVIRONMENT_CONSTRUCTION", 3: "DOMAIN_REVIEW"}[restart],
+                     version=number, return_stage=None, blocker="", outcome="", final_route="",
+                     checks=checks, decisions=decisions, baselines=carried_baselines, baseline_scores={}, trials=[],
+                     support={} if restart < 3 else state["support"],
+                     environment=state["environment"] if restart == 3 else None)
+        return sha, {"note": payload["note"], "changed": sorted(changed), "restart_stage": restart,
+                     "rerun": sorted(set(CHECKS) if invalidated is None else invalidated),
+                     "reassess": sorted(reassess), "previous_stage": stage}
 
     def transition(self, task, state, actor, action, data, sha):
         stage = state["stage"]
-        role = actor["role"]
-        owner = task["owner"]
-        if action == "preflight":
+        slot = review.reviewer_slot(task, state, actor)
+        if action == "assign":
             actor_role(actor, "technical")
-            require(stage == "IMPORTED", "Preflight has already started")
-            state["stage"] = "PREFLIGHT"
+            return self.assign(task, state, data)
+        if action == "environment_ready":
+            actor_role(actor, "technical")
+            require(stage == "ENVIRONMENT_CONSTRUCTION", "当前不在环境构建环节。")
+            text_fields(data, "evidence_location", "reason")
+            state.update(environment={**data, "actor": actor["id"], "commit_sha": sha},
+                         stage="ENGINEERING_CHECKS", blocker="")
+            self.advance_checks(state)
         elif action == "check":
-            self.check(task, state, actor, data, sha)
-        elif action == "invite":
-            allow(role == "author" and actor["id"] == owner)
-            require(stage in {"AWAITING_DOMAIN_REVIEWER", "DOMAIN_ESCALATION", "REVIEWER_INVITED"},
-                    "Task is not waiting for an invitation")
-            token = secrets.token_urlsafe(32)
-            state["invite"] = {"digest": token_digest(token), "status": "PENDING", "level": state["level"],
-                               "expires": (datetime.now(timezone.utc) + timedelta(days=7)).isoformat()}
-            state["stage"] = "REVIEWER_INVITED"
-            return {"token": token}
-        elif action in {"accept", "decline"}:
-            allow(role == "reviewer" and actor["id"] != owner and task["team"] in actor.get("teams", []))
-            invite = state["invite"] or {}
-            token = data.get("token")
-            allow(isinstance(token, str) and secrets.compare_digest(invite.get("digest", ""), token_digest(token)))
-            require(stage == "REVIEWER_INVITED" and invite["status"] == "PENDING" and invite["expires"] > now(),
-                    "Invitation is inactive")
-            invite.update(status="ACCEPTED" if action == "accept" else "DECLINED", reviewer=actor["id"])
-            if action == "accept":
-                require(actor["id"] not in state["reviews"], "Choose an independent reviewer for this level")
-                state["reviews"][actor["id"]] = {"reviewer": actor["id"], "level": state["level"],
-                                                  "baseline_locked": False}
-                state["active_reviewer"] = actor["id"]
-                state["stage"] = "BASELINE_IN_PROGRESS"
-            else:
-                state["stage"] = "AWAITING_DOMAIN_REVIEWER" if state["level"] == 1 else "DOMAIN_ESCALATION"
-        elif action == "baseline":
-            allow(role == "reviewer" and state.get("active_reviewer") == actor["id"])
-            require(stage == "BASELINE_IN_PROGRESS", "Baseline is already locked or unavailable")
-            require(isinstance(data.get("answer"), dict) and isinstance(data.get("completed"), bool),
-                    "Provide a structured answer and completion status")
-            require(type(data.get("minutes")) is int and data["minutes"] > 0, "Provide elapsed minutes")
-            text_fields(data, "evidence", "tools", "resources")
-            state["reviews"][actor["id"]]["baseline_locked"] = True
-            state["stage"] = "DOMAIN_REVIEW"
-        elif action in {"domain", "uncertainty", "escalate", "resolve"}:
-            self.domain(task, state, actor, action, data)
-        elif action == "technical_start":
-            actor_role(actor, "technical")
-            require(stage == "DOMAIN_REVIEW_COMPLETE", "Domain review must be signed first")
-            state["stage"] = "TECHNICAL_REVIEW"
-        elif action == "technical":
-            actor_role(actor, "technical")
-            require(stage == "TECHNICAL_REVIEW", "Technical review is unavailable")
-            good = self.verdicts(state, owner, TECHNICAL, data.get("verdicts"))
-            state["technical"] = data["verdicts"]
-            if not good:
-                self.block_revision(state, "Technical review identified issues")
-            else:
-                require(all(state["checks"].get(k, {}).get("status") == "PASS"
-                            for k in ("verifier_qa", "isolation", "leakage")),
-                        "Verifier QA, isolation, and leakage checks must pass")
-                state["stage"] = "AGENT_EVALUATION"
+            return self.check(state, actor, data, sha)
         elif action == "trial":
             actor_role(actor, "worker")
-            require(stage == "AGENT_EVALUATION", "Agent evaluation has not started")
+            require(stage in {"DOMAIN_REVIEW", "SENIOR_REVIEW"}, "当前不在难度验证阶段。")
             self.trial(state, data, sha)
-        elif action == "finish_evaluation":
-            actor_role(actor, "technical")
-            require(stage == "AGENT_EVALUATION", "Agent evaluation has not started")
-            formal = [t for t in state["trials"] if t["mode"] == "formal" and t["status"] == "VALID"]
-            require(len({t["model"] for t in formal}) >= 2, "Two distinct formal model results are required")
-            require(state["checks"].get("cheat", {}).get("status") == "PASS", "Defensive controls must pass")
-            text_fields(data, "difficulty", "evidence_location")
-            if not any(t["reward"] == 1 for t in formal):
-                require(any(t["mode"] == "hinted" and t["status"] == "VALID" for t in state["trials"]) and
-                        state["checks"].get("trace", {}).get("status") == "PASS",
-                        "All-fail results require hinted trials and trace diagnosis")
-            state.update(stage="FINAL_REVIEW", difficulty=data["difficulty"])
-        elif action == "request_adjudication":
-            actor_role(actor, "technical")
-            require(stage in REVISION_STAGES, "Adjudication of a blocker needs an open revision stage")
-            text_fields(data, "reason", "evidence_location")
-            state.update(stage="FINAL_REVIEW", blocker=data["reason"], blocker_adjudication=True)
-        elif action == "decision":
-            self.decision(task, state, actor, data)
-        elif action == "issue":
-            allow(role in {"technical", "final"})
-            text_fields(data, "criterion_id")
-            require(data.get("severity") in {"FAIL", "NEEDS EVIDENCE"}, "Invalid severity")
-            self.issue(state, owner, data["criterion_id"], data["severity"], data)
-            self.block_revision(state, data["problem_description"])
+        elif action == "baseline":
+            allow(slot in review.DOMAIN_SLOTS and stage == "DOMAIN_REVIEW")
+            require(slot not in state["baselines"], "盲测基线已锁定。")
+            require(isinstance(data.get("answer"), dict) and type(data.get("completed")) is bool,
+                    "请提交结构化答案并明确是否完成。")
+            require(type(data.get("minutes")) is int and data["minutes"] > 0, "请填写有效的盲测耗时。")
+            text_fields(data, "evidence", "tools", "resources")
+            state["baselines"][slot] = {"reviewer": actor["id"], "minutes": data["minutes"],
+                                         "completed": data["completed"], "commit_sha": sha, "version": state["version"]}
+        elif action == "review":
+            allow(slot in review.STAGE_SLOTS.get(stage, ()))
+            require(slot not in state["decisions"], "本版本的审核意见已签署。")
+            self.sign(task, state, actor, slot, data, sha)
         elif action == "close_issue":
             issue = state["issues"].get(data.get("issue_id"))
             require(issue and issue["status"] == "OPEN" and state["version"] > issue["version"],
-                    "Issue requires verification on a revised version")
-            allow(role in {"technical", "final"} or (
-                role == "reviewer" and state.get("active_reviewer") == actor["id"]
-                and state["reviews"][actor["id"]]["baseline_locked"]))
+                    "修订项须在新版本上验收后关闭。")
+            allow(actor["role"] == "technical" or
+                  (slot in review.STAGE_SLOTS.get(stage, ()) and can_read_private(task, state, actor)))
             text_fields(data, "evidence_location", "acceptance_result")
             issue.update(status="RESOLVED", resolution=data["acceptance_result"])
         else:
-            raise Rejected("Unknown workflow action")
+            raise Rejected("未知的工作流操作。")
         return {}
 
-    def check(self, task, state, actor, data, sha):
-        allow(actor["role"] == "worker")
+    def assign(self, task, state, data):
+        slot, username = data.get("slot"), data.get("reviewer")
+        require(isinstance(slot, str) and slot in review.SLOTS and isinstance(username, str), "审核席位无效。")
+        require(slot != "senior" or state["stage"] == "SENIOR_REVIEW", "三位领域专家的结论有分歧时才能指派资深专家。")
+        require(slot not in state["decisions"] and slot not in state["baselines"], "已开始或签署的审核席位已锁定。")
+        profile = self.accounts.get(username, {})
+        allow(username != task["owner"] and review.account_fits(profile, task["team"], slot))
+        require(all(key == slot or assigned["id"] != username for key, assigned in state["assignments"].items()),
+                "同一道任务的审核席位须由不同账号负责。")
+        state["assignments"][slot] = {"id": username, "name": profile.get("display_name") or username,
+                                       "teams": profile["teams"], "reviewer_type": review.SLOTS[slot][0], "assigned_at": now()}
+        return {}
+
+    def sign(self, task, state, actor, slot, data, sha):
+        stage = state["stage"]
+        conclusion = data.get("conclusion")
+        text_fields(data, "reason", "evidence_location")
+        if slot == "technical":
+            choices = {"PASS", "AUTHOR_FIX", "AUTO_FIX"}
+            criteria = review.TECHNICAL_CRITERIA
+        elif slot in {"engineering_1", "engineering_2"}:
+            choices = {"PASS", "NEEDS_CHANGES"}
+            criteria = {}
+        else:
+            choices = {"PASS", "INSUFFICIENT", "TOO_EASY"}
+            criteria = review.DOMAIN_CRITERIA if slot in review.DOMAIN_SLOTS else {}
+        require(isinstance(conclusion, str) and conclusion in choices, "请选择适用的审核结论。")
+        if criteria:
+            assessment = data.get("assessment")
+            require(isinstance(assessment, dict) and set(assessment) == set(criteria), "请填写每项审核准则的判断。")
+            text_fields(assessment, *criteria)
+        if slot in review.DOMAIN_SLOTS:
+            require(slot in state["baselines"], "请先提交并锁定独立盲测基线。")
+        if stage == "ENGINEERING_REVIEW_1" and conclusion == "PASS":
+            require(all(state["checks"].get(key, {}).get("status") == "PASS" for key in PRECHECKS),
+                    "静态、相似度和三项执行检查通过后才能签署工程初审通过。")
+        if stage == "ENGINEERING_REVIEW_2" and conclusion == "PASS":
+            require(state["decisions"]["engineering_1"]["conclusion"] == "PASS", "工程初审需修改，复核不能直接通过。")
+        if conclusion != "PASS":
+            text_fields(data, "required_changes", "acceptance_test")
+        elif slot in {"technical", "engineering_2"}:
+            self.require_closed_issues(state, review.STAGES[stage][1])
+
+        state["decisions"][slot] = {**data, "id": actor["id"], "slot": slot, "commit_sha": sha,
+                                     "version": state["version"], "signed_at": now()}
+        if slot == "technical":
+            if conclusion == "PASS":
+                state.update(stage="ENVIRONMENT_CONSTRUCTION", blocker="")
+            else:
+                self.return_for_repair(task, state, 1, conclusion, data)
+        elif slot == "engineering_1":
+            state.update(stage="ENGINEERING_REVIEW_2", blocker="")
+        elif slot == "engineering_2":
+            if conclusion == "PASS":
+                state.update(stage="DOMAIN_REVIEW", blocker="")
+            else:
+                self.return_for_repair(task, state, 2, conclusion, data)
+        elif slot in review.DOMAIN_SLOTS:
+            if all(key in state["decisions"] for key in review.DOMAIN_SLOTS):
+                votes = {state["decisions"][key]["conclusion"] for key in review.DOMAIN_SLOTS}
+                if len(votes) == 1:
+                    self.domain_outcome(task, state, conclusion,
+                                        [state["decisions"][key] for key in review.DOMAIN_SLOTS])
+                else:
+                    state.update(stage="SENIOR_REVIEW", blocker="三位领域审核人的结论存在分歧，等待资深专家裁决。")
+        else:
+            self.domain_outcome(task, state, conclusion, [data])
+
+    def domain_outcome(self, task, state, conclusion, opinions):
+        if conclusion == "PASS":
+            self.require_closed_issues(state, 3)
+            require(any(item["completed"] for item in state["baselines"].values()),
+                    "至少需有一位领域专家实际完成任务的基线记录，才能纳入 MMB。")
+            stage = "SIMULATION_PASSED" if state["simulated"] else "READY_MAIN"
+            state.update(stage=stage, final_route=stage, outcome=conclusion, blocker="")
+        else:
+            for opinion in opinions:
+                self.return_for_repair(task, state, 3, conclusion, opinion)
+
+    def require_closed_issues(self, state, phase):
+        require(not any(issue["status"] == "OPEN" and issue["criterion_id"] == f"STAGE-{phase}"
+                        for issue in state["issues"].values()), "请先验收并关闭本阶段的修订项。")
+
+    def return_for_repair(self, task, state, stage_number, conclusion, data):
+        self.issue(state, task["owner"], f"STAGE-{stage_number}", "NEEDS EVIDENCE" if conclusion == "INSUFFICIENT" else "FAIL",
+                   {**data, "problem_description": data["reason"]})
+        state.update(stage="AUTO_REPAIR" if conclusion == "AUTO_FIX" else "REVISION_REQUIRED",
+                     return_stage=stage_number, outcome=conclusion, blocker=data["reason"])
+
+    def advance_checks(self, state):
+        checks = state["checks"]
+        if any(checks.get(key, {}).get("status") in {"FAIL", "NEEDS EVIDENCE", "INVALID RUN"} for key in PRECHECKS) or all(
+            checks.get(key, {}).get("status") == "PASS" for key in PRECHECKS
+        ):
+            state["stage"] = "ENGINEERING_REVIEW_1"
+
+    def check(self, state, actor, data, sha):
+        actor_role(actor, "worker")
         kind, status = data.get("kind"), data.get("status")
-        require(kind in CHECKS and status in {"PASS", "FAIL", "NEEDS EVIDENCE", "INVALID RUN"},
-                "Invalid check kind or verdict")
-        require(data.get("commit_sha") == sha, "Check commit SHA does not match this version")
-        preflight = state["stage"] in {"PREFLIGHT", "NEEDS_AUTHOR_INPUT"} and kind in {*PRECHECKS, "rubric"}
-        running = state["stage"] in {"TECHNICAL_REVIEW", "AGENT_EVALUATION"} and kind not in PRECHECKS
-        require(preflight or running, "Check is unavailable in this phase")
+        require(isinstance(kind, str) and kind in CHECKS and isinstance(status, str) and
+                status in {"PASS", "FAIL", "NEEDS EVIDENCE", "INVALID RUN"}, "检查项目或结论无效。")
+        require(data.get("commit_sha") == sha, "检查提交 SHA 与当前任务版本不符。")
+        stage = state["stage"]
+        engineering = stage in {"ENGINEERING_CHECKS", "ENGINEERING_REVIEW_1"}
+        require(kind in review.AUXILIARY.get(stage, ()) or engineering and kind in {*PRECHECKS, "rubric", *LATE_CHECKS},
+                "当前环节不接受该项检查结果。")
         text_fields(data, "criterion_id", "evidence_location", "log")
         report = dict(data)
+        if kind == "rubric":
+            findings = data.get("findings")
+            require(isinstance(findings, list) and findings and all(isinstance(item, dict) for item in findings),
+                    "机审报告须包含结构化审核结果。")
+            for item in findings:
+                text_fields(item, "criterion_id", "status", "evidence_location", "reason")
+            if stage == "TECHNICAL_REVIEW":
+                require(len(findings) == len(review.TECHNICAL_CRITERIA) and
+                        {item["criterion_id"] for item in findings} == set(review.TECHNICAL_CRITERIA),
+                        "技术机审报告须覆盖全部五项准则。")
         if kind in {"oracle", "nop", "baseline"}:
             valid, reward = score(data.get("reward"), data.get("exception"))
             status = valid if valid == "INVALID RUN" else (
@@ -398,98 +408,16 @@ class Workflow:
             report["reward"] = reward
             if kind == "baseline":
                 reviewer = data.get("reviewer")
-                require(isinstance(reviewer, str) and state["reviews"].get(reviewer, {}).get("baseline_locked"),
-                        "Baseline scoring requires the account that locked the attempt")
-                state.setdefault("baseline_scores", {})[reviewer] = {"status": status, "reward": reward, "commit_sha": sha}
-        if kind == "verifier_qa" and status == "PASS":
-            controls = data.get("controls", {})
-            require(isinstance(controls, dict) and all(
-                score(controls.get(k))[1] == int(k in POSITIVE) for k in POSITIVE | NEGATIVE
-            ), "Positive or negative control failed or is missing")
-        if kind == "cheat" and status == "PASS":
-            controls = data.get("controls", {})
-            require(isinstance(controls, dict) and all(
-                isinstance(controls.get(k), dict) and controls[k].get("passed") is True
-                and all(isinstance(controls[k].get(x), str) and controls[k][x].strip()
-                        for x in ("evidence_location", "repair_guidance"))
-                for k in CHEAT_CATEGORIES
-            ), "Defensive control evidence is missing")
-        report.update(status=status, simulated=state["simulated"])
-        state["checks"][kind] = report
-        if status in {"FAIL", "NEEDS EVIDENCE"}:
-            findings = data.get("findings") if kind == "static" else None
-            for finding in findings or [data]:
-                self.issue(state, task["owner"], finding["criterion_id"], finding.get("status", status), finding)
-            if preflight:
-                state.update(stage="NEEDS_AUTHOR_INPUT", blocker=data["problem_description"])
-            else:
-                self.block_revision(state, data["problem_description"])
-        elif status == "INVALID RUN":
-            state["blocker"] = "Execution invalid. Repair the worker or verifier and retry."
-        elif (preflight and state["stage"] == "PREFLIGHT"
-              and all(state["checks"].get(k, {}).get("status") == "PASS" for k in PRECHECKS)):
-            state.update(stage=state["resume_stage"] or "AWAITING_DOMAIN_REVIEWER", blocker="", resume_stage="")
-        elif not any(check["status"] == "INVALID RUN" for check in state["checks"].values()):
-            state["blocker"] = ""
-
-    def verdicts(self, state, owner, rubric, verdicts):
-        require(isinstance(verdicts, dict) and set(verdicts) == set(rubric), "All criteria must be assessed")
-        good = True
-        for key, item in verdicts.items():
-            require(isinstance(item, dict) and item.get("status") in {"PASS", "FAIL", "NEEDS EVIDENCE", "N/A"},
-                    f"Invalid verdict for {key}")
-            text_fields(item, "evidence_location", "rationale")
-            if item["status"] in {"FAIL", "NEEDS EVIDENCE"}:
-                self.issue(state, owner, key, item["status"], item)
-                good = False
-        return good
-
-    def domain(self, task, state, actor, action, data):
-        allow(actor["role"] == "reviewer" and state.get("active_reviewer") == actor["id"])
-        require(state["stage"] == "DOMAIN_REVIEW" and state["reviews"][actor["id"]]["baseline_locked"],
-                "Lock a baseline before reviewing")
-        level = state["level"]
-        items = state["uncertainties"]
-        if action == "uncertainty":
-            require(data.get("criterion_id") in DOMAIN, "Unknown scientific criterion")
-            text_fields(data, "evidence_location", "question", "reason")
-            require(isinstance(data.get("major"), bool), "Specify whether the disagreement is major")
-            key = uuid.uuid4().hex[:12]
-            items[key] = {**data, "id": key, "level": level, "status": "OPEN"}
-        elif action == "escalate":
-            outstanding = [i for i in items.values() if i["status"] == "OPEN"]
-            require(level < 3 and outstanding and (level == 1 or any(i["major"] for i in outstanding)),
-                    "Escalation needs an unresolved scientific item; L3 requires a major issue")
-            text_fields(data, "reason")
-            state["review_return"].append(actor["id"])
-            state.update(stage="DOMAIN_ESCALATION", level=level + 1, invite=None, blocker=data["reason"])
-        elif action == "resolve":
-            item = items.get(data.get("uncertainty_id"))
-            require(item and item["status"] in {"OPEN", "REVALIDATION_REQUIRED"}, "Unknown open uncertainty")
-            text_fields(data, "resolution", "evidence_location")
-            item.update(status="RESOLVED", resolution=data["resolution"], resolved_by=actor["id"],
-                        resolution_evidence=data["evidence_location"])
-        elif level > 1:
-            text_fields(data, "signoff")
-            require(not any(i["status"] == "OPEN" for i in items.values()), "Resolve or escalate open items")
-            state["reviews"][actor["id"]]["signed"] = True
-            state.update(level=level - 1, active_reviewer=state["review_return"].pop(), blocker="")
+                require(any(item["reviewer"] == reviewer for item in state["baselines"].values()),
+                        "基线评分须绑定已锁定盲测的账号。")
+                state["baseline_scores"][reviewer] = {"status": status, "reward": reward, "commit_sha": sha}
+        report.update(status=status, simulated=state["simulated"], review_stage=stage)
+        if engineering and kind in PRECHECKS:
+            state["checks"][kind] = report
+            self.advance_checks(state)
         else:
-            require(not any(i["status"] in {"OPEN", "REVALIDATION_REQUIRED"} for i in items.values()),
-                    "Resolve or escalate the outstanding scientific questions")
-            text_fields(data, "signoff")
-            good = self.verdicts(state, task["owner"], DOMAIN, data.get("verdicts"))
-            state["domain"] = data["verdicts"]
-            state["reviews"][actor["id"]]["signed"] = True
-            if good:
-                state.update(stage="DOMAIN_REVIEW_COMPLETE", blocker="")
-            else:
-                self.block_revision(state, "Scientific review identified issues")
-
-    def block_revision(self, state, reason):
-        needs_evidence = any(i["severity"] == "NEEDS EVIDENCE" and i["status"] == "OPEN"
-                             for i in state["issues"].values())
-        state.update(stage="NEEDS_AUTHOR_EVIDENCE" if needs_evidence else "REVISION_REQUIRED", blocker=reason)
+            state["support"][f"{stage}/{kind}"] = report
+        return report
 
     def trial(self, state, data, sha):
         require(data.get("commit_sha") == sha and data.get("mode") in {"formal", "hinted"},
@@ -505,33 +433,3 @@ class Workflow:
             require(data.get("failure") in FAILURES, "Classify the failed trial")
         state["trials"].append({**data, "trial_count": 1, "status": status, "reward": reward,
                                 "simulated": state["simulated"]})
-
-    def decision(self, task, state, actor, data):
-        actor_role(actor, "final")
-        require(state["stage"] == "FINAL_REVIEW", "Task has not reached final review")
-        route = data.get("route")
-        require(route in ROUTES, "Invalid final route")
-        text_fields(data, "reason", "evidence_location")
-        if route in {"READY_MAIN", "CALIBRATION"}:
-            require(not state.get("blocker_adjudication") and set(state["domain"]) == set(DOMAIN)
-                    and set(state["technical"]) == set(TECHNICAL),
-                    "Positive admission requires the ordinary workflow and signed rubrics")
-            require(not any(i["status"] == "OPEN" for i in state["issues"].values()), "Open revisions remain")
-            require(all(v["status"] == "PASS" for k, v in state["domain"].items() if k != "S11")
-                    and all(v["status"] == "PASS" for v in state["technical"].values()),
-                    "Applicable scientific and technical gates must pass")
-            require(state["reviews"] and all(state.get("baseline_scores", {}).get(reviewer, {}).get("status") == "PASS"
-                                            for reviewer in state["reviews"]),
-                    "Score each locked baseline with the task verifier before admission")
-        if route == "READY_MAIN":
-            require(not state["simulated"] and all(v["status"] == "PASS" for v in state["domain"].values()),
-                    "Main requires real expert review and all scientific gates")
-        if route == "EXCLUDED":
-            require(not state["simulated"] and data.get("basis") in {"OUT_OF_SCOPE", "IRREPARABLE"}
-                    and (data["basis"] == "OUT_OF_SCOPE" or state["version"] >= 2),
-                    "Exclusion requires a human decision and evidence of an irreparable or out-of-scope task")
-        if route in {"REVISION_REQUIRED", "NEEDS_AUTHOR_EVIDENCE"}:
-            text_fields(data, "criterion_id")
-            self.issue(state, task["owner"], data["criterion_id"],
-                       "FAIL" if route == "REVISION_REQUIRED" else "NEEDS EVIDENCE", data)
-        state.update(stage=route, final_route=route, blocker=data["reason"] if route in REVISION_STAGES else "")

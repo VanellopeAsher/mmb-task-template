@@ -8,7 +8,8 @@ from pathlib import Path
 
 from . import preflight
 from .storage import Store, encode
-from .workflow import DOMAIN, TEAMS, Workflow
+from .review import DOMAIN_CRITERIA
+from .workflow import TEAMS, Workflow
 
 MODEL_RULES = (
     "You are simulating a MatterMysteryBench workflow role. Output only a JSON object. "
@@ -50,7 +51,7 @@ def diagnose(source, flow, task_id, model, timeout, cleared):
     technical = {"id": "simulated-technical", "role": "technical"}
     with flow.store.transaction(write=False) as db:
         _, state = flow.row(db, key)
-    if state["stage"] in {"IMPORTED", "PREFLIGHT"}:
+    if state["stage"] in {"ENGINEERING_CHECKS", "ENGINEERING_REVIEW_1"}:
         preflight.report(flow, key, technical)
     with flow.store.transaction(write=False) as db:
         _, state = flow.row(db, key)
@@ -71,7 +72,7 @@ def diagnose(source, flow, task_id, model, timeout, cleared):
             "Summarize the measured static findings and identify controls still missing. "
             "Flag unavailable execution evidence; do not mark technical review as passed."
         )}, timeout),
-        ask(model, "Domain Reviewer and Final Adjudicator", {**context, "criteria": DOMAIN, "request": (
+        ask(model, "Domain Reviewer and Final Adjudicator", {**context, "criteria": DOMAIN_CRITERIA, "request": (
             "Suggest questions for the human reviewer using only the supplied evidence. "
             "Report the current blocker and evidence required to resume. "
             "Full domain and final roles remain pending if the independent blind attempt and real evidence are unavailable."

@@ -11,7 +11,7 @@
 <body>
 <header class="masthead"><div class="shell mast-inner">
 <a class="brand" href="{{ url_for('dashboard') }}"><span class="mark"><i></i><i></i><i></i><i></i></span>MatterMysteryBench</a>
-{% if actor %}<nav aria-label="账号"><span>{{ actor.id }} · {{ role_labels[actor.role] }}</span><form method="post" action="{{ url_for('logout') }}"><input type="hidden" name="csrf" value="{{ csrf }}"><button class="quiet">退出登录</button></form></nav>{% endif %}
+{% if actor %}<nav aria-label="账号"><span>{{ actor.display_name or actor.id }} · {{ role_labels[actor.role] }}{% if actor.role == 'reviewer' %} · {% for team in actor.teams %}{{ team_labels[team] }}{% if not loop.last %}、{% endif %}{% endfor %} · {% for kind in actor.reviewer_types %}{{ reviewer_types[kind] }}{% if not loop.last %}、{% endif %}{% endfor %}{% endif %}</span>{% if actor.role == 'technical' %}<a href="{{ url_for('reviewers') }}">审核人名册</a>{% endif %}<form method="post" action="{{ url_for('logout') }}"><input type="hidden" name="csrf" value="{{ csrf }}"><button class="quiet">退出登录</button></form></nav>{% endif %}
 </div></header>
 <main class="shell">{% block content %}{% endblock %}</main>
 </body></html>

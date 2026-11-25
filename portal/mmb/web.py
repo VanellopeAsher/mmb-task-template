@@ -11,9 +11,9 @@ from collections import Counter
 from flask import Flask, abort, g, jsonify, redirect, render_template, request, send_file, session, url_for
 from werkzeug.security import check_password_hash
 
-from . import preflight, presentation
+from . import preflight, presentation, review
 from .storage import MAX_UPLOAD, Rejected, Store, sha256
-from .workflow import (NEXT, REVISION_STAGES, ROUTES, TEAMS, Conflict, Denied,
+from .workflow import (TEAMS, Conflict, Denied,
                        Workflow, can_list, can_read_private, now, require)
 
 
@@ -43,7 +43,13 @@ def create_app(config=None):
     if not isinstance(accounts, dict) or not accounts or any(
         not isinstance(account, dict) or account.get("role") not in {"author", "reviewer", "technical", "final"}
         or not isinstance(account.get("password_hash"), str) or not isinstance(account.get("teams"), list)
-        or any(team not in TEAMS for team in account["teams"]) for account in accounts.values()
+        or any(team not in TEAMS for team in account["teams"])
+        or not isinstance(account.get("display_name", ""), str)
+        or account["role"] == "reviewer" and (
+            not account["teams"] or not isinstance(account.get("reviewer_types"), list)
+            or not account["reviewer_types"]
+            or any(kind not in review.REVIEWER_TYPES for kind in account["reviewer_types"])
+        ) for account in accounts.values()
     ):
         raise RuntimeError("Invalid operator-managed account directory")
     archive_file = app.config["MMB_ARCHIVED_INTAKE_FILE"]
@@ -52,7 +58,7 @@ def create_app(config=None):
         raise RuntimeError("Archived intake configuration must be a JSON array of task IDs")
     archived_intake = frozenset(archive_ids)
     store = Store(app.config["MMB_DATA"], app.config["MMB_DATABASE_URL"])
-    flow = Workflow(store)
+    flow = Workflow(store, accounts)
     app.extensions["mmb"] = flow
 
     def credential(header, key):
@@ -70,7 +76,7 @@ def create_app(config=None):
             expected = session.get("csrf", "")
             if not expected or not hmac.compare_digest(sent.encode(), expected.encode()):
                 abort(403)
-        if not g.actor and request.endpoint not in {"login", "invitation"}:
+        if not g.actor and request.endpoint != "login":
             if request.method == "GET":
                 return redirect(url_for("login", next=request.path))
             abort(401)
@@ -88,9 +94,12 @@ def create_app(config=None):
     def context():
         if "csrf" not in session:
             session["csrf"] = secrets.token_urlsafe(24)
-        return {"csrf": session["csrf"], "actor": g.actor, "teams": TEAMS, "routes": ROUTES,
+        return {"csrf": session["csrf"], "actor": g.actor, "teams": TEAMS,
                 "stage_labels": presentation.STAGES, "team_labels": presentation.TEAMS,
                 "role_labels": presentation.ROLES, "labels": presentation.LABELS,
+                "reviewer_types": review.REVIEWER_TYPES, "slot_names": review.SLOTS,
+                "conclusions": review.CONCLUSIONS, "technical_criteria": review.TECHNICAL_CRITERIA,
+                "domain_criteria": review.DOMAIN_CRITERIA,
                 "message": presentation.message}
 
     @app.errorhandler(Rejected)
@@ -109,7 +118,7 @@ def create_app(config=None):
     @app.route("/login", methods=["GET", "POST"])
     def login():
         target = request.values.get("next", "")
-        if not re.fullmatch(r"/(?:invite/MMB-[0-9A-F]{16}|task/MMB-[0-9A-F]{16})?", target):
+        if not re.fullmatch(r"/(?:reviewers|task/MMB-[0-9A-F]{16})?", target):
             target = "/"
         if request.method == "GET":
             return render_template("login.html", target=target)
@@ -129,30 +138,35 @@ def create_app(config=None):
 
     def display(task, state):
         stage = state["stage"]
-        holder, _ = NEXT[stage]
-        next_action = presentation.ACTIONS[stage]
-        waiting_isolation = stage == "PREFLIGHT" and all(
-            state["checks"].get(kind, {}).get("status") == "PASS" for kind in ("static", "similarity")
-        )
+        label, phase, action = review.STAGES[stage]
+        slots = review.STAGE_SLOTS.get(stage, ())
+        pending = [key for key in slots if key not in state["decisions"]]
+        owners = [state["assignments"][key]["name"] if key in state["assignments"] else f"{review.SLOTS[key][1]}待指派"
+                  for key in pending]
+        if stage in review.REPAIR:
+            phase = state["return_stage"]
+            owners = [task["owner"] if stage == "REVISION_REQUIRED" else "Coding Agent（由技术组交接）"]
+        waiting_isolation = (stage == "ENGINEERING_CHECKS"
+                             and all(state["checks"].get(k, {}).get("status") == "PASS"
+                                     for k in ("static", "similarity")))
         if waiting_isolation:
-            holder = "Isolation test owner"
-            next_action = "等待隔离测试负责人回填镜像构建、参考解和空操作结果"
-        invite = state["invite"] or {}
-        blind = g.actor["role"] == "reviewer" and not can_read_private(task, state, g.actor)
-        valid = [r["reward"] for r in state["trials"] if r["mode"] == "formal" and r["status"] == "VALID"]
-        blocker = "" if blind else presentation.message(state["blocker"])
-        owner = task["owner"] if holder == "Author" else (
-            state.get("active_reviewer") if holder == "Reviewer" and stage != "REVIEWER_INVITED" else None
-        )
+            label, action = "待隔离执行检查回填", "等待隔离测试负责人回填沙盒构建、参考解和空操作结果"
+            owners = ["隔离测试负责人"]
+        if not owners:
+            owners = ["MMB 技术组"] if stage not in review.LOCKED else ["审核完成"]
+        elif slots and any(key not in state["assignments"] for key in pending):
+            action = "指派符合团队与审核类型要求的账号"
+        private = can_read_private(task, state, g.actor)
+        checks = state["checks"]
+        valid = [trial["reward"] for trial in state["trials"] if trial["mode"] == "formal" and trial["status"] == "VALID"]
+        blocker = presentation.message(state["blocker"]) if private else ""
         return {
-            "id": task["id"], "title": task["title"], "team": task["team"], "domain": TEAMS[task["team"]][0],
-            "owner": task["owner"], "version": state["version"], "revision": task["revision"],
-            "stage": stage, "stage_label": "待隔离测试回填" if waiting_isolation else presentation.STAGES[stage],
-            "stage_blocked": bool(blocker) or waiting_isolation or stage in REVISION_STAGES,
-            "waiting_isolation": waiting_isolation, "current_owner": owner or presentation.OWNERS[holder],
-            "next_action": next_action, "blocker": blocker, "level": state["level"],
-            "invite_status": invite.get("status", "NONE"), "checks": {} if blind else {k: v["status"] for k, v in state["checks"].items()},
-            "uncertainties": sum(i["status"] != "RESOLVED" for i in state["uncertainties"].values()),
+            "id": task["id"], "title": task["title"], "team": task["team"], "owner": task["owner"],
+            "version": state["version"], "revision": task["revision"], "stage": stage, "phase": phase,
+            "stage_label": label, "stage_blocked": bool(blocker) or waiting_isolation or stage in review.REPAIR,
+            "waiting_isolation": waiting_isolation, "current_owner": "、".join(owners),
+            "next_action": action, "blocker": blocker,
+            "checks": {k: v["status"] for k, v in checks.items()} if private else {},
             "pass_rate": round(100 * sum(valid) / len(valid)) if valid else None,
             "trial_count": len(valid), "updated": state["updated"], "final_route": state["final_route"],
             "simulated": state["simulated"],
@@ -166,7 +180,7 @@ def create_app(config=None):
             rows = db.execute("SELECT * FROM tasks ORDER BY id").fetchall()
             items = []
             for row in rows:
-                state = json.loads(row["state"])
+                state = review.upgrade_state(json.loads(row["state"]))
                 if can_list(row, state, g.actor):
                     archived = row["id"] in archived_intake
                     archived_count += archived
@@ -179,12 +193,12 @@ def create_app(config=None):
                   and (not query or query in (task["title"] + " " + task["id"]).casefold())]
         visible = [task for task in scoped if not stage or stage == task["stage"]]
         counts = Counter(task["stage"] for task in scoped)
-        final_counts = Counter(task["final_route"] for task in scoped)
+        final_count = sum(task["final_route"] == "READY_MAIN" for task in scoped)
         return render_template("dashboard.html", items=visible,
                                counts=Counter(t["team"] for t in items),
-                               stage_counts={key: counts[key] for key in NEXT if counts[key]},
+                               stage_counts={key: counts[key] for key in review.STAGES if counts[key]},
                                waiting_isolation=sum(t["waiting_isolation"] for t in scoped),
-                               totals={key: final_counts[key] for key in ROUTES},
+                               final_count=final_count,
                                selected=selected, stage=stage, query=query, total=len(items),
                                archive=archive, archived_count=archived_count)
 
@@ -211,9 +225,12 @@ def create_app(config=None):
                                 "message_zh": presentation.message(str(error))})
         return jsonify(results=results), (201 if any("task" in item for item in results) else 422)
 
-    @app.get("/invite/<task_id>")
-    def invitation(task_id):
-        return render_template("invite.html", task_id=task_id)
+    @app.get("/reviewers")
+    def reviewers():
+        if g.actor["role"] != "technical":
+            abort(403)
+        return render_template("reviewers.html", profiles=[(name, profile) for name, profile in accounts.items()
+                                                          if profile["role"] == "reviewer"])
 
     @app.get("/task/<task_id>")
     def detail(task_id):
@@ -221,37 +238,45 @@ def create_app(config=None):
             task, state = flow.row(db, task_id)
             if not can_list(task, state, g.actor):
                 abort(404)
-            version, manifest = flow.version(db, task_id, state["version"])
+            _, manifest = flow.version(db, task_id, state["version"])
             private = can_read_private(task, state, g.actor)
             files = [(name, meta) for name, meta in manifest["files"].items() if private or meta["public"]]
+            assigned = review.reviewer_slot(task, state, g.actor)
+            released = all(key in state["decisions"] for key in review.DOMAIN_SLOTS)
             events = []
-            phase_events = []
             for row in db.execute("SELECT * FROM events WHERE task=? ORDER BY sequence DESC", (task_id,)).fetchall():
                 data = json.loads(row["data"])
-                if row["version"] == state["version"]:
-                    phase_events.append((row["kind"], data.get("stage")))
-                safe = row["kind"] in {"IMPORTED", "INVITE", "ACCEPT", "DECLINE", "PREFLIGHT"}
-                if private or safe:
+                own = row["actor"] == g.actor["id"]
+                if row["kind"] == "BASELINE" and not own and assigned in review.DOMAIN_SLOTS:
+                    continue
+                if row["kind"] in {"REVIEW", "DOMAIN"} and not own and assigned in review.DOMAIN_SLOTS:
+                    continue
+                if (row["kind"] == "REVIEW" and data.get("slot") in review.DOMAIN_SLOTS
+                        and row["version"] == state["version"] and not released and not own):
+                    continue
+                if private or row["kind"] in {"IMPORTED", "ASSIGN", "MECHANISM_UPDATED"}:
                     events.append({**dict(row), "data": data if private else {"stage": data.get("stage", "")}})
             versions = db.execute("SELECT version, sha FROM versions WHERE task=? ORDER BY version DESC",
                                   (task_id,)).fetchall()
-        models = {}
-        for trial in state["trials"]:
-            if trial["mode"] == "formal" and trial["status"] == "VALID":
-                key = (trial["model"], trial["model_version"])
-                stats = models.setdefault(key, Counter())
-                stats.update({"valid": 1, "passed": trial["reward"]})
-        issue_view = state["issues"] if private else {}
         view = display(task, state)
-        steps, returning = presentation.pipeline(state, phase_events, view["waiting_isolation"], view["blocker"])
-        return render_template("task.html", task=view, steps=steps, returning=returning, issues=issue_view,
-                               uncertainties=state["uncertainties"] if private else {},
-                               files=files, private=private, events=events, versions=versions, sha=version["sha"],
-                               check_details=state["checks"] if private else {},
-                               trial_details=state["trials"] if private else [], model_rates=models if private else {},
-                               active=state.get("active_reviewer") == g.actor["id"], domain=presentation.DOMAIN,
-                               technical=presentation.TECHNICAL,
-                               previous_reviewers=state.get("previous_reviewers", []) if private else [])
+        options = {key: [(name, profile.get("display_name") or name) for name, profile in sorted(accounts.items())
+                         if review.account_fits(profile, task["team"], key)
+                         and not any(other != key and value["id"] == name
+                                     for other, value in state["assignments"].items())]
+                   for key in review.SLOTS} if g.actor["role"] == "technical" else {}
+        reviews = {key: value for key, value in state["decisions"].items()
+                   if private and (key not in review.DOMAIN_SLOTS or key == assigned
+                                   or (released and assigned not in review.DOMAIN_SLOTS))}
+        return render_template(
+            "task.html", task=view, approvals=state["assignments"], options=options,
+            reviews=reviews, signed=state["decisions"].keys(), baselines=state["baselines"].keys(),
+            assigned=assigned, active_slots=review.STAGE_SLOTS.get(state["stage"], ()),
+            outcome=state["outcome"], legacy=state.get("legacy_stage"), environment=state["environment"],
+            files=files, private=private, events=events, versions=versions,
+            issues=state["issues"] if private else {},
+            checks=state["checks"] if private else {}, support=state["support"] if private else {},
+            trials=state["trials"] if private else [],
+        )
 
     @app.get("/task/<task_id>/asset/<int:number>/<path:name>")
     def asset(task_id, number, name):

@@ -13,23 +13,13 @@ function dataFor(form) {
     if (control.hasAttribute('data-json')) data[control.name] = JSON.parse(control.value);
   }
   if (form.dataset.revision) data.revision = Number(form.dataset.revision);
-  const criteria = [...form.querySelectorAll('[data-criterion]')];
+  if (form.dataset.version) data.version = Number(form.dataset.version);
+  const criteria = [...form.querySelectorAll('[data-assessment]')];
   if (criteria.length) {
-    data.verdicts = Object.fromEntries(criteria.map(row => [
-      row.dataset.criterion, Object.fromEntries([...row.querySelectorAll('[data-field]')].map(
-        input => [input.dataset.field, input.value]
-      ))
-    ]));
+    data.assessment = Object.fromEntries(criteria.map(input => [input.dataset.assessment, input.value]));
   }
   return data;
 }
-const invite = document.querySelector('.invitation');
-if (invite) {
-  invite.elements.token.value = location.hash.slice(1);
-  if (invite.elements.token.value) history.replaceState(null, '', location.pathname);
-}
-document.querySelector('#reload-invite')?.addEventListener('click', () => location.reload());
-
 for (const form of document.querySelectorAll('form.command, form.multipart')) {
   form.addEventListener('submit', async event => {
     event.preventDefault();
@@ -49,30 +39,10 @@ for (const form of document.querySelectorAll('form.command, form.multipart')) {
       }
       const data = await response.json();
       if (!response.ok) throw new Error(data.message_zh || data.error || data.results?.map(item => item.message_zh || item.error).join(' · ') || '提交失败。');
-      if (data.token) {
-        const invitation = new URL('/invite/' + location.pathname.split('/').at(-1), location.origin);
-        invitation.hash = data.token;
-        const link = document.createElement('input');
-        link.value = invitation.href;
-        link.readOnly = true;
-        link.setAttribute('aria-label', '邀请链接');
-        const copy = document.createElement('button');
-        copy.type = 'button';
-        copy.textContent = '复制邀请链接';
-        copy.addEventListener('click', async () => {
-          link.select();
-          try { await navigator.clipboard.writeText(link.value); copy.textContent = '已复制'; }
-          catch { copy.textContent = '已选中链接'; }
-        });
-        output.replaceChildren(link, copy);
-        const nextRevision = Number(form.dataset.revision) + 1;
-        form.dataset.revision = String(nextRevision);
-      } else if (data.results) {
+      if (data.results) {
         const failures = data.results.filter(item => item.error);
         if (!failures.length) location.assign('/');
         else output.textContent = data.results.map(item => item.task || item.filename + ' · ' + (item.message_zh || item.error)).join(' | ');
-      } else if (form.dataset.accepted) {
-        location.assign(data.stage === 'BASELINE_IN_PROGRESS' ? form.dataset.accepted : '/');
       } else {
         location.reload();
       }
