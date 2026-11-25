@@ -1,5 +1,7 @@
 # MatterMysteryBench task template
 
+The [MMB Admission Portal](portal/README.md) supports existing-package intake, versioned blind review, and evidence-based routing.
+
 This repository contains a **blank authoring template**, one engineering pilot (`task_example_01`), and five proposed examples (`task_example_02`–`task_example_06`). The five proposed examples follow the directory schema but are **not yet validated scientific evaluation tasks**. Their audit and release gates are recorded in `docs/examples_02_06_audit.md`.
 
 The worked example has a published `answer.json` contract, a hidden correct answer, an executable oracle, and an independent objective verifier for its engineering pilot. It does **not** answer the original research question. `task/task_example_01/authoring/scientific_brief.md` preserves that question; `task/task_example_01/authoring/evidence/fc4_gap.md` records the missing fourth-order data and the resulting scientific acceptance gap. Simulated human-baseline and agent-run records illustrate the schema.

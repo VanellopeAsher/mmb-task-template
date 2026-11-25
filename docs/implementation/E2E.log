@@ -1,0 +1,4 @@
+MMB three-stage acceptance
+PASS Python integration: account team/type, technical ordering, engineering dual approval, independent domain decisions, senior adjudication, revision, migration and binary scores
+PASS Edge Playwright: login, ZIP import, roster, reviewer assignment, technical approval, engineering approval, baseline lock, expert disagreement, senior ruling, author revision
+Isolated worker evidence was simulated for Portal acceptance.

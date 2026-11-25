@@ -1,0 +1,112 @@
+{% macro queue_count(key, title) %}
+{% set count = node_counts[key] %}
+<a class="map-count-link{% if count %} has-tasks{% endif %}" data-count-for="{{ key }}" href="{{ url_for('dashboard', node=key, team=selected or None, q=query or None, archive=1 if archive else None, _anchor='task-list') }}" aria-label="{{ title }}，{{ count }} 道任务"{% if node == key %} aria-current="true"{% endif %}>{{ count }}</a>
+{% endmacro %}
+{% macro node(key, title, detail='', tone='', commands=()) %}
+{% set active = not map_overview and diagram.current == key %}
+{% set visited = not map_overview and key in diagram.visited %}
+{% set queue = map_overview and key in node_counts %}
+<div class="map-node {{ tone }}{% if active %} map-active{% elif visited %} map-visited{% endif %}{% if queue and node_counts[key] %} map-has-tasks{% endif %}" data-node="{{ key }}"{% if active %} aria-current="step"{% endif %}>
+<div class="map-node-title"><strong>{{ title }}</strong>{% if queue %}{{ queue_count(key, title) }}{% elif active %}<span class="map-state">当前</span>{% elif visited %}<span class="map-state">已到达</span>{% endif %}</div>
+{% if detail %}<small>{{ detail }}</small>{% endif %}
+{% if commands %}<ul class="map-commands">{% for command in commands %}<li><code>{{ command }}</code></li>{% endfor %}</ul>{% endif %}
+{% if map_overview and key == 'technical' and unassigned_technical %}<small>{{ unassigned_technical }} 道待指派审核人</small>{% endif %}
+{% if tone == 'map-return-node' %}<a class="map-return-link" href="#revision-loop">↺ 进入退修回路</a>{% endif %}
+</div>
+{% endmacro %}
+{% macro arrow(label='') %}<div class="map-arrow"><span aria-hidden="true">↓</span>{% if label %}<small>{{ label }}</small>{% endif %}</div>{% endmacro %}
+
+<section class="workflow-map" aria-label="任务全流程图">
+<div class="map-start">
+{{ node('submitted', '作者提交任务包', ('当前统计范围 ' ~ scope_total ~ ' 道') if map_overview else ('当前版本 v' ~ task.version)) }}
+{{ arrow() }}
+</div>
+<div class="map-lanes">
+<section class="map-lane" aria-labelledby="map-stage-one" id="workflow-stage-1">
+<h3 id="map-stage-one"><span>阶段 1</span> 技术审核</h3>
+<div class="map-lane-body">
+{{ node('technical-evidence', 'LLM 机审', '围绕五项技术准则形成结构化意见', 'map-evidence') }}
+{% if map_overview %}<ol class="map-rubrics">{% for label in technical_criteria.values() %}<li>{{ label }}</li>{% endfor %}</ol>{% endif %}
+{{ arrow() }}
+{{ node('technical-tools', '辅助证据（按需）', '泄漏检查 · 参考解验证 · 判分可行性', 'map-evidence', ('/cheat', '/oracle', '/verify')) }}
+{{ arrow('证据供审核人参考') }}
+{{ node('technical', '技术审核人签署', '核对题面、数据、工具、参考答案与评分可行性', 'map-human') }}
+<div class="map-fork" aria-label="技术审核分支">
+{{ node('auto-repair', '交 Coding Agent 修复', '回传新版本后复审', 'map-return-node') }}
+{{ node('technical-return', '退回作者修订', '审核意见随任务回传', 'map-return-node') }}
+</div>
+<a class="map-forward" href="#workflow-stage-2"><span>技术审核通过</span><span class="map-forward-arrow" aria-hidden="true">→</span><span>阶段 2</span></a>
+</div></section>
+
+<section class="map-lane" aria-labelledby="map-stage-two" id="workflow-stage-2">
+<h3 id="map-stage-two"><span>阶段 2</span> 环境构建与工程审核</h3>
+<div class="map-lane-body">
+{{ node('environment', '环境构建与交接', '登记隔离环境和交接证据') }}
+{{ arrow() }}
+{{ node('checks', '自动化检查', '静态检查 · 相似度检查 · 执行检查', 'map-evidence') }}
+{% if map_overview %}
+<ul class="map-check-queue">
+<li><span>待回填静态检查</span>{{ queue_count('check-static', '待回填静态检查') }}</li>
+<li><span>待回填相似度</span>{{ queue_count('check-similarity', '待回填相似度') }}</li>
+<li class="map-execution"><strong>执行检查</strong>{% if waiting_isolation %}<small>{{ waiting_isolation }} 道等待隔离测试负责人回填</small>{% endif %}
+<ul>
+<li><span>沙盒构建</span>{{ queue_count('check-build', '待回填沙盒构建') }}</li>
+<li><span>参考解（Oracle）</span>{{ queue_count('check-oracle', '待回填参考解') }}</li>
+<li><span>空操作（NOP）</span>{{ queue_count('check-nop', '待回填空操作') }}</li>
+</ul></li>
+</ul>
+<p class="map-node-note">同一任务可同时等待多项检查。</p>
+{% else %}<p class="map-node-note">执行检查包含沙盒构建、参考解（Oracle）和空操作（NOP）。</p>{% endif %}
+{{ arrow('按需附机审意见') }}
+{{ node('engineering-1', '工程审核人 1 初审', '检查执行结果并定位异常', 'map-human') }}
+{{ arrow() }}
+{{ node('engineering-2', '工程审核人 2 复核', '核对初审结论与修订建议', 'map-human') }}
+<div class="map-fork map-single" aria-label="工程复核退修分支">
+{{ node('engineering-return', '复核要求修改', '修订后重跑受影响的检查', 'map-return-node') }}
+</div>
+<a class="map-forward" href="#workflow-stage-3"><span>工程复核通过</span><span class="map-forward-arrow" aria-hidden="true">→</span><span>阶段 3</span></a>
+</div></section>
+
+<section class="map-lane" aria-labelledby="map-stage-three" id="workflow-stage-3">
+<h3 id="map-stage-three"><span>阶段 3</span> 难度验证与领域审核</h3>
+<div class="map-lane-body">
+{{ node('difficulty', '难度核验', '新颖性 · 代理性 · 人类基线', 'map-evidence') }}
+{{ arrow() }}
+{{ node('domain-evidence', '辅助证据（按需）', 'LLM 机审 · Agent 试跑 · 提示诊断 · 轨迹分析', 'map-evidence', ('/run', '/run-hints', '/trajectory-analysis')) }}
+{{ arrow() }}
+{{ node('domain', '三位领域专家独立盲测和签署', '', 'map-human') }}
+{{ arrow() }}
+{{ node('decision', '三位专家的结论一致吗？', '', 'map-decision') }}
+<div class="map-fork map-domain-fork" aria-label="领域裁决分支">
+{{ node('unanimous', '一致', '采用一致意见') }}
+{{ node('senior', '有分歧', '转资深专家裁决', 'map-human') }}
+</div>
+{{ arrow() }}
+{{ node('final-result', '最终审核结果', '', 'map-decision') }}
+{{ arrow() }}
+<div class="map-outcomes" aria-label="最终结论">
+{{ node('admitted', '模拟通过' if not map_overview and task.stage == 'SIMULATION_PASSED' else '通过 · 纳入 MMB', '冻结准入版本', 'map-success') }}
+{{ node('insufficient', '不可解或证据不足', '排查题目条件、参考解和环境', 'map-return-node') }}
+{{ node('too-easy', '太简单或难度不足', '参考轨迹定位原因并提高难度', 'map-return-node') }}
+</div>
+</div></section>
+</div>
+
+{% if map_overview and (node_counts.simulated or node_counts['legacy-calibration'] or node_counts['legacy-excluded']) %}
+<div class="map-other-queues">
+{% for key in ('simulated', 'legacy-calibration', 'legacy-excluded') if node_counts[key] %}
+{{ node(key, queue_labels[key]) }}
+{% endfor %}
+</div>
+{% endif %}
+<div id="revision-loop" class="map-loop{% if not map_overview and diagram.returning %} map-loop-active{% endif %}" data-node="recheck">
+<div class="map-loop-header"><span aria-hidden="true">↺</span><strong>退修回路</strong>{% if map_overview %}{{ queue_count('revision', '退修回路') }}{% elif diagram.returning %}<span class="map-state">当前走此回路</span>{% endif %}</div>
+<ol class="map-loop-track"><li>汇总退修意见</li><li>作者或 Coding Agent 提交新版本</li><li>按改动范围复审</li></ol>
+<div class="map-loop-targets"><span>可返回</span>
+{% for n, label in [(1, '技术审核'), (2, '环境构建与检查'), (3, '难度与领域复审')] %}
+<a href="#workflow-stage-{{ n }}"{% if not map_overview and diagram.restart == n %} class="map-selected"{% endif %}>阶段 {{ n }} · {{ label }}</a>
+{% endfor %}</div>
+{% if not map_overview and diagram.returning %}<p>本次由阶段 {{ task.phase }} 退回。提交新版本后，系统根据实际改动选择复审起点。</p>
+{% elif not map_overview and diagram.restart %}<p>当前版本从阶段 {{ diagram.restart }} 重新进入审核。</p>{% endif %}
+</div>
+</section>

@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}版本差异 · MatterMysteryBench{% endblock %}
+{% block content %}
+<a class="back" href="{{ url_for('detail', task_id=task.id) }}">← {{ task.title }}</a>
+<div class="page-title"><h1>v{{ version - 1 }} → v{{ version }}</h1></div>
+<section class="panel"><h2>{{ changes|length }} 个文件变更</h2>
+{% for name, status, before, after, diff in changes %}
+<details><summary>{{ labels[status] }} · {{ name }}</summary>
+<dl>{% if before %}<dt>原版本 SHA256</dt><dd><code>{{ before }}</code></dd>{% endif %}
+{% if after %}<dt>当前 SHA256</dt><dd><code>{{ after }}</code></dd>{% endif %}</dl>
+{% if diff %}<pre>{{ diff }}</pre>{% endif %}</details>
+{% endfor %}
+</section>
+{% endblock %}

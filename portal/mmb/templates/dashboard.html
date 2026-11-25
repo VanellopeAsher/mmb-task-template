@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}任务总览 · MatterMysteryBench{% endblock %}
+{% block content %}
+<div class="page-title"><div><h1>{{ '归档记录' if archive else '任务总览' }}</h1><p>{{ total }} 道任务 · {{ teams|length }} 个团队</p>
+{% if archive %}<a href="{{ url_for('dashboard') }}">返回活跃任务</a>
+{% elif archived_count %}<a href="{{ url_for('dashboard', archive=1) }}">归档记录（{{ archived_count }}）</a>{% endif %}</div>
+{% if actor.role == 'author' %}<a class="button" href="#import">导入任务</a>{% endif %}</div>
+<section class="panel dashboard-workflow" aria-labelledby="dashboard-workflow-title">
+<div class="workflow-header">
+<h2 id="dashboard-workflow-title">科研任务三阶段迭代审核流程{% if selected in team_labels %} · {{ team_labels[selected] }}{% endif %}</h2>
+<a href="#task-list">查看任务列表 ↓</a>
+</div>
+<p class="dashboard-flow-guide">数字表示当前停留在该节点的任务数。点击数字筛选下方列表。</p>
+{% set map_overview = true %}
+{% include "workflow_map.html" %}
+</section>
+<div class="dashboard">
+<aside aria-label="团队"><h2>团队</h2>
+<a class="team {% if not selected %}selected{% endif %}" href="{{ url_for('dashboard', stage=stage or None, node=node or None, q=query or None, archive=1 if archive else None) }}"><span>全部团队</span><b>{{ total }}</b></a>
+{% for key, team in teams.items() %}
+<a class="team {% if selected == key %}selected{% endif %}" href="{{ url_for('dashboard', team=key, stage=stage or None, node=node or None, q=query or None, archive=1 if archive else None) }}">
+<span><span class="taxonomy">{{ team[2] }}</span>{{ team_labels[key] }}<small>{{ team[1] }}</small></span><b>{{ counts[key] }}</b></a>
+{% endfor %}</aside>
+<section class="pipeline" id="task-list" aria-label="任务列表">
+{% if node %}<div class="queue-filter"><strong>{{ queue_labels[node] }} · {{ items|length }} 道</strong>
+<a href="{{ url_for('dashboard', team=selected or None, q=query or None, archive=1 if archive else None, _anchor='task-list') }}">清除节点筛选</a></div>{% endif %}
+<form class="filters" method="get"><input type="hidden" name="team" value="{{ selected }}">
+{% if archive %}<input type="hidden" name="archive" value="1">{% endif %}
+<label>搜索任务<input name="q" placeholder="任务名称或 ID" value="{{ query }}"></label>
+<label>流程阶段<select name="stage"><option value="">全部阶段</option>
+{% for key, label in stage_labels.items() %}<option value="{{ key }}" {% if stage == key %}selected{% endif %}>{{ label }}</option>{% endfor %}
+</select></label><button class="quiet">筛选</button></form>
+<div class="table-scroll"><table>
+<thead><tr><th>任务与版本</th><th>当前阶段</th><th>责任人与下一步</th><th>检查结果</th></tr></thead>
+<tbody>{% for task in items %}
+<tr><td><a class="task-link" href="{{ url_for('detail', task_id=task.id) }}">{{ task.title }}</a><small>{{ task.id }} · v{{ task.version }}</small><small>{{ team_labels[task.team] }}{% if task.simulated %} · 模拟{% endif %}</small></td>
+<td><span class="badge {{ 'blocked' if task.stage_blocked else '' }}">{{ task.stage_label }}</span><small>第 {{ task.phase }} 阶段</small></td>
+<td><strong>{{ task.current_owner }}</strong><small>{{ task.next_action }}</small>{% if task.blocker %}<span class="blocking">{{ task.blocker }}</span>{% endif %}</td>
+<td>{% for name in ('static','build','oracle','nop','verifier_qa') %}<small>{{ labels[name] }} · {{ labels[task.checks.get(name,'Pending')] }}</small>{% endfor %}
+<small>正式通过率 · {{ task.pass_rate|string + '%' if task.pass_rate is not none else '—' }}</small><small><time datetime="{{ task.updated }}">{{ task.updated[:10] }} UTC</time></small></td></tr>
+{% else %}<tr><td colspan="4" class="empty">没有符合筛选条件的任务。</td></tr>{% endfor %}</tbody>
+</table></div></section></div>
+{% if actor.role == 'author' %}
+<section id="import" class="panel"><h2>导入现有任务包</h2>
+<form class="multipart fields" action="{{ url_for('intake') }}" method="post" enctype="multipart/form-data">
+<input type="hidden" name="csrf" value="{{ csrf }}">
+<label>团队<select name="team" required>{% for key in teams if key in actor.teams %}<option value="{{ key }}">{{ team_labels[key] }}</option>{% endfor %}</select></label>
+<label>单个任务名称 <small>可选</small><input name="title"></label>
+<label>任务 ZIP 包<input type="file" name="archive" accept=".zip" multiple required></label>
+<button>导入</button><output aria-live="polite"></output>
+</form></section>
+{% endif %}
+{% endblock %}
