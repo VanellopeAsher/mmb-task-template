@@ -111,6 +111,7 @@ def run():
                     page.goto(url)
                     secret = f"{url}/asset/0/solution/answer.json"
                     assert page.request.get(secret).status == 404
+                    expect(page.locator(".approval-checks").get_by_text("通过", exact=True)).to_have_count(5)
                     if index == 1:
                         page.screenshot(path=output / "reviewer-blind.png", full_page=True)
                     page.get_by_label("结构化答案（JSON）").fill("{}")

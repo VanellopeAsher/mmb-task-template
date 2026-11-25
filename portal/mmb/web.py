@@ -13,7 +13,7 @@ from werkzeug.security import check_password_hash
 
 from . import preflight, presentation, review
 from .storage import MAX_UPLOAD, Rejected, Store, sha256
-from .workflow import (TEAMS, Conflict, Denied,
+from .workflow import (PRECHECKS, TEAMS, Conflict, Denied,
                        Workflow, can_list, can_read_private, now, require)
 
 
@@ -166,7 +166,7 @@ def create_app(config=None):
             "stage_label": label, "stage_blocked": bool(blocker) or waiting_isolation or stage in review.REPAIR,
             "waiting_isolation": waiting_isolation, "current_owner": "、".join(owners),
             "next_action": action, "blocker": blocker,
-            "checks": {k: v["status"] for k, v in checks.items()} if private else {},
+            "checks": {k: v["status"] for k, v in checks.items() if private or k in PRECHECKS},
             "pass_rate": round(100 * sum(valid) / len(valid)) if valid else None,
             "trial_count": len(valid), "updated": state["updated"], "final_route": state["final_route"],
             "simulated": state["simulated"],

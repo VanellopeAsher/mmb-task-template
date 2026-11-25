@@ -183,6 +183,19 @@ class WorkflowTest(unittest.TestCase):
             result = self.sign(user, task)
         self.assertEqual(result["stage"], "SIMULATION_PASSED")
 
+    def test_unanimous_insufficient_evidence_returns_to_author(self):
+        task = self.task()
+        self.assign_all(task)
+        self.engineering(task)
+        for reviewer in ("l1a", "l1b", "l1c"):
+            self.post(reviewer, task, "baseline", {**BASELINE, "completed": False})
+            self.sign(reviewer, task, "INSUFFICIENT")
+        state, _ = self.state(task)
+        self.assertEqual((state["stage"], state["return_stage"], state["outcome"]),
+                         ("REVISION_REQUIRED", 3, "INSUFFICIENT"))
+        self.assertEqual({issue["severity"] for issue in state["issues"].values()}, {"NEEDS EVIDENCE"})
+        self.assertFalse(state["final_route"])
+
     def test_engineering_failure_is_reviewed_by_two_people_and_reopens_engineering(self):
         task = self.task()
         self.assign_all(task)
