@@ -163,8 +163,10 @@ def create_app(config=None):
         return {
             "id": task["id"], "title": task["title"], "team": task["team"], "owner": task["owner"],
             "version": state["version"], "revision": task["revision"], "stage": stage, "phase": phase,
+            "node": presentation.workflow_bucket(state),
             "stage_label": label, "stage_blocked": bool(blocker) or waiting_isolation or stage in review.REPAIR,
             "waiting_isolation": waiting_isolation, "current_owner": "、".join(owners),
+            "unassigned": any(key not in state["assignments"] for key in pending),
             "next_action": action, "blocker": blocker,
             "checks": {k: v["status"] for k, v in checks.items() if private or k in PRECHECKS},
             "pass_rate": round(100 * sum(valid) / len(valid)) if valid else None,
@@ -191,16 +193,29 @@ def create_app(config=None):
         query = request.args.get("q", "").strip().casefold()
         scoped = [task for task in items if (not selected or selected == task["team"])
                   and (not query or query in (task["title"] + " " + task["id"]).casefold())]
-        visible = [task for task in scoped if not stage or stage == task["stage"]]
-        counts = Counter(task["stage"] for task in scoped)
-        final_count = sum(task["final_route"] == "READY_MAIN" for task in scoped)
-        return render_template("dashboard.html", items=visible,
-                               counts=Counter(t["team"] for t in items),
-                               stage_counts={key: counts[key] for key in review.STAGES if counts[key]},
-                               waiting_isolation=sum(t["waiting_isolation"] for t in scoped),
-                               final_count=final_count,
-                               selected=selected, stage=stage, query=query, total=len(items),
-                               archive=archive, archived_count=archived_count)
+        node = request.args.get("node", "")
+        if node not in presentation.QUEUE_LABELS:
+            node = ""
+        scoped_nodes = {key: [] for key in presentation.QUEUE_LABELS}
+        for task in scoped:
+            if task["node"] in scoped_nodes:
+                scoped_nodes[task["node"]].append(task)
+            if task["stage"] in review.REPAIR and task["node"] != "revision":
+                scoped_nodes["revision"].append(task)
+            if task["stage"] == "ENGINEERING_CHECKS":
+                for key, kind in presentation.CHECK_QUEUES.items():
+                    if task["checks"].get(kind) != "PASS":
+                        scoped_nodes[key].append(task)
+        visible = scoped_nodes[node] if node else [task for task in scoped if not stage or stage == task["stage"]]
+        return render_template(
+            "dashboard.html", items=visible, counts=Counter(t["team"] for t in items),
+            node_counts={key: len(tasks) for key, tasks in scoped_nodes.items()}, node=node,
+            scope_total=len(scoped), queue_labels=presentation.QUEUE_LABELS,
+            waiting_isolation=sum(task["waiting_isolation"] for task in scoped),
+            unassigned_technical=sum(task["stage"] == "TECHNICAL_REVIEW" and task["unassigned"] for task in scoped),
+            selected=selected, stage=stage, query=query, total=len(items),
+            archive=archive, archived_count=archived_count,
+        )
 
     @app.get("/api/rubric")
     def rubric():

@@ -85,6 +85,36 @@ RETURN_NODE = {"AUTHOR_FIX": "technical-return", "NEEDS_CHANGES": "engineering-r
                "INSUFFICIENT": "insufficient", "TOO_EASY": "too-easy"}
 
 
+QUEUE_LABELS = {
+    "technical": "技术审核人签署", "auto-repair": "待 Coding Agent 修复",
+    "technical-return": "技术审核退回作者", "environment": "环境构建与交接",
+    "checks": "自动化检查", "engineering-1": "工程审核人 1 初审",
+    "engineering-2": "工程审核人 2 复核", "engineering-return": "工程复核要求修改",
+    "domain": "三位领域专家独立盲测和签署", "senior": "资深专家裁决",
+    "admitted": "通过并正式纳入 MMB", "insufficient": "不可解或证据不足",
+    "too-easy": "太简单或难度不足", "simulated": "模拟通过",
+    "legacy-calibration": "历史裁决 · 校准集", "legacy-excluded": "历史裁决 · 已排除",
+    "revision": "退修回路",
+}
+CHECK_QUEUES = {
+    "check-static": "static", "check-similarity": "similarity", "check-build": "build",
+    "check-oracle": "oracle", "check-nop": "nop",
+}
+QUEUE_LABELS.update({key: f"待回填{LABELS[kind]}" for key, kind in CHECK_QUEUES.items()})
+
+
+def workflow_node(state):
+    if state["stage"] == "REVISION_REQUIRED":
+        return RETURN_NODE.get(state["outcome"], "revision")
+    return FLOW_NODE.get(state["stage"])
+
+
+def workflow_bucket(state):
+    legacy_or_simulated = {"SIMULATION_PASSED": "simulated", "CALIBRATION": "legacy-calibration",
+                           "EXCLUDED": "legacy-excluded"}
+    return legacy_or_simulated.get(state["stage"]) or workflow_node(state)
+
+
 def workflow_diagram(state, restart):
     stage = state["stage"]
     decisions = state["decisions"]
@@ -109,5 +139,4 @@ def workflow_diagram(state, restart):
         visited.add("decision")
         if len({decisions[slot]["conclusion"] for slot in DOMAIN_SLOTS}) == 1:
             visited.add("unanimous")
-    current = RETURN_NODE.get(state["outcome"]) if stage == "REVISION_REQUIRED" else FLOW_NODE.get(stage)
-    return {"current": current, "visited": visited, "returning": stage in REPAIR, "restart": restart}
+    return {"current": workflow_node(state), "visited": visited, "returning": stage in REPAIR, "restart": restart}

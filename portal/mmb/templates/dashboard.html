@@ -5,29 +5,25 @@
 {% if archive %}<a href="{{ url_for('dashboard') }}">返回活跃任务</a>
 {% elif archived_count %}<a href="{{ url_for('dashboard', archive=1) }}">归档记录（{{ archived_count }}）</a>{% endif %}</div>
 {% if actor.role == 'author' %}<a class="button" href="#import">导入任务</a>{% endif %}</div>
-<section class="intake-summary" aria-label="当前阶段分布">
-<h2>当前阶段分布{% if selected in team_labels %} · {{ team_labels[selected] }}{% endif %}</h2>
-{% if stage_counts %}
-<div class="stage-summary">
-{% for key, count in stage_counts.items() %}
-<a{% if stage == key %} aria-current="true"{% endif %} href="{{ url_for('dashboard', stage=key, team=selected or None, q=query or None, archive=1 if archive else None) }}">
-<span>{{ stage_labels[key] }}{% if key == 'ENGINEERING_CHECKS' and waiting_isolation %}<small>其中 {{ waiting_isolation }} 道已通过静态与相似度检查，等待隔离测试回填</small>{% endif %}</span><strong>{{ count }}</strong></a>
-{% endfor %}
+<section class="panel dashboard-workflow" aria-labelledby="dashboard-workflow-title">
+<div class="workflow-header">
+<h2 id="dashboard-workflow-title">科研任务三阶段迭代审核流程{% if selected in team_labels %} · {{ team_labels[selected] }}{% endif %}</h2>
+<a href="#task-list">查看任务列表 ↓</a>
 </div>
-{% else %}<p>当前范围内没有任务。</p>{% endif %}
-<details class="route-summary">
-<summary>正式纳入 MMB <b>{{ final_count }}</b>{% if not final_count %} <small>暂无正式通过任务</small>{% endif %}</summary>
-<p>三位领域审核人一致通过，或有分歧时由资深专家裁决通过，才计入正式纳入。</p>
-</details>
+<p class="dashboard-flow-guide">数字表示当前停留在该节点的任务数。点击数字筛选下方列表。</p>
+{% set map_overview = true %}
+{% include "workflow_map.html" %}
 </section>
 <div class="dashboard">
 <aside aria-label="团队"><h2>团队</h2>
-<a class="team {% if not selected %}selected{% endif %}" href="{{ url_for('dashboard', stage=stage, archive=1 if archive else None) }}"><span>全部团队</span><b>{{ total }}</b></a>
+<a class="team {% if not selected %}selected{% endif %}" href="{{ url_for('dashboard', stage=stage or None, node=node or None, q=query or None, archive=1 if archive else None) }}"><span>全部团队</span><b>{{ total }}</b></a>
 {% for key, team in teams.items() %}
-<a class="team {% if selected == key %}selected{% endif %}" href="{{ url_for('dashboard', team=key, stage=stage, archive=1 if archive else None) }}">
+<a class="team {% if selected == key %}selected{% endif %}" href="{{ url_for('dashboard', team=key, stage=stage or None, node=node or None, q=query or None, archive=1 if archive else None) }}">
 <span><span class="taxonomy">{{ team[2] }}</span>{{ team_labels[key] }}<small>{{ team[1] }}</small></span><b>{{ counts[key] }}</b></a>
 {% endfor %}</aside>
-<section class="pipeline" aria-label="任务列表">
+<section class="pipeline" id="task-list" aria-label="任务列表">
+{% if node %}<div class="queue-filter"><strong>{{ queue_labels[node] }} · {{ items|length }} 道</strong>
+<a href="{{ url_for('dashboard', team=selected or None, q=query or None, archive=1 if archive else None, _anchor='task-list') }}">清除节点筛选</a></div>{% endif %}
 <form class="filters" method="get"><input type="hidden" name="team" value="{{ selected }}">
 {% if archive %}<input type="hidden" name="archive" value="1">{% endif %}
 <label>搜索任务<input name="q" placeholder="任务名称或 ID" value="{{ query }}"></label>

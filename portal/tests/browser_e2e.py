@@ -148,7 +148,20 @@ def run():
                 author.set_viewport_size({"width": 390, "height": 844})
                 assert author.locator("body").evaluate("(body) => body.scrollWidth") <= 390
                 coordinator.goto(base)
+                expect(coordinator.locator(".dashboard-workflow .map-lane")).to_have_count(3)
+                expect(coordinator.locator('[data-count-for="technical"]')).to_have_text("1")
+                expect(coordinator.locator('[data-count-for="too-easy"]')).to_have_text("1")
+                expect(coordinator.locator('[data-count-for="admitted"]')).to_have_text("0")
+                expect(coordinator.locator('[data-count-for="revision"]')).to_have_text("1")
                 coordinator.screenshot(path=output / "dashboard.png", full_page=True)
+                coordinator.locator('[data-count-for="too-easy"]').click()
+                expect(coordinator.locator(".task-link")).to_have_count(1)
+                expect(coordinator.locator(".task-link").first).to_have_text("审批闭环演练")
+                coordinator.locator('[data-count-for="admitted"]').click()
+                expect(coordinator.locator(".task-link")).to_have_count(0)
+                expect(coordinator.locator(".queue-filter")).to_contain_text("正式纳入")
+                coordinator.set_viewport_size({"width": 390, "height": 844})
+                assert coordinator.locator("body").evaluate("(body) => body.scrollWidth") <= 390
                 browser.close()
                 print("PASS browser | import, account roster, 3 stages, distinct approval seats, blind lock, senior adjudication, author return")
         finally:
