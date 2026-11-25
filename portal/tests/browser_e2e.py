@@ -149,6 +149,12 @@ def run():
                 assert author.locator("body").evaluate("(body) => body.scrollWidth") <= 390
                 coordinator.goto(base)
                 expect(coordinator.locator(".dashboard-workflow .map-lane")).to_have_count(3)
+                expect(coordinator.locator('[data-node="technical-tools"] code')).to_have_text(
+                    ["/cheat", "/oracle", "/verify"]
+                )
+                expect(coordinator.locator('[data-node="domain-evidence"] code')).to_have_text(
+                    ["/run", "/run-hints", "/trajectory-analysis"]
+                )
                 expect(coordinator.locator('[data-count-for="technical"]')).to_have_text("1")
                 expect(coordinator.locator('[data-count-for="too-easy"]')).to_have_text("1")
                 expect(coordinator.locator('[data-count-for="admitted"]')).to_have_text("0")

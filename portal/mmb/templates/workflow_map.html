@@ -2,13 +2,14 @@
 {% set count = node_counts[key] %}
 <a class="map-count-link{% if count %} has-tasks{% endif %}" data-count-for="{{ key }}" href="{{ url_for('dashboard', node=key, team=selected or None, q=query or None, archive=1 if archive else None, _anchor='task-list') }}" aria-label="{{ title }}，{{ count }} 道任务"{% if node == key %} aria-current="true"{% endif %}>{{ count }}</a>
 {% endmacro %}
-{% macro node(key, title, detail='', tone='') %}
+{% macro node(key, title, detail='', tone='', commands=()) %}
 {% set active = not map_overview and diagram.current == key %}
 {% set visited = not map_overview and key in diagram.visited %}
 {% set queue = map_overview and key in node_counts %}
 <div class="map-node {{ tone }}{% if active %} map-active{% elif visited %} map-visited{% endif %}{% if queue and node_counts[key] %} map-has-tasks{% endif %}" data-node="{{ key }}"{% if active %} aria-current="step"{% endif %}>
 <div class="map-node-title"><strong>{{ title }}</strong>{% if queue %}{{ queue_count(key, title) }}{% elif active %}<span class="map-state">当前</span>{% elif visited %}<span class="map-state">已到达</span>{% endif %}</div>
 {% if detail %}<small>{{ detail }}</small>{% endif %}
+{% if commands %}<ul class="map-commands">{% for command in commands %}<li><code>{{ command }}</code></li>{% endfor %}</ul>{% endif %}
 {% if map_overview and key == 'technical' and unassigned_technical %}<small>{{ unassigned_technical }} 道待指派审核人</small>{% endif %}
 {% if tone == 'map-return-node' %}<a class="map-return-link" href="#revision-loop">↺ 进入退修回路</a>{% endif %}
 </div>
@@ -27,7 +28,7 @@
 {{ node('technical-evidence', 'LLM 机审', '围绕五项技术准则形成结构化意见', 'map-evidence') }}
 {% if map_overview %}<ol class="map-rubrics">{% for label in technical_criteria.values() %}<li>{{ label }}</li>{% endfor %}</ol>{% endif %}
 {{ arrow() }}
-{{ node('technical-tools', '辅助证据（按需）', '泄漏检查 · 参考解验证 · 判分可行性', 'map-evidence') }}
+{{ node('technical-tools', '辅助证据（按需）', '泄漏检查 · 参考解验证 · 判分可行性', 'map-evidence', ('/cheat', '/oracle', '/verify')) }}
 {{ arrow('证据供审核人参考') }}
 {{ node('technical', '技术审核人签署', '核对题面、数据、工具、参考答案与评分可行性', 'map-human') }}
 <div class="map-fork" aria-label="技术审核分支">
@@ -71,7 +72,7 @@
 <div class="map-lane-body">
 {{ node('difficulty', '难度核验', '新颖性 · 代理性 · 人类基线', 'map-evidence') }}
 {{ arrow() }}
-{{ node('domain-evidence', '辅助证据（按需）', 'LLM 机审 · Agent 试跑 · 提示诊断 · 轨迹分析', 'map-evidence') }}
+{{ node('domain-evidence', '辅助证据（按需）', 'LLM 机审 · Agent 试跑 · 提示诊断 · 轨迹分析', 'map-evidence', ('/run', '/run-hints', '/trajectory-analysis')) }}
 {{ arrow() }}
 {{ node('domain', '三位领域专家独立盲测和签署', '', 'map-human') }}
 {{ arrow() }}

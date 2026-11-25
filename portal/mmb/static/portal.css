@@ -52,6 +52,8 @@ th{background:#e9efe8;font-size:.79rem}tr:last-child td{border-bottom:0}td small
 .map-node{min-width:0;padding:7px 9px;border:1px solid #cadbd8;border-radius:6px;background:white;overflow-wrap:anywhere}
 .map-node-title{display:flex;align-items:baseline;justify-content:space-between;gap:4px;font-size:.84rem}
 .map-node small{display:block;margin-top:2px;font-size:.73rem;line-height:1.42}
+.map-commands{display:flex;flex-wrap:wrap;gap:4px;margin:5px 0 0;padding:0;list-style:none}
+.map-commands code{display:block;padding:1px 5px;border:1px solid #dacfec;border-radius:4px;background:#faf7ff;color:#493a68;font-size:.73rem}
 .map-node.map-evidence{background:#f0edf9;border-color:#dcd2ef}
 .map-node.map-human{background:#fbf3dc;border-color:#e3d19c}
 .map-node.map-has-tasks{border-color:#40806c;box-shadow:inset 3px 0 #40806c}
