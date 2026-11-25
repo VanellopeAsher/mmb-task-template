@@ -22,6 +22,7 @@ The password command prompts without echo. Create a UTF-8 account file outside t
 | --- | --- |
 | `MMB_SESSION_SECRET` | Required by the Portal. Generate a random deployment-specific secret of 32+ characters. |
 | `MMB_ACCOUNTS_FILE` | Path to the operator-managed UTF-8 account configuration. |
+| `MMB_ARCHIVED_INTAKE_FILE` | Optional UTF-8 JSON array of historical intake task IDs. The dashboard shows these records under Archived intake. |
 | `MMB_DATA` | Durable private directory for archive objects and, locally, the SQLite ledger and Git manifests. |
 | `MMB_DATABASE_URL` | PostgreSQL DSN. SQLite is the local default. |
 | `MMB_BIND`, `MMB_PORT` | Waitress bind address and port. Default is loopback port 8080. |

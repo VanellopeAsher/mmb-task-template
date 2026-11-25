@@ -14,10 +14,11 @@ PASS public-reference-preflight, public Example 05 at c6de6b8a7bb33c81b40942bb9f
   Harbor Oracle  exit 0, reward 1
   Harbor NOP     exit 0, reward 0
 
-Private local batch
-101 task packages imported
-77 awaiting author input
+Private local intake reconciliation
+69 active tasks from four submitted batches
+45 awaiting author input
 24 awaiting isolated execution evidence
+32 historical or standalone records retained under Archived intake
 
 Private isolated three-case workflow rehearsal
 evidence          NEEDS_AUTHOR_INPUT      [0]    11 issues

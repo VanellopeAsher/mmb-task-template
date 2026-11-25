@@ -14,21 +14,21 @@ See the [E2E test log](E2E.log), [dashboard](screenshots/dashboard.png), [review
 
 ## Collaborator package intake
 
-The private local intake contains 101 candidate packages. Duplicate release views and overlapping archive copies were not counted as separate tasks. The batch used each current full-task directory when both an Agent view and a full task were delivered. The three-team material gap below refers to independent collaborator submissions. Existing public repository examples remain reference material.
+The current intake contains 69 tasks from the four submitted batches. The original directory scan created 101 ledger rows because it included all 50 first-round Bioactive Molecules folders and one standalone polymer package. The selection feedback and the submitted Bioactive Molecules ZIP agree on 19 tasks cleared for the next round. The files for those 19 matches are identical to their imported counterparts. The Portal keeps the 31 remaining first-round folders and the standalone polymer package under Archived intake, with original evidence available for audit.
 
 | Team | Imported | Waiting for isolated checks | Author input |
 | --- | ---: | ---: | ---: |
 | Thermal Functional Materials | 25 | 24 | 1 |
 | Piezoceramics | 0 | 0 | 0 |
-| Thermally Conductive Polymers | 1 | 0 | 1 |
+| Thermally Conductive Polymers | 0 | 0 | 0 |
 | MOF / COF | 0 | 0 | 0 |
 | Photovoltaic Materials | 0 | 0 | 0 |
 | Battery Materials | 5 | 0 | 5 |
 | Catalytic Chemistry | 20 | 0 | 20 |
-| Bioactive Molecules | 50 | 0 | 50 |
-| **Total** | **101** | **24** | **77** |
+| Bioactive Molecules | 19 | 0 | 19 |
+| **Total** | **69** | **24** | **45** |
 
-The private report at `portal/data/intake/static-intake-report.json` records the package source paths, IDs, manifest SHAs, checks and individual issues. The local data directory carries the original ZIP hashes and files, including the 231 MB polymer archive. No private candidate artifacts are included in Git.
+The private report at `portal/data/intake/active-intake-report.json` records the active package source paths, IDs, manifest SHAs, checks and individual issues. The initial scan remains in `static-intake-report.json`. The local data directory carries the original ZIP hashes and files, including the 231 MB polymer archive. No private candidate artifacts are included in Git.
 
 The collection root lacks independent author packages for Piezoceramics and Photovoltaic Materials. The MOF / COF team folder contains meeting and presentation materials but no full author submission. The repository's existing reference examples do not establish receipt of those teams' original submissions.
 
@@ -46,6 +46,6 @@ The private report at `portal/data/smoke/smoke-results.json` contains timelines 
 
 ## Open deployment work
 
-A local static Pilot covered all 101 accessible collaborator tasks. The automated LLM run could not start because no Ollama model service accepted the loopback connection. The simulation CLI can generate private diagnostic drafts with a running approved model. A full automatic Blind Solver run and technical Pilot for each candidate remains open. Full scored Agent Trials, automated hinted replay, and trace analysis require a model runner that holds provider credentials outside the task container. Defensive checks can be ingested with evidence for Answer Leakage, Verifier Permissiveness, Grader Tampering and Constraint Evasion.
+The local static scan covered all 69 tasks in the current intake and 32 historical or standalone records. The automated LLM run could not start because no Ollama model service accepted the loopback connection. The simulation CLI can generate private diagnostic drafts with a running approved model. A full automatic Blind Solver run and technical Pilot for each candidate remains open. Full scored Agent Trials, automated hinted replay, and trace analysis require a model runner that holds provider credentials outside the task container. Defensive checks can be ingested with evidence for Answer Leakage, Verifier Permissiveness, Grader Tampering and Constraint Evasion.
 
 The production private GitHub App/repository, shared PostgreSQL deployment, private worker dispatch and collaboration accounts were not provisioned. The local runtime uses a private filesystem, SQLite, real Git manifests and server-side access checks. The successful public reference run does not validate the 24 collaborator tasks waiting on isolated execution.

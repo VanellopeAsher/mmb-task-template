@@ -24,6 +24,7 @@ def create_app(config=None):
         MMB_DATA=os.getenv("MMB_DATA", str(Path(__file__).resolve().parents[1] / "data")),
         MMB_DATABASE_URL=os.getenv("MMB_DATABASE_URL", ""),
         MMB_ACCOUNTS_FILE=os.getenv("MMB_ACCOUNTS_FILE", ""),
+        MMB_ARCHIVED_INTAKE_FILE=os.getenv("MMB_ARCHIVED_INTAKE_FILE", ""),
         MMB_WORKER_TOKEN=os.getenv("MMB_WORKER_TOKEN", ""),
         MMB_WEBHOOK_SECRET=os.getenv("MMB_WEBHOOK_SECRET", ""),
         MMB_WEBHOOK_REPOSITORY=os.getenv("MMB_GITHUB_REPOSITORY", ""),
@@ -45,6 +46,11 @@ def create_app(config=None):
         or any(team not in TEAMS for team in account["teams"]) for account in accounts.values()
     ):
         raise RuntimeError("Invalid operator-managed account directory")
+    archive_file = app.config["MMB_ARCHIVED_INTAKE_FILE"]
+    archive_ids = json.loads(Path(archive_file).read_text(encoding="utf-8")) if archive_file else []
+    if not isinstance(archive_ids, list) or any(not isinstance(item, str) for item in archive_ids):
+        raise RuntimeError("Archived intake configuration must be a JSON array of task IDs")
+    archived_intake = frozenset(archive_ids)
     store = Store(app.config["MMB_DATA"], app.config["MMB_DATABASE_URL"])
     flow = Workflow(store)
     app.extensions["mmb"] = flow
@@ -139,13 +145,18 @@ def create_app(config=None):
 
     @app.get("/")
     def dashboard():
+        archive = request.args.get("archive") == "1"
+        archived_count = 0
         with store.transaction(write=False) as db:
             rows = db.execute("SELECT * FROM tasks ORDER BY id").fetchall()
             items = []
             for row in rows:
                 state = json.loads(row["state"])
                 if can_list(row, state, g.actor):
-                    items.append(display(row, state))
+                    archived = row["id"] in archived_intake
+                    archived_count += archived
+                    if archive == archived:
+                        items.append(display(row, state))
         selected = request.args.get("team", "")
         stage = request.args.get("stage", "")
         query = request.args.get("q", "").strip().casefold()
@@ -156,7 +167,8 @@ def create_app(config=None):
                                counts={key: sum(t["team"] == key for t in items) for key in TEAMS},
                                totals={key: sum(t["final_route"] == key or t["stage"] == key for t in items)
                                        for key in ROUTES},
-                               selected=selected, stage=stage, query=query, total=len(items))
+                               selected=selected, stage=stage, query=query, total=len(items),
+                               archive=archive, archived_count=archived_count)
 
     @app.get("/api/rubric")
     def rubric():

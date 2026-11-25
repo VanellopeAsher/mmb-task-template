@@ -1,20 +1,23 @@
 {% extends "base.html" %}
 {% block title %}Admission pipeline · MatterMysteryBench{% endblock %}
 {% block content %}
-<div class="page-title"><div><h1>Admission pipeline</h1><p>{{ total }} tasks across {{ teams|length }} teams</p></div>
+<div class="page-title"><div><h1>{{ 'Archived intake' if archive else 'Admission pipeline' }}</h1><p>{{ total }} tasks across {{ teams|length }} teams</p>
+{% if archive %}<a href="{{ url_for('dashboard') }}">Active intake</a>
+{% elif archived_count %}<a href="{{ url_for('dashboard', archive=1) }}">Archived intake ({{ archived_count }})</a>{% endif %}</div>
 {% if actor.role == 'author' %}<a class="button" href="#import">Import tasks</a>{% endif %}</div>
 <section aria-label="Admission routes" class="route-summary">
-{% for route in routes %}<a href="{{ url_for('dashboard', stage=route) }}"><span>{{ route.replace('_',' ')|title }}</span><strong>{{ totals[route] }}</strong></a>{% endfor %}
+{% for route in routes %}<a href="{{ url_for('dashboard', stage=route, archive=1 if archive else None) }}"><span>{{ route.replace('_',' ')|title }}</span><strong>{{ totals[route] }}</strong></a>{% endfor %}
 </section>
 <div class="dashboard">
 <aside aria-label="Teams"><h2>Teams</h2>
-<a class="team {% if not selected %}selected{% endif %}" href="{{ url_for('dashboard', stage=stage) }}"><span>All teams</span><b>{{ total }}</b></a>
+<a class="team {% if not selected %}selected{% endif %}" href="{{ url_for('dashboard', stage=stage, archive=1 if archive else None) }}"><span>All teams</span><b>{{ total }}</b></a>
 {% for key, team in teams.items() %}
-<a class="team {% if selected == key %}selected{% endif %}" href="{{ url_for('dashboard', team=key, stage=stage) }}">
+<a class="team {% if selected == key %}selected{% endif %}" href="{{ url_for('dashboard', team=key, stage=stage, archive=1 if archive else None) }}">
 <span><span class="taxonomy">{{ team[2] }}</span>{{ team[0] }}<small>{{ team[1] }}</small></span><b>{{ counts[key] }}</b></a>
 {% endfor %}</aside>
 <section class="pipeline" aria-label="Task table">
 <form class="filters" method="get"><input type="hidden" name="team" value="{{ selected }}">
+{% if archive %}<input type="hidden" name="archive" value="1">{% endif %}
 <label>Find a task<input name="q" placeholder="Title or task ID" value="{{ query }}"></label>
 <label>Stage<select name="stage"><option value="">All stages</option>
 {% for key in stages %}<option value="{{ key }}" {% if stage == key %}selected{% endif %}>{{ key.replace('_',' ')|title }}</option>{% endfor %}
