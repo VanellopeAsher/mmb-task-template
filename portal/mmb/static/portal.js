@@ -1,5 +1,5 @@
 const csrf = document.querySelector('meta[name="csrf-token"]').content;
-const calendar = new Intl.DateTimeFormat('en-CA', { dateStyle: 'medium' });
+const calendar = new Intl.DateTimeFormat('zh-CN', { dateStyle: 'medium' });
 for (const stamp of document.querySelectorAll('time[datetime]')) {
   stamp.textContent = calendar.format(new Date(stamp.dateTime));
 }
@@ -36,7 +36,7 @@ for (const form of document.querySelectorAll('form.command, form.multipart')) {
     const output = form.querySelector('output');
     const submitter = event.submitter;
     const multipart = form.classList.contains('multipart');
-    output.replaceChildren('Saving…');
+    output.replaceChildren('正在保存…');
     output.classList.remove('error');
     try {
       const response = await fetch(submitter?.getAttribute('formaction') || form.action, {
@@ -45,24 +45,24 @@ for (const form of document.querySelectorAll('form.command, form.multipart')) {
         body: multipart ? new FormData(form) : JSON.stringify(dataFor(form))
       });
       if (!response.headers.get('Content-Type')?.includes('application/json')) {
-        throw new Error('Request could not be completed. Check your session and upload size.');
+        throw new Error('提交失败，请检查登录状态和文件大小。');
       }
       const data = await response.json();
-      if (!response.ok) throw new Error(data.error || data.results?.map(item => item.error).join(' · ') || 'Request failed');
+      if (!response.ok) throw new Error(data.message_zh || data.error || data.results?.map(item => item.message_zh || item.error).join(' · ') || '提交失败。');
       if (data.token) {
         const invitation = new URL('/invite/' + location.pathname.split('/').at(-1), location.origin);
         invitation.hash = data.token;
         const link = document.createElement('input');
         link.value = invitation.href;
         link.readOnly = true;
-        link.setAttribute('aria-label', 'Invitation link');
+        link.setAttribute('aria-label', '邀请链接');
         const copy = document.createElement('button');
         copy.type = 'button';
-        copy.textContent = 'Copy invitation link';
+        copy.textContent = '复制邀请链接';
         copy.addEventListener('click', async () => {
           link.select();
-          try { await navigator.clipboard.writeText(link.value); copy.textContent = 'Copied'; }
-          catch { copy.textContent = 'Link selected'; }
+          try { await navigator.clipboard.writeText(link.value); copy.textContent = '已复制'; }
+          catch { copy.textContent = '已选中链接'; }
         });
         output.replaceChildren(link, copy);
         const nextRevision = Number(form.dataset.revision) + 1;
@@ -70,14 +70,14 @@ for (const form of document.querySelectorAll('form.command, form.multipart')) {
       } else if (data.results) {
         const failures = data.results.filter(item => item.error);
         if (!failures.length) location.assign('/');
-        else output.textContent = data.results.map(item => item.task || item.filename + ' · ' + item.error).join(' | ');
+        else output.textContent = data.results.map(item => item.task || item.filename + ' · ' + (item.message_zh || item.error)).join(' | ');
       } else if (form.dataset.accepted) {
         location.assign(data.stage === 'BASELINE_IN_PROGRESS' ? form.dataset.accepted : '/');
       } else {
         location.reload();
       }
     } catch (error) {
-      output.textContent = error.message;
+      output.textContent = error instanceof SyntaxError ? '请检查输入的 JSON 格式。' : error.message;
       output.classList.add('error');
     }
   });

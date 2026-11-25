@@ -1,18 +1,18 @@
 {% extends "base.html" %}
 {% block content %}
-<section class="auth panel"><h1>Domain review invitation</h1>
+<section class="auth panel"><h1>领域审核邀请</h1>
 <p>{{ task_id }}</p>
 {% if actor and actor.role == 'reviewer' %}
 <form class="command invitation" action="{{ url_for('command', task_id=task_id, action='accept') }}" data-accepted="{{ url_for('detail', task_id=task_id) }}">
-<input type="hidden" name="token"><p>Accept to begin the blind baseline for this version.</p>
-<button>Accept invitation</button>
-<button class="quiet" formaction="{{ url_for('command', task_id=task_id, action='decline') }}">Decline</button>
+<input type="hidden" name="token"><p>接受邀请后开始当前版本的盲测。</p>
+<button>接受邀请</button>
+<button class="quiet" formaction="{{ url_for('command', task_id=task_id, action='decline') }}">拒绝邀请</button>
 <output aria-live="polite"></output>
 </form>
 {% elif not actor %}
-<p>Sign in with your team reviewer account and return to this invitation.</p>
-<a class="button" href="{{ url_for('login', next=request.path) }}" target="_blank" rel="noopener">Sign in in a new tab</a>
-<p><button class="quiet" id="reload-invite">Refresh this page</button></p>
-{% else %}<p>This invitation requires a team reviewer account.</p>{% endif %}
+<p>请使用本团队的领域审核账号登录，然后返回此页面。</p>
+<a class="button" href="{{ url_for('login', next=request.path) }}" target="_blank" rel="noopener">在新标签页登录</a>
+<p><button class="quiet" id="reload-invite">刷新此页</button></p>
+{% else %}<p>该邀请需由本团队的领域审核账号接受。</p>{% endif %}
 </section>
 {% endblock %}

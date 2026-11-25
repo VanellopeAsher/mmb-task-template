@@ -175,8 +175,8 @@ class WorkflowTest(unittest.TestCase):
         self.assertEqual(result["stage"], "READY_MAIN")
         home = self.clients["technical"].get("/")
         self.assertIn(b"50%", home.data)
-        self.assertIn("Piezoceramics".encode(), home.data)
-        self.assertIn(b"Ready Main", home.data)
+        self.assertIn("压电陶瓷".encode(), home.data)
+        self.assertIn("纳入主评测集".encode(), home.data)
 
     def test_revision_preserves_history_and_relocks(self):
         task = self.create(simulated=True)
@@ -186,6 +186,9 @@ class WorkflowTest(unittest.TestCase):
         assessment = verdicts(DOMAIN)
         assessment["S8"].update(REPAIR, status="NEEDS EVIDENCE")
         self.post("reviewer", task, "domain", {"signoff": "Repair needed", "verdicts": assessment})
+        detail = self.clients["author"].get(f"/task/{task}").data
+        self.assertIn(b'data-phase="domain" aria-current="step"', detail)
+        self.assertIn("已退回作者".encode(), detail)
         with self.flow.store.transaction(write=False) as db:
             initial, _ = self.flow.version(db, task, 0)
             _, state = self.flow.row(db, task)
@@ -225,12 +228,15 @@ class WorkflowTest(unittest.TestCase):
         task = self.create()
         self.post("technical", task, "static_preflight")
         dashboard = self.clients["technical"].get("/").data
-        self.assertIn(b"Isolation test owner", dashboard)
-        self.assertIn(b"Await isolated Build, Oracle and NOP results", dashboard)
+        self.assertIn("隔离测试负责人".encode(), dashboard)
+        self.assertIn("等待隔离测试负责人回填镜像构建、参考解和空操作结果".encode(), dashboard)
+        self.assertIn("尚无任务完成最终裁决".encode(), dashboard)
+        self.assertIn("其中 1 道已通过静态与相似度检查，等待隔离测试回填".encode(), dashboard)
         self.check(task, "oracle", reward=0, exception="worker unavailable")
         page = self.clients["technical"].get(f"/task/{task}").data
-        self.assertIn(b"INVALID RUN", page)
-        self.assertIn(b"Execution invalid", page)
+        self.assertIn("运行无效".encode(), page)
+        self.assertIn("隔离运行无效".encode(), page)
+        self.assertIn(b'data-phase="preflight" aria-current="step"', page)
         self.assertNotIn(b"Oracle produced reward", page)
         self.assertEqual(self.clients["technical"].post(f"/task/{task}/preflight", json={}).status_code, 403)
 

@@ -1,111 +1,130 @@
 {% extends "base.html" %}
 {% block title %}{{ task.title }} · MatterMysteryBench{% endblock %}
 {% macro form(action) %}<form class="command fields" action="{{ url_for('command', task_id=task.id, action=action) }}" data-revision="{{ task.revision }}">{{ caller() }}<output aria-live="polite"></output></form>{% endmacro %}
-{% macro issue_fields() %}<label>Problem<textarea name="problem_description"></textarea></label><label>Required changes<textarea name="required_changes"></textarea></label><label>Acceptance test<textarea name="acceptance_test"></textarea></label>{% endmacro %}
+{% macro issue_fields() %}<label>问题说明<textarea name="problem_description"></textarea></label><label>需要修改<textarea name="required_changes"></textarea></label><label>验收测试<textarea name="acceptance_test"></textarea></label>{% endmacro %}
 {% macro verdicts(rubric) %}<div class="criteria">{% for key, label in rubric.items() %}
 <details class="criterion" data-criterion="{{ key }}"><summary><b>{{ key }}</b> {{ label }}</summary>
-<div class="fields"><label>Verdict<select data-field="status"><option value="">Select a verdict</option><option>PASS</option><option>FAIL</option><option>NEEDS EVIDENCE</option><option>N/A</option></select></label>
-<label>Evidence location<input data-field="evidence_location"></label><label>Rationale<textarea data-field="rationale"></textarea></label>
-<label>Problem<textarea data-field="problem_description"></textarea></label><label>Required changes<textarea data-field="required_changes"></textarea></label><label>Acceptance test<textarea data-field="acceptance_test"></textarea></label></div>
+<div class="fields"><label>审核结论<select data-field="status"><option value="">请选择审核结论</option><option value="PASS">通过</option><option value="FAIL">未通过</option><option value="NEEDS EVIDENCE">待补证</option><option value="N/A">不适用</option></select></label>
+<label>证据位置<input data-field="evidence_location"></label><label>判断理由<textarea data-field="rationale"></textarea></label>
+<label>问题说明<textarea data-field="problem_description"></textarea></label><label>需要修改<textarea data-field="required_changes"></textarea></label><label>验收测试<textarea data-field="acceptance_test"></textarea></label></div>
 </details>{% endfor %}</div>{% endmacro %}
 {% block content %}
-<a class="back" href="{{ url_for('dashboard') }}">← Admission pipeline</a>
-<div class="page-title"><div><p>{{ task.id }} · {{ teams[task.team][0] }} · v{{ task.version }}{% if task.simulated %} · SIMULATED{% endif %}</p><h1>{{ task.title }}</h1></div>
-<span class="badge {{ 'blocked' if task.blocker else '' }}">{{ task.stage.replace('_',' ')|title }}</span></div>
+<a class="back" href="{{ url_for('dashboard') }}">← 任务总览</a>
+<div class="page-title"><div><p>{{ task.id }} · {{ team_labels[task.team] }} · v{{ task.version }}{% if task.simulated %} · 模拟{% endif %}</p><h1>{{ task.title }}</h1></div>
+<span class="badge {{ 'blocked' if task.stage_blocked else '' }}">{{ task.stage_label }}</span></div>
+<section class="panel workflow-panel" aria-labelledby="workflow-title">
+<div class="workflow-header"><h2 id="workflow-title">准入闭环</h2><span>当前版本 v{{ task.version }}</span></div>
+<ol class="workflow-steps">
+{% for step in steps %}
+<li class="workflow-step {{ step.status }}" data-phase="{{ step.code }}"{% if step.current %} aria-current="step"{% endif %}>
+<span class="step-marker" aria-hidden="true">{% if step.status == 'done' %}✓{% elif step.status == 'blocked' %}!{% else %}{{ loop.index }}{% endif %}</span>
+<strong>{{ step.label }}</strong>
+<small>{% if step.current %}{{ task.stage_label }}{% elif step.status == 'done' %}已完成{% else %}未完成{% endif %}</small>
+</li>
+{% endfor %}
+</ol>
+{% if task.waiting_isolation %}<p class="workflow-note">静态与相似度检查已通过。隔离测试结果通过后，才进入领域审核与盲测。</p>{% endif %}
+<div class="workflow-return{% if returning %} active{% endif %}">
+<span aria-hidden="true">↺</span>
+{% if returning %}<p><strong>已退回作者</strong> · 提交新版本后，重新检查受影响的阶段。</p>
+{% elif task.version %}<p><strong>已修订 {{ task.version }} 次</strong> · 按版本查看变更和复检记录。</p>
+{% else %}<p>如需退修，作者提交新版本后重新检查受影响的阶段。</p>{% endif %}
+</div>
+</section>
 <div class="task-layout">
 <div>
-<section class="panel priority"><h2>Ball in court</h2><strong>{{ task.current_owner }}</strong><p>{{ task.next_action }}</p>{% if task.blocker %}<p class="error">{{ task.blocker }}</p>{% endif %}<p><small>{{ task.invite_status|title }} invitation · L{{ task.level }} · {{ task.uncertainties }} open uncertainties</small></p></section>
+<section class="panel priority"><h2>当前负责与下一步</h2><strong>{{ task.current_owner }}</strong><p>{{ task.next_action }}</p>{% if task.blocker %}<p class="error">{{ task.blocker }}</p>{% endif %}<p><small>邀请{{ labels[task.invite_status] }} · L{{ task.level }} · {{ task.uncertainties }} 项未决问题</small></p></section>
 {% if actor.role == 'author' and actor.id == task.owner %}
-<section class="panel"><h2>Author workspace</h2>
-{% if previous_reviewers %}<p>Invite the original reviewer to recheck the affected criteria. Previous reviewers: {{ previous_reviewers|join(', ') }}.</p>{% endif %}
+<section class="panel"><h2>作者工作区</h2>
+{% if previous_reviewers %}<p>请邀请原审核人复核受影响的准则。历史审核人： {{ previous_reviewers|join(', ') }}.</p>{% endif %}
 {% if task.stage in ('AWAITING_DOMAIN_REVIEWER','DOMAIN_ESCALATION','REVIEWER_INVITED') %}
-{% call form('invite') %}<button>Create L{{ task.level }} invitation link</button>{% endcall %}
+{% call form('invite') %}<button>创建 L{{ task.level }} 邀请链接</button>{% endcall %}
 {% endif %}
 {% if task.stage in ('NEEDS_AUTHOR_INPUT','REVISION_REQUIRED','NEEDS_AUTHOR_EVIDENCE','CALIBRATION') %}
 <form class="multipart fields" action="{{ url_for('command', task_id=task.id, action='revise') }}" method="post" enctype="multipart/form-data">
 <input type="hidden" name="csrf" value="{{ csrf }}"><input type="hidden" name="revision" value="{{ task.revision }}">
-<label>Revised task ZIP<input type="file" name="archive" accept=".zip" required></label><label>Response and changes<textarea name="note" required></textarea></label>
-<button>Submit new version</button><output aria-live="polite"></output></form>
+<label>修订后的任务 ZIP 包<input type="file" name="archive" accept=".zip" required></label><label>回应与改动说明<textarea name="note" required></textarea></label>
+<button>提交新版本</button><output aria-live="polite"></output></form>
 {% endif %}</section>{% endif %}
 {% if actor.role == 'reviewer' and active %}
-<section class="panel"><h2>Reviewer workspace</h2>
+<section class="panel"><h2>领域审核工作区</h2>
 {% if task.stage == 'BASELINE_IN_PROGRESS' %}
-<p>Complete an independent attempt using the public material. Submission locks the baseline for this version.</p>
+<p>请使用公开资料独立作答。提交后将锁定本版本的盲测基线。</p>
 {% call form('baseline') %}
-<label>Structured answer (JSON)<textarea name="answer" data-json placeholder="{}" required></textarea></label>
-<label>Evidence and unresolved points<textarea name="evidence" required></textarea></label>
-<label>Tools used<input name="tools" required></label><label>Resources used<input name="resources" required></label>
-<label>Elapsed minutes<input min="1" type="number" name="minutes" required></label>
-<label class="inline"><input type="checkbox" name="completed"> Finished the attempt</label>
-<button>Lock baseline and unlock dossier</button>
+<label>结构化答案（JSON）<textarea name="answer" data-json placeholder="{}" required></textarea></label>
+<label>证据与未解决的问题<textarea name="evidence" required></textarea></label>
+<label>使用的工具<input name="tools" required></label><label>使用的资料<input name="resources" required></label>
+<label>耗时（分钟）<input min="1" type="number" name="minutes" required></label>
+<label class="inline"><input type="checkbox" name="completed"> 已完成本次作答</label>
+<button>锁定盲测并解锁私有资料</button>
 {% endcall %}
 {% elif task.stage == 'DOMAIN_REVIEW' %}
 {% call form('domain') %}
-{% if task.level == 1 %}{{ verdicts(domain) }}{% else %}<p>Review and resolve the referred scientific questions.</p>{% endif %}
-<label>Sign-off and evidence summary<textarea name="signoff" required></textarea></label><button>Sign domain review</button>
+{% if task.level == 1 %}{{ verdicts(domain) }}{% else %}<p>请复核并解决转交的科学问题。</p>{% endif %}
+<label>签署意见与证据摘要<textarea name="signoff" required></textarea></label><button>签署领域审核</button>
 {% endcall %}
-<details><summary>Record a scientific uncertainty</summary>
+<details><summary>记录未决科学问题</summary>
 {% call form('uncertainty') %}
-<label>Criterion<select name="criterion_id">{% for key, label in domain.items() %}<option value="{{ key }}">{{ key }} · {{ label }}</option>{% endfor %}</select></label>
-<label>Evidence location<input name="evidence_location" required></label><label>Question<textarea name="question" required></textarea></label>
-<label>Reason<textarea name="reason" required></textarea></label><label class="inline"><input type="checkbox" name="major"> Major scientific disagreement</label><button>Record uncertainty</button>
+<label>准则<select name="criterion_id">{% for key, label in domain.items() %}<option value="{{ key }}">{{ key }} · {{ label }}</option>{% endfor %}</select></label>
+<label>证据位置<input name="evidence_location" required></label><label>问题<textarea name="question" required></textarea></label>
+<label>原因<textarea name="reason" required></textarea></label><label class="inline"><input type="checkbox" name="major"> 重大科学分歧</label><button>提交未决问题</button>
 {% endcall %}</details>
-{% if task.level < 3 and task.uncertainties %}<details><summary>Escalate for specialist review</summary>
-{% call form('escalate') %}<label>Escalation reason<textarea name="reason" required></textarea></label><button>Request L{{ task.level + 1 }} review</button>{% endcall %}</details>{% endif %}
+{% if task.level < 3 and task.uncertainties %}<details><summary>请求专家升级审核</summary>
+{% call form('escalate') %}<label>升级原因<textarea name="reason" required></textarea></label><button>申请 L{{ task.level + 1 }} 审核</button>{% endcall %}</details>{% endif %}
 {% endif %}</section>{% endif %}
 {% if actor.role == 'technical' %}
-<section class="panel"><h2>Technical workspace</h2>
+<section class="panel"><h2>技术工作区</h2>
 {% if task.stage in ('IMPORTED','PREFLIGHT') and not task.waiting_isolation %}
-{% call form('static_preflight') %}<button>Run static and similarity checks</button>{% endcall %}
+{% call form('static_preflight') %}<button>运行静态与相似度检查</button>{% endcall %}
 {% elif task.stage == 'DOMAIN_REVIEW_COMPLETE' %}
-{% call form('technical_start') %}<button>Start technical review</button>{% endcall %}
+{% call form('technical_start') %}<button>开始技术审核</button>{% endcall %}
 {% elif task.stage == 'TECHNICAL_REVIEW' %}
-{% call form('technical') %}{{ verdicts(technical) }}<button>Sign technical review</button>{% endcall %}
+{% call form('technical') %}{{ verdicts(technical) }}<button>签署技术审核</button>{% endcall %}
 {% elif task.stage == 'AGENT_EVALUATION' %}
-{% call form('finish_evaluation') %}<label>Difficulty assessment<textarea name="difficulty" required></textarea></label><label>Evidence location<input name="evidence_location" required></label><button>Send to final review</button>{% endcall %}
+{% call form('finish_evaluation') %}<label>难度评估<textarea name="difficulty" required></textarea></label><label>证据位置<input name="evidence_location" required></label><button>提交最终裁决</button>{% endcall %}
 {% endif %}
-{% if task.waiting_isolation or task.stage in ('TECHNICAL_REVIEW','AGENT_EVALUATION') %}<p>The isolation test owner runs isolated checks. This workspace records their results against the task commit.</p>{% endif %}
+{% if task.waiting_isolation or task.stage in ('TECHNICAL_REVIEW','AGENT_EVALUATION') %}<p>隔离测试由负责同事执行。此处按任务提交版本记录回填结果。</p>{% endif %}
 {% if task.stage in ('NEEDS_AUTHOR_INPUT','NEEDS_AUTHOR_EVIDENCE','REVISION_REQUIRED') %}
-<details><summary>Refer a blocking issue to final review</summary>
+<details><summary>提交阻塞事项裁决</summary>
 {% call form('request_adjudication') %}
-<label>Reason<textarea name="reason" required></textarea></label>
-<label>Evidence location<input name="evidence_location" required></label>
-<button>Refer for adjudication</button>
+<label>原因<textarea name="reason" required></textarea></label>
+<label>证据位置<input name="evidence_location" required></label>
+<button>提交裁决</button>
 {% endcall %}</details>{% endif %}
 </section>{% endif %}
 {% if actor.role == 'final' and task.stage == 'FINAL_REVIEW' %}
-<section class="panel"><h2>Final review</h2>
-{% call form('decision') %}<label>Route<select name="route">{% for route in routes %}<option value="{{ route }}">{{ route.replace('_',' ')|title }}</option>{% endfor %}</select></label>
-<label>Reason<textarea name="reason" required></textarea></label><label>Evidence location<input name="evidence_location" required></label>
-<label>Exclusion basis<select name="basis"><option value="">Select if applicable</option><option value="OUT_OF_SCOPE">Outside V1 scope</option><option value="IRREPARABLE">Irreparable after revisions</option></select></label>
-<label>Revision criterion<input name="criterion_id"></label>{{ issue_fields() }}<button>Record decision</button>{% endcall %}</section>{% endif %}
-{% if issues %}<section class="panel"><h2>Revision issues</h2>
-{% for issue in issues.values() %}<details {% if issue.status == 'OPEN' %}open{% endif %}><summary>{{ issue.criterion_id }} · {{ issue.severity }} · {{ issue.status }} · v{{ issue.version }}</summary>
-<p>{{ issue.problem_description }}</p><dl><dt>Evidence</dt><dd>{{ issue.evidence_location }}</dd><dt>Required change</dt><dd>{{ issue.required_changes }}</dd><dt>Acceptance test</dt><dd>{{ issue.acceptance_test }}</dd><dt>Assigned to</dt><dd>{{ issue.assigned_to }}</dd></dl>
+<section class="panel"><h2>最终裁决</h2>
+{% call form('decision') %}<label>裁决去向<select name="route">{% for route in routes %}<option value="{{ route }}">{{ stage_labels[route] }}</option>{% endfor %}</select></label>
+<label>原因<textarea name="reason" required></textarea></label><label>证据位置<input name="evidence_location" required></label>
+<label>排除依据<select name="basis"><option value="">如适用请选择</option><option value="OUT_OF_SCOPE">超出 V1 范围</option><option value="IRREPARABLE">多轮修订后仍无法修复</option></select></label>
+<label>修订准则<input name="criterion_id"></label>{{ issue_fields() }}<button>记录裁决</button>{% endcall %}</section>{% endif %}
+{% if issues %}<section class="panel"><h2>修订事项</h2>
+{% for issue in issues.values() %}<details {% if issue.status == 'OPEN' %}open{% endif %}><summary>{{ issue.criterion_id }} · {{ labels.get(issue.severity, issue.severity) }} · {{ labels.get(issue.status, issue.status) }} · v{{ issue.version }}</summary>
+<p>{{ message(issue.problem_description) }}</p><dl><dt>证据</dt><dd>{{ issue.evidence_location }}</dd><dt>修订要求</dt><dd>{{ message(issue.required_changes) }}</dd><dt>验收测试</dt><dd>{{ message(issue.acceptance_test) }}</dd><dt>责任人</dt><dd>{{ issue.assigned_to }}</dd></dl>
 {% if issue.status == 'OPEN' and task.version > issue.version and (actor.role in ('technical','final') or (actor.role == 'reviewer' and active)) %}
-{% call form('close_issue') %}<input type="hidden" name="issue_id" value="{{ issue.issue_id }}"><label>Evidence location<input name="evidence_location" required></label><label>Acceptance result<textarea name="acceptance_result" required></textarea></label><button>Resolve revision issue</button>{% endcall %}{% endif %}
+{% call form('close_issue') %}<input type="hidden" name="issue_id" value="{{ issue.issue_id }}"><label>证据位置<input name="evidence_location" required></label><label>验收结果<textarea name="acceptance_result" required></textarea></label><button>关闭修订项</button>{% endcall %}{% endif %}
 </details>{% endfor %}</section>{% endif %}
-{% if uncertainties %}<section class="panel"><h2>Scientific uncertainties</h2>
-{% for item in uncertainties.values() %}<details open><summary>{{ item.criterion_id }} · L{{ item.level }} · {{ item.status }}</summary><p>{{ item.question }}</p><p>{{ item.reason }} · {{ item.evidence_location }}</p>
+{% if uncertainties %}<section class="panel"><h2>未决科学问题</h2>
+{% for item in uncertainties.values() %}<details open><summary>{{ item.criterion_id }} · L{{ item.level }} · {{ labels.get(item.status, item.status) }}</summary><p>{{ item.question }}</p><p>{{ item.reason }} · {{ item.evidence_location }}</p>
 {% if item.resolution %}<p>{{ item.resolution }}</p>{% endif %}
 {% if actor.role == 'reviewer' and active and task.stage == 'DOMAIN_REVIEW' and item.status != 'RESOLVED' %}
-{% call form('resolve') %}<input type="hidden" name="uncertainty_id" value="{{ item.id }}"><label>Evidence location<input name="evidence_location" required></label><label>Resolution<textarea name="resolution" required></textarea></label><button>Resolve with evidence</button>{% endcall %}{% endif %}
+{% call form('resolve') %}<input type="hidden" name="uncertainty_id" value="{{ item.id }}"><label>证据位置<input name="evidence_location" required></label><label>处理意见<textarea name="resolution" required></textarea></label><button>提交证据并解决</button>{% endcall %}{% endif %}
 </details>{% endfor %}</section>{% endif %}
 </div>
 <div>
-<section class="panel"><h2>Task materials</h2>
-{% if not private %}<p class="notice">The private dossier unlocks after you submit your baseline.</p>{% endif %}
-<ul class="assets">{% for name, meta in files %}<li><a href="{{ url_for('asset', task_id=task.id, number=task.version, name=name) }}">{{ name }}</a><small>{{ 'Public' if meta.public else 'Private' }}</small></li>{% endfor %}</ul></section>
-{% if private %}<section class="panel"><h2>Evaluation evidence</h2>
-<p>Formal pass rate <b>{{ task.pass_rate|string + '%' if task.pass_rate is not none else '—' }}</b> · {{ task.trial_count }} valid trials</p>
-{% if model_rates %}<ul class="assets">{% for key, stats in model_rates.items() %}<li><b>{{ key[0] }} · {{ key[1] }}</b><small>{{ stats.passed }}/{{ stats.valid }} passed</small></li>{% endfor %}</ul>{% endif %}
-{% for key, item in check_details.items() %}<details><summary>{{ key.replace('_',' ')|title }} · {{ item.status }}</summary><pre>{{ item|tojson(indent=2) }}</pre></details>{% endfor %}
-{% for item in trial_details %}<details><summary>{{ item.model }} · {{ item.mode|title }} · {{ item.status }}{% if item.reward is not none %} · reward {{ item.reward }}{% endif %}</summary><pre>{{ item|tojson(indent=2) }}</pre></details>{% endfor %}
+<section class="panel"><h2>任务资料</h2>
+{% if not private %}<p class="notice">锁定盲测基线后解锁私有资料。</p>{% endif %}
+<ul class="assets">{% for name, meta in files %}<li><a href="{{ url_for('asset', task_id=task.id, number=task.version, name=name) }}">{{ name }}</a><small>{{ '公开' if meta.public else '私有' }}</small></li>{% endfor %}</ul></section>
+{% if private %}<section class="panel"><h2>评估证据</h2>
+<p>正式通过率 <b>{{ task.pass_rate|string + '%' if task.pass_rate is not none else '—' }}</b> · {{ task.trial_count }} 次有效运行</p>
+{% if model_rates %}<ul class="assets">{% for key, stats in model_rates.items() %}<li><b>{{ key[0] }} · {{ key[1] }}</b><small>{{ stats.passed }}/{{ stats.valid }} 通过</small></li>{% endfor %}</ul>{% endif %}
+{% for key, item in check_details.items() %}<details><summary>{{ labels.get(key, key) }} · {{ labels.get(item.status, item.status) }}</summary><pre>{{ item|tojson(indent=2) }}</pre></details>{% endfor %}
+{% for item in trial_details %}<details><summary>{{ item.model }} · {{ labels.get(item.mode, item.mode) }} · {{ labels.get(item.status, item.status) }}{% if item.reward is not none %} · 得分 {{ item.reward }}{% endif %}</summary><pre>{{ item|tojson(indent=2) }}</pre></details>{% endfor %}
 </section>{% endif %}
-<section class="panel"><h2>Version history</h2>
-<ul class="assets">{% for item in versions %}<li><b>v{{ item.version }}</b>{% if private and item.version %}<a href="{{ url_for('version_diff', task_id=task.id, number=item.version) }}">View changes</a>{% endif %}<code title="{{ item.sha }}">{{ item.sha[:12] }}</code></li>{% endfor %}</ul>
-</section><section class="panel"><h2>Timeline</h2>
-{% for event in events %}<details><summary>{{ event.kind.replace('_',' ')|title }} · v{{ event.version }}{% if event.simulated %} · SIMULATED{% endif %}</summary>
+<section class="panel"><h2>版本历史</h2>
+<ul class="assets">{% for item in versions %}<li><b>v{{ item.version }}</b>{% if private and item.version %}<a href="{{ url_for('version_diff', task_id=task.id, number=item.version) }}">查看版本差异</a>{% endif %}<code title="{{ item.sha }}">{{ item.sha[:12] }}</code></li>{% endfor %}</ul>
+</section><section class="panel"><h2>操作时间线</h2>
+{% for event in events %}<details><summary>{{ labels.get(event.kind, event.kind) }} · v{{ event.version }}{% if event.simulated %} · 模拟{% endif %}</summary>
 <small>{{ event.occurred }} · {{ event.actor }}</small>{% if event.data %}<pre>{{ event.data|tojson(indent=2) }}</pre>{% endif %}</details>{% endfor %}
 </section></div></div>
 {% endblock %}

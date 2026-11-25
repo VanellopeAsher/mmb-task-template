@@ -11,9 +11,9 @@ from collections import Counter
 from flask import Flask, abort, g, jsonify, redirect, render_template, request, send_file, session, url_for
 from werkzeug.security import check_password_hash
 
-from . import preflight
+from . import preflight, presentation
 from .storage import MAX_UPLOAD, Rejected, Store, sha256
-from .workflow import (CHECKS, DOMAIN, NEXT, ROUTES, TEAMS, TECHNICAL, Conflict, Denied,
+from .workflow import (NEXT, REVISION_STAGES, ROUTES, TEAMS, Conflict, Denied,
                        Workflow, can_list, can_read_private, now, require)
 
 
@@ -88,12 +88,15 @@ def create_app(config=None):
     def context():
         if "csrf" not in session:
             session["csrf"] = secrets.token_urlsafe(24)
-        return {"csrf": session["csrf"], "actor": g.actor, "teams": TEAMS, "routes": ROUTES}
+        return {"csrf": session["csrf"], "actor": g.actor, "teams": TEAMS, "routes": ROUTES,
+                "stage_labels": presentation.STAGES, "team_labels": presentation.TEAMS,
+                "role_labels": presentation.ROLES, "labels": presentation.LABELS,
+                "message": presentation.message}
 
     @app.errorhandler(Rejected)
     def invalid(error):
         status = 403 if isinstance(error, Denied) else 409 if isinstance(error, Conflict) else 422
-        return jsonify(error=str(error)), status
+        return jsonify(error=str(error), message_zh=presentation.message(str(error))), status
 
     @app.errorhandler(KeyError)
     def missing(error):
@@ -113,7 +116,7 @@ def create_app(config=None):
         user = request.form.get("user", "")
         account = accounts.get(user)
         if not account or not check_password_hash(account["password_hash"], request.form.get("password", "")):
-            return render_template("login.html", target=target, error="Invalid username or password"), 401
+            return render_template("login.html", target=target, error="用户名或密码错误。"), 401
         session.clear()
         session["user"] = user
         session["csrf"] = secrets.token_urlsafe(24)
@@ -126,22 +129,28 @@ def create_app(config=None):
 
     def display(task, state):
         stage = state["stage"]
-        holder, next_action = NEXT[stage]
+        holder, _ = NEXT[stage]
+        next_action = presentation.ACTIONS[stage]
         waiting_isolation = stage == "PREFLIGHT" and all(
             state["checks"].get(kind, {}).get("status") == "PASS" for kind in ("static", "similarity")
         )
         if waiting_isolation:
             holder = "Isolation test owner"
-            next_action = "Await isolated Build, Oracle and NOP results"
+            next_action = "等待隔离测试负责人回填镜像构建、参考解和空操作结果"
         invite = state["invite"] or {}
         blind = g.actor["role"] == "reviewer" and not can_read_private(task, state, g.actor)
         valid = [r["reward"] for r in state["trials"] if r["mode"] == "formal" and r["status"] == "VALID"]
+        blocker = "" if blind else presentation.message(state["blocker"])
+        owner = task["owner"] if holder == "Author" else (
+            state.get("active_reviewer") if holder == "Reviewer" and stage != "REVIEWER_INVITED" else None
+        )
         return {
             "id": task["id"], "title": task["title"], "team": task["team"], "domain": TEAMS[task["team"]][0],
             "owner": task["owner"], "version": state["version"], "revision": task["revision"],
-            "stage": stage, "role": holder, "waiting_isolation": waiting_isolation, "current_owner": task["owner"] if holder == "Author" else (
-                state.get("active_reviewer") if holder == "Reviewer" and stage != "REVIEWER_INVITED" else holder),
-            "next_action": next_action, "blocker": "" if blind else state["blocker"], "level": state["level"],
+            "stage": stage, "stage_label": "待隔离测试回填" if waiting_isolation else presentation.STAGES[stage],
+            "stage_blocked": bool(blocker) or waiting_isolation or stage in REVISION_STAGES,
+            "waiting_isolation": waiting_isolation, "current_owner": owner or presentation.OWNERS[holder],
+            "next_action": next_action, "blocker": blocker, "level": state["level"],
             "invite_status": invite.get("status", "NONE"), "checks": {} if blind else {k: v["status"] for k, v in state["checks"].items()},
             "uncertainties": sum(i["status"] != "RESOLVED" for i in state["uncertainties"].values()),
             "pass_rate": round(100 * sum(valid) / len(valid)) if valid else None,
@@ -166,13 +175,16 @@ def create_app(config=None):
         selected = request.args.get("team", "")
         stage = request.args.get("stage", "")
         query = request.args.get("q", "").strip().casefold()
-        visible = [task for task in items if (not selected or selected == task["team"])
-                   and (not stage or stage == task["stage"])
-                   and (not query or query in (task["title"] + " " + task["id"]).casefold())]
-        return render_template("dashboard.html", items=visible, stages=NEXT,
-                               counts={key: sum(t["team"] == key for t in items) for key in TEAMS},
-                               totals={key: sum(t["final_route"] == key or t["stage"] == key for t in items)
-                                       for key in ROUTES},
+        scoped = [task for task in items if (not selected or selected == task["team"])
+                  and (not query or query in (task["title"] + " " + task["id"]).casefold())]
+        visible = [task for task in scoped if not stage or stage == task["stage"]]
+        counts = Counter(task["stage"] for task in scoped)
+        final_counts = Counter(task["final_route"] for task in scoped)
+        return render_template("dashboard.html", items=visible,
+                               counts=Counter(t["team"] for t in items),
+                               stage_counts={key: counts[key] for key in NEXT if counts[key]},
+                               waiting_isolation=sum(t["waiting_isolation"] for t in scoped),
+                               totals={key: final_counts[key] for key in ROUTES},
                                selected=selected, stage=stage, query=query, total=len(items),
                                archive=archive, archived_count=archived_count)
 
@@ -195,7 +207,8 @@ def create_app(config=None):
             except Denied:
                 raise
             except Rejected as error:
-                results.append({"filename": upload.filename, "error": str(error)})
+                results.append({"filename": upload.filename, "error": str(error),
+                                "message_zh": presentation.message(str(error))})
         return jsonify(results=results), (201 if any("task" in item for item in results) else 422)
 
     @app.get("/invite/<task_id>")
@@ -212,8 +225,11 @@ def create_app(config=None):
             private = can_read_private(task, state, g.actor)
             files = [(name, meta) for name, meta in manifest["files"].items() if private or meta["public"]]
             events = []
+            phase_events = []
             for row in db.execute("SELECT * FROM events WHERE task=? ORDER BY sequence DESC", (task_id,)).fetchall():
                 data = json.loads(row["data"])
+                if row["version"] == state["version"]:
+                    phase_events.append((row["kind"], data.get("stage")))
                 safe = row["kind"] in {"IMPORTED", "INVITE", "ACCEPT", "DECLINE", "PREFLIGHT"}
                 if private or safe:
                     events.append({**dict(row), "data": data if private else {"stage": data.get("stage", "")}})
@@ -226,14 +242,15 @@ def create_app(config=None):
                 stats = models.setdefault(key, Counter())
                 stats.update({"valid": 1, "passed": trial["reward"]})
         issue_view = state["issues"] if private else {}
-        prompts = [name for name, meta in files if name in {"problem.md", "instruction.md"}]
-        return render_template("task.html", task=display(task, state), issues=issue_view,
+        view = display(task, state)
+        steps, returning = presentation.pipeline(state, phase_events, view["waiting_isolation"], view["blocker"])
+        return render_template("task.html", task=view, steps=steps, returning=returning, issues=issue_view,
                                uncertainties=state["uncertainties"] if private else {},
                                files=files, private=private, events=events, versions=versions, sha=version["sha"],
                                check_details=state["checks"] if private else {},
                                trial_details=state["trials"] if private else [], model_rates=models if private else {},
-                               active=state.get("active_reviewer") == g.actor["id"], domain=DOMAIN,
-                               technical=TECHNICAL, check_kinds=CHECKS, prompts=prompts,
+                               active=state.get("active_reviewer") == g.actor["id"], domain=presentation.DOMAIN,
+                               technical=presentation.TECHNICAL,
                                previous_reviewers=state.get("previous_reviewers", []) if private else [])
 
     @app.get("/task/<task_id>/asset/<int:number>/<path:name>")

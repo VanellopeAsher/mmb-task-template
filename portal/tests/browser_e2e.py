@@ -19,10 +19,10 @@ class QuietHandler(WSGIRequestHandler):
 
 def login(page, base, username):
     page.goto(base + "/login")
-    page.get_by_label("Username").fill(username)
-    page.get_by_label("Password").fill("only-for-browser-test")
-    page.get_by_role("button", name="Sign in").click()
-    expect(page.get_by_role("heading", name="Admission pipeline")).to_be_visible()
+    page.get_by_label("用户名").fill(username)
+    page.get_by_label("密码").fill("only-for-browser-test")
+    page.get_by_role("button", name="登录").click()
+    expect(page.get_by_role("heading", name="任务总览")).to_be_visible()
 
 
 def run():
@@ -49,26 +49,26 @@ def run():
                 browser = playwright.chromium.launch(executable_path=executable or None)
                 author = browser.new_page(viewport={"width": 1440, "height": 1000})
                 login(author, base, "pv-author")
-                author.get_by_label("Title for a single task").fill("CO₂ electroreduction scaling boundaries")
-                author.get_by_label("Task ZIP packages").set_input_files(
+                author.get_by_label("单个任务名称").fill("CO₂ electroreduction scaling boundaries")
+                author.get_by_label("任务 ZIP 包").set_input_files(
                     {"name": "public-reference.zip", "mimeType": "application/zip", "buffer": archive}
                 )
-                author.get_by_role("button", name="Import", exact=True).click()
+                author.get_by_role("button", name="导入", exact=True).click()
                 link = author.get_by_role("link", name="CO₂ electroreduction scaling boundaries")
                 expect(link).to_be_visible()
                 author.goto(base + link.get_attribute("href"))
                 real_path = author.url
-                expect(author.get_by_role("heading", name="Author workspace")).to_be_visible()
+                expect(author.get_by_role("heading", name="作者工作区")).to_be_visible()
                 test_actor = {"id": "pv-author", "role": "author", "teams": ["catalysis"]}
                 simulated = flow.intake(test_actor, "catalysis", "Electroreduction review rehearsal", archive, simulated=True)
                 technical = browser.new_page(viewport={"width": 1440, "height": 1000})
                 login(technical, base, "technical-lead")
                 technical.goto(real_path)
-                technical.get_by_role("button", name="Run static and similarity checks").click()
-                expect(technical.get_by_text("Preflight", exact=True).first).to_be_visible()
+                technical.get_by_role("button", name="运行静态与相似度检查").click()
+                expect(technical.locator('[data-phase="preflight"][aria-current="step"]')).to_contain_text("待隔离测试回填")
                 technical.goto(base + "/task/" + simulated)
-                technical.get_by_role("button", name="Run static and similarity checks").click()
-                expect(technical.get_by_text("Preflight", exact=True).first).to_be_visible()
+                technical.get_by_role("button", name="运行静态与相似度检查").click()
+                expect(technical.locator('[data-phase="preflight"][aria-current="step"]')).to_contain_text("待隔离测试回填")
                 with flow.store.transaction(write=False) as db:
                     version, _ = flow.version(db, simulated, 0)
                 for kind, result in [("build", {}), ("oracle", {"reward": 1}), ("nop", {"reward": 0})]:
@@ -77,24 +77,26 @@ def run():
                                   "commit_sha": version["sha"], "evidence_location": "fixture://browser",
                                   "log": "SIMULATED browser test evidence", **result})
                 author.goto(base + "/task/" + simulated)
-                author.get_by_role("button", name="Create L1 invitation link").click()
-                invitation = author.get_by_role("textbox", name="Invitation link")
+                author.get_by_role("button", name="创建 L1 邀请链接").click()
+                invitation = author.get_by_role("textbox", name="邀请链接")
                 expect(invitation).to_be_visible()
                 reviewer = browser.new_page(viewport={"width": 1440, "height": 1000})
                 login(reviewer, base, "team-reviewer")
                 reviewer.goto(invitation.input_value())
-                reviewer.get_by_role("button", name="Accept invitation").click()
-                expect(reviewer.get_by_role("heading", name="Reviewer workspace")).to_be_visible()
+                reviewer.get_by_role("button", name="接受邀请").click()
+                expect(reviewer.get_by_role("heading", name="领域审核工作区")).to_be_visible()
+                expect(reviewer.locator('[data-phase="domain"][aria-current="step"]')).to_contain_text("盲测进行中")
                 secret = base + "/task/" + simulated + "/asset/0/solution/answer.json"
                 assert reviewer.request.get(secret).status == 404
                 reviewer.screenshot(path=output / "reviewer-blind.png", full_page=True)
-                reviewer.get_by_label("Structured answer (JSON)").fill("{}")
-                reviewer.get_by_label("Evidence and unresolved points").fill("Independent fixture attempt")
-                reviewer.get_by_label("Tools used").fill("Python")
-                reviewer.get_by_label("Resources used").fill("Public observation records")
-                reviewer.get_by_label("Elapsed minutes").fill("8")
-                reviewer.get_by_role("button", name="Lock baseline and unlock dossier").click()
-                expect(reviewer.locator("summary").filter(has_text="Chemistry / matter-science grounding")).to_be_visible()
+                reviewer.get_by_label("结构化答案（JSON）").fill("{}")
+                reviewer.get_by_label("证据与未解决的问题").fill("Independent fixture attempt")
+                reviewer.get_by_label("使用的工具").fill("Python")
+                reviewer.get_by_label("使用的资料").fill("Public observation records")
+                reviewer.get_by_label("耗时（分钟）").fill("8")
+                reviewer.get_by_role("button", name="锁定盲测并解锁私有资料").click()
+                expect(reviewer.locator("summary").filter(has_text="化学与物质科学基础")).to_be_visible()
+                expect(reviewer.locator('[data-phase="domain"][aria-current="step"]')).to_contain_text("领域审核中")
                 assert reviewer.request.get(secret).status == 200
                 reviewer.screenshot(path=output / "reviewer-unlocked.png", full_page=True)
                 technical.goto(base)
