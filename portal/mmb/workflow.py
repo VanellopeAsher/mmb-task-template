@@ -233,7 +233,7 @@ class Workflow:
         state.update(stage={1: "TECHNICAL_REVIEW", 2: "ENVIRONMENT_CONSTRUCTION", 3: "DOMAIN_REVIEW"}[restart],
                      version=number, return_stage=None, blocker="", outcome="", final_route="",
                      checks=checks, decisions=decisions, baselines=carried_baselines, baseline_scores={}, trials=[],
-                     support={} if restart < 3 else state["support"],
+                     support={} if restart < 3 else state["support"], sandbox=None,
                      environment=state["environment"] if restart == 3 else None)
         return sha, {"note": payload["note"], "changed": sorted(changed), "restart_stage": restart,
                      "rerun": sorted(set(CHECKS) if invalidated is None else invalidated),
@@ -386,6 +386,7 @@ class Workflow:
                 status in {"PASS", "FAIL", "NEEDS EVIDENCE", "INVALID RUN"}, "检查项目或结论无效。")
         require(data.get("commit_sha") == sha, "检查提交 SHA 与当前任务版本不符。")
         stage = state["stage"]
+        require(data.get("expected_stage", stage) == stage, "任务阶段已变化，请刷新后重新生成证据。")
         engineering = stage in {"ENGINEERING_CHECKS", "ENGINEERING_REVIEW_1"}
         require(kind in review.AUXILIARY.get(stage, ()) or engineering and kind in {*PRECHECKS, "rubric", *LATE_CHECKS},
                 "当前环节不接受该项检查结果。")
@@ -420,6 +421,9 @@ class Workflow:
         return report
 
     def trial(self, state, data, sha):
+        text_fields(data, "run_id")
+        require(not any(item.get("run_id") == data["run_id"] for item in state["trials"]),
+                "该试跑结果已登记。")
         require(data.get("commit_sha") == sha and data.get("mode") in {"formal", "hinted"},
                 "Trial must identify the current commit and run mode")
         text_fields(data, "model", "model_version", "trace")

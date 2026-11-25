@@ -54,6 +54,7 @@ REPAIR = {"REVISION_REQUIRED", "AUTO_REPAIR"}
 
 AUXILIARY = {
     "TECHNICAL_REVIEW": {"rubric", "cheat", "oracle", "verifier_qa", "leakage"},
+    "ENGINEERING_REVIEW_2": {"rubric"},
     "DOMAIN_REVIEW": {"rubric", "trace", "baseline"},
     "SENIOR_REVIEW": {"rubric", "trace", "baseline"},
 }

@@ -3,10 +3,9 @@ import argparse
 import json
 import os
 import time
-import urllib.request
 from pathlib import Path
 
-from . import preflight
+from . import ollama, preflight
 from .storage import Store, encode
 from .review import DOMAIN_CRITERIA
 from .workflow import TEAMS, Workflow
@@ -20,20 +19,9 @@ MODEL_RULES = (
 
 
 def ask(model, role, context, max_seconds):
-    request = urllib.request.Request(
-        "http://127.0.0.1:11434/api/chat",
-        data=encode({"model": model, "stream": False, "format": "json", "options": {"temperature": 0, "seed": 7},
-                     "messages": [{"role": "system", "content": MODEL_RULES},
-                                  {"role": "user", "content": encode({"role": role, **context})}]}).encode("utf-8"),
-        headers={"Content-Type": "application/json"},
-    )
     started = time.monotonic()
-    # Do not honor environment proxy variables for the loopback model.
-    with urllib.request.build_opener(urllib.request.ProxyHandler({})).open(request, timeout=max_seconds) as response:
-        result = json.load(response)
-    answer = json.loads(result["message"]["content"])
-    if not isinstance(answer, dict):
-        raise ValueError("Pilot model response must be an object")
+    result, answer = ollama.chat(model, [{"role": "system", "content": MODEL_RULES},
+                                         {"role": "user", "content": encode({"role": role, **context})}], max_seconds)
     return {"status": "SIMULATED", "role": role, "model": result.get("model", model),
             "seconds": round(time.monotonic() - started, 3),
             "input_tokens": result.get("prompt_eval_count"), "output_tokens": result.get("eval_count"),

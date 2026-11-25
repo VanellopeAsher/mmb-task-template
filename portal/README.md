@@ -63,13 +63,36 @@ python -m mmb.admin reviewer-account reviewer-id --display-name "Reviewer Name" 
 
 The command prompts for the password. Restart the Portal after adding accounts. The roster and task approval tracks show the account's team and type. To migrate a ledger created under the previous admission model, run `python -m mmb.admin --data data/intake migrate-workflow`. The migration preserves earlier evidence and history and resets undecided tasks to Stage 1.
 
+## LLM review and sandbox integration
+
+Set `MMB_REVIEW_MODEL` to an Ollama-compatible model name. `MMB_REVIEW_URL` defaults to `http://127.0.0.1:11434/api/chat`. A deployment can use a trusted HTTPS Ollama-compatible endpoint with optional `MMB_REVIEW_TOKEN`. Restart the Portal after configuration. In a task's active review stage, the technical coordinator can click **运行 LLM 机审**. The report binds the phase, task version, exact SHA, model, input scope, and criterion-level findings. It remains advisory. The model receives selected public documents and evidence metadata. Bioactive Molecules uses metadata-only model input and its execution packages remain with the authorized manual handoff.
+
+Set `MMB_SANDBOX_TOKEN` on the Portal and the trusted transport host. Use HTTPS for access from another host. Tasks and credentials stay out of application logs. The coordinator can select an external evidence request in the task workspace:
+
+| Phase | Sandbox suites | Result format |
+| --- | --- | --- |
+| Technical review | `reference` (/oracle), `verify` (/verify) | One `oracle` or `verifier_qa` report. Stage 1 evidence is advisory. |
+| Engineering review | `execution` after static and similarity checks | Ordered `build`, `oracle`, `nop` reports. Earlier failure may terminate an execution bundle. |
+| Difficulty and domain review | `formal` (/run), `hinted` (/run-hints), `trace` (/trajectory-analysis) | An array of existing trial records with matching mode, or one `trace` check. Trace jobs reference completed trial evidence. |
+
+The trusted host can use the following commands. Keep the receipt private. It contains a short-lived lease. The trusted host verifies the ZIP and uses the exact version metadata. For Agent trials, stage only the public solver inputs into the Agent container. Keep private evaluation files and verification in the trusted grading environment, and keep the broker token and lease on the transport host.
+
+```powershell
+python -m mmb.sandbox_client --portal PORTAL_URL list
+python -m mmb.sandbox_client --portal PORTAL_URL claim TASK_ID JOB_ID receipt.json
+python -m mmb.sandbox_client --portal PORTAL_URL download receipt.json task.zip
+python -m mmb.sandbox_client --portal PORTAL_URL submit receipt.json report.json
+```
+
+The authenticated endpoints under `/api/sandbox/jobs` support list, claim, package download, and report submission. The broker rejects stale versions and incorrect suites. Repeat submission of an identical result is idempotent. Report uploads receive the task registration/commit data from the receipt. The bundled Harbor runner handles `reference` and `execution` on the isolated Linux host. The isolation team supplies the executor for verifier QA and the Agent/trajectory suites. A trace request has evidence references and needs no package download.
+
 ## Isolated testing handoff
 
 The isolation test owner is responsible for Docker and Harbor execution. The Portal marks tasks waiting for their Build, Oracle and NOP evidence. The Portal team's scope covers static checks, progress tracking and version-bound result intake.
 
 1. From a trusted host, use `python -m mmb.admin export TASK VERSION /private/path/task.zip`. Record the returned SHA.
 2. Transfer the ZIP to a dedicated Linux worker with Docker and Harbor 0.25.0. Use a restricted worker network with approved dependency sources for builds and no network for solver and verifier containers. Use one disposable worker per untrusted job.
-3. Run `python -m mmb.harbor_worker --archive task.zip --commit MANIFEST_SHA --version VERSION` and capture its JSON output. Do not mount Portal or GitHub credentials into the worker. The Oracle and verifier are separate from formal solver exposure.
+3. Run `python -m mmb.harbor_worker --archive task.zip --commit MANIFEST_SHA --version VERSION --suite execution` and capture its JSON output. Do not mount Portal or GitHub credentials into the worker. The Oracle and verifier are separate from formal solver exposure.
 4. On the trusted transfer host, import the results with `python -m mmb.admin ingest TASK report.json` or POST each report to `/api/worker/TASK/check` with the bearer credential. Post completed trial records to `/api/worker/TASK/trial`. Reports carry version, exact commit SHA, criterion, evidence location and log. Trial rows also carry a unique `run_id`, mode, model/version, parameters, cost, time, trace, score or exception, and failure category. Baseline results identify the reviewer account. Add `--publish-checks` to the trusted ingest command to publish check conclusions to the corresponding private GitHub commit. That path also needs the App's Checks write permission.
 
 Production preflight requires solver and verifier runtime networking disabled, a separate verifier environment, and explicit output artifacts. Domain-allowlist execution requires a separate deployment adapter. The Portal CI runs application integration tests. The historical public reference job is linked in the verification report. The Portal records verified webhook deliveries for audit and does not treat arbitrary GitHub check titles as authoritative gate results.

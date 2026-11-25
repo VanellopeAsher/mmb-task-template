@@ -55,7 +55,8 @@ def run():
     accounts = {name: {**profile, "password_hash": password} for name, profile in PROFILES.items()}
     with tempfile.TemporaryDirectory(prefix="mmb-three-stage-") as data:
         app = create_app({"TESTING": True, "SECRET_KEY": "browser-test-secret-not-for-production",
-                          "MMB_DATA": data, "MMB_ACCOUNTS": accounts, "SESSION_COOKIE_SECURE": False})
+                          "MMB_DATA": data, "MMB_ACCOUNTS": accounts, "SESSION_COOKIE_SECURE": False,
+                          "MMB_REVIEW_MODEL": "fixture-model", "MMB_SANDBOX_TOKEN": "fixture-sandbox"})
         flow = app.extensions["mmb"]
         server = make_server("127.0.0.1", 0, app, request_handler=QuietHandler, threaded=True)
         thread = threading.Thread(target=server.serve_forever, daemon=True)
@@ -79,6 +80,8 @@ def run():
                 expect(coordinator.locator("tr").filter(has_text="Test tech")).to_contain_text("技术审核人")
                 expect(coordinator.locator("tr").filter(has_text="Test l1a")).to_contain_text("热功能材料")
                 assign(coordinator, url, "technical", "tech")
+                expect(coordinator.get_by_role("button", name="运行 LLM 机审")).to_be_visible()
+                expect(coordinator.locator('select[name="suite"] option')).to_have_count(2)
                 tech = login(browser, base, "tech")
                 tech.goto(url)
                 expect(tech.locator('[data-phase="1"][aria-current=step]')).to_be_visible()

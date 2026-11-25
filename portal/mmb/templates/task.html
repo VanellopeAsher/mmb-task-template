@@ -68,6 +68,28 @@
 
 <div class="task-layout">
 <div>
+{% if can_machine_review %}
+<section class="panel"><h2>LLM 机审</h2>
+{% if machine_enabled %}
+<p>生成当前阶段和版本的机审意见，供人工签署时参考。</p>
+{% call form('machine_review') %}<button>运行 LLM 机审</button>{% endcall %}
+{% else %}<p>等待配置 LLM 机审服务。</p>{% endif %}
+</section>
+{% endif %}
+{% if actor.role == 'technical' and (sandbox_suites or sandbox_job) %}
+<section class="panel"><h2>外部沙盒交接</h2>
+{% if sandbox_job %}<p>{{ sandbox_titles.get(sandbox_job.suite) }} · v{{ sandbox_job.version }} ·
+{{ '租约已过期或审核环节已切换' if sandbox_job.stale else labels.get(sandbox_job.status, sandbox_job.status) }}</p>{% endif %}
+{% if sandbox_job and sandbox_job.active %}
+{% call form('sandbox_cancel') %}<button class="quiet">撤回结果交接</button>{% endcall %}
+{% elif sandbox_enabled and sandbox_suites %}
+{% call form('sandbox_queue') %}
+<label>出具证据的用途<select name="suite" required>{% for code, label in sandbox_suites.items() %}<option value="{{ code }}">{{ label }}</option>{% endfor %}</select></label>
+<button>交给外部沙盒</button>
+{% endcall %}
+{% elif sandbox_suites %}<p>等待配置外部沙盒交接凭据。</p>{% endif %}
+</section>
+{% endif %}
 {% if actor.role == 'technical' %}
 <section class="panel"><h2>技术协调工作区</h2>
 {% if active_slots %}
@@ -151,7 +173,10 @@
 {% if private %}
 <section class="panel"><h2>审核证据</h2>
 {% if environment %}<details><summary>环境交接</summary><p>{{ environment.reason }} · {{ environment.evidence_location }}</p></details>{% endif %}
-{% for check in [checks, support] %}{% for item in check.values() %}<details><summary>{{ labels.get(item.kind, item.kind) }} · {{ labels.get(item.status, item.status) }}{% if item.review_stage %} · {{ stage_labels.get(item.review_stage, item.review_stage) }}{% endif %}</summary><pre>{{ item|tojson(indent=2) }}</pre></details>{% endfor %}{% endfor %}
+{% for check in [checks, support] %}{% for item in check.values() %}<details><summary>{{ labels.get(item.kind, item.kind) }} · {{ labels.get(item.status, item.status) }}{% if item.review_stage %} · {{ stage_labels.get(item.review_stage, item.review_stage) }}{% endif %}</summary>{% if item.kind == 'rubric' and item.findings %}
+{% if item.model %}<p>模型 {{ item.model }} · v{{ item.version }}</p>{% endif %}
+<ul>{% for finding in item.findings %}<li><strong>{{ finding.criterion_id }} · {{ labels.get(finding.status, finding.status) }}</strong> · {{ finding.reason }} <small>（{{ finding.evidence_location }}）</small></li>{% endfor %}</ul>
+{% endif %}<pre>{{ item|tojson(indent=2) }}</pre></details>{% endfor %}{% endfor %}
 {% for item in trials %}<details><summary>{{ item.model }} · {{ labels.get(item.mode, item.mode) }} · {{ labels.get(item.status, item.status) }}{% if item.reward is not none %} · {{ item.reward }}{% endif %}</summary><pre>{{ item|tojson(indent=2) }}</pre></details>{% endfor %}
 {% if task.trial_count %}<p>正式通过率 {{ task.pass_rate }}% · {{ task.trial_count }} 次有效运行</p>{% endif %}
 {% if not (environment or checks or support or trials) %}<p>待补充审核证据。</p>{% endif %}

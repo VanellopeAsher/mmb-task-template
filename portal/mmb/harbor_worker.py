@@ -35,7 +35,9 @@ def trial_reward(job):
         return None, "Malformed Harbor result"
 
 
-def run_bundle(raw, commit_sha, version):
+def run_bundle(raw, commit_sha, version, suite="execution"):
+    if suite not in {"reference", "execution"}:
+        raise ValueError("Expected a reference or execution sandbox suite")
     if not re.fullmatch(r"[0-9a-f]{40}", commit_sha) or version < 0:
         raise ValueError("Expected the task manifest commit and a nonnegative version")
     if os.name != "posix" or not shutil.which("docker") or not shutil.which("harbor"):
@@ -69,6 +71,8 @@ def run_bundle(raw, commit_sha, version):
                             "--jobs-dir", str(jobs), "--job-name", "nop"]),
         ]
         for kind, criterion, command in commands:
+            if suite == "reference" and kind != "oracle":
+                continue
             try:
                 process = subprocess.run(command, cwd=root, env=env, capture_output=True, timeout=7200)
                 log = f"{kind} exit code {process.returncode}"
@@ -95,7 +99,8 @@ def run_bundle(raw, commit_sha, version):
             reports.append(result)
             if kind == "build" and status != "PASS":
                 break
-        subprocess.run(["docker", "image", "rm", image], env=env, cwd=root, capture_output=True, timeout=60)
+        if suite == "execution":
+            subprocess.run(["docker", "image", "rm", image], env=env, cwd=root, capture_output=True, timeout=60)
         return reports
 
 
@@ -104,8 +109,9 @@ def main():
     parser.add_argument("--archive", required=True, type=Path)
     parser.add_argument("--commit", required=True)
     parser.add_argument("--version", default=0, type=int)
+    parser.add_argument("--suite", choices=("reference", "execution"), default="execution")
     args = parser.parse_args()
-    print(encode(run_bundle(args.archive.read_bytes(), args.commit, args.version)))
+    print(encode(run_bundle(args.archive.read_bytes(), args.commit, args.version, args.suite)))
 
 
 if __name__ == "__main__":

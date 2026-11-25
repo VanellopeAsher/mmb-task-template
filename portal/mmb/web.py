@@ -11,7 +11,7 @@ from collections import Counter
 from flask import Flask, abort, g, jsonify, redirect, render_template, request, send_file, session, url_for
 from werkzeug.security import check_password_hash
 
-from . import preflight, presentation, review
+from . import machine_review, ollama, preflight, presentation, review, sandbox
 from .storage import MAX_UPLOAD, Rejected, Store, sha256
 from .workflow import (PRECHECKS, TEAMS, Conflict, Denied,
                        Workflow, can_list, can_read_private, now, require)
@@ -26,6 +26,10 @@ def create_app(config=None):
         MMB_ACCOUNTS_FILE=os.getenv("MMB_ACCOUNTS_FILE", ""),
         MMB_ARCHIVED_INTAKE_FILE=os.getenv("MMB_ARCHIVED_INTAKE_FILE", ""),
         MMB_WORKER_TOKEN=os.getenv("MMB_WORKER_TOKEN", ""),
+        MMB_SANDBOX_TOKEN=os.getenv("MMB_SANDBOX_TOKEN", ""),
+        MMB_REVIEW_MODEL=os.getenv("MMB_REVIEW_MODEL", ""),
+        MMB_REVIEW_URL=os.getenv("MMB_REVIEW_URL", ollama.LOCAL_CHAT),
+        MMB_REVIEW_TOKEN=os.getenv("MMB_REVIEW_TOKEN", ""),
         MMB_WEBHOOK_SECRET=os.getenv("MMB_WEBHOOK_SECRET", ""),
         MMB_WEBHOOK_REPOSITORY=os.getenv("MMB_GITHUB_REPOSITORY", ""),
         SESSION_COOKIE_SECURE=os.getenv("MMB_LOCAL_HTTP") != "1",
@@ -59,6 +63,9 @@ def create_app(config=None):
     archived_intake = frozenset(archive_ids)
     store = Store(app.config["MMB_DATA"], app.config["MMB_DATABASE_URL"])
     flow = Workflow(store, accounts)
+    bridge = sandbox.Bridge(flow)
+    if app.config["MMB_REVIEW_MODEL"]:
+        ollama.service_url(app.config["MMB_REVIEW_URL"])
     app.extensions["mmb"] = flow
 
     def credential(header, key):
@@ -69,7 +76,7 @@ def create_app(config=None):
     def authenticate():
         username = session.get("user")
         g.actor = {**accounts[username], "id": username} if username in accounts else None
-        if request.endpoint in {"worker", "webhook", "static", "health"}:
+        if request.endpoint in {"worker", "sandbox_queue_api", "sandbox_job_api", "webhook", "static", "health"}:
             return
         if request.method == "POST":
             sent = request.headers.get("X-CSRF-Token") or request.form.get("csrf", "")
@@ -289,6 +296,16 @@ def create_app(config=None):
             "task.html", task=view, diagram=presentation.workflow_diagram(state, restart), approvals=state["assignments"], options=options,
             reviews=reviews, signed=state["decisions"].keys(), baselines=state["baselines"].keys(),
             assigned=assigned, active_slots=review.STAGE_SLOTS.get(state["stage"], ()),
+            machine_enabled=bool(app.config["MMB_REVIEW_MODEL"] and task_id not in archived_intake),
+            can_machine_review=task_id not in archived_intake and (
+                g.actor["role"] == "technical" or assigned == "technical"
+            ) and ("rubric" in review.AUXILIARY.get(state["stage"], ()) or state["stage"] in {
+                "ENGINEERING_CHECKS", "ENGINEERING_REVIEW_1"
+            }),
+            sandbox_enabled=bool(app.config["MMB_SANDBOX_TOKEN"]),
+            sandbox_suites=sandbox.available_suites(task, state) if task_id not in archived_intake else {},
+            sandbox_job=sandbox.visible_job(state) if private else None,
+            sandbox_titles={key: title for key, (title, _) in sandbox.SUITES.items()},
             legacy=state.get("legacy_stage"), environment=state["environment"],
             files=files, private=private, events=events, versions=versions,
             issues=state["issues"] if private else {},
@@ -356,7 +373,20 @@ def create_app(config=None):
             payload = {"note": request.form.get("note"), "revision": request.form.get("revision", type=int)}
             return jsonify(flow.command(task_id, g.actor, action, payload, upload.stream))
         require(request.is_json, "Command requires JSON")
-        return jsonify(flow.command(task_id, g.actor, action, request.get_json()))
+        payload = request.get_json()
+        require(isinstance(payload, dict), "提交内容须为 JSON 对象。")
+        if action in {"machine_review", "sandbox_queue", "sandbox_cancel"}:
+            require(task_id not in archived_intake, "归档记录不再发起新作业。")
+        if action == "machine_review":
+            return jsonify(machine_review.run(flow, task_id, g.actor, payload.get("version"),
+                                              app.config["MMB_REVIEW_MODEL"], app.config["MMB_REVIEW_URL"],
+                                              app.config["MMB_REVIEW_TOKEN"]))
+        if action == "sandbox_queue":
+            require(app.config["MMB_SANDBOX_TOKEN"], "尚未配置外部沙盒交接。")
+            return jsonify(bridge.queue(task_id, g.actor, payload.get("suite"), payload.get("version")))
+        if action == "sandbox_cancel":
+            return jsonify(bridge.cancel(task_id, g.actor, payload.get("version")))
+        return jsonify(flow.command(task_id, g.actor, action, payload))
 
     @app.post("/api/worker/<task_id>/<action>")
     def worker(task_id, action):
@@ -369,6 +399,37 @@ def create_app(config=None):
         require(isinstance(payload, dict) and type(payload.get("version")) is int,
                 "Worker requests must bind a version")
         return jsonify(flow.command(task_id, {"role": "worker", "id": "isolated-worker"}, action, payload))
+
+    def sandbox_auth():
+        scheme, _, token = request.headers.get("Authorization", "").partition(" ")
+        if scheme != "Bearer" or not credential(token, "MMB_SANDBOX_TOKEN"):
+            abort(401)
+
+    @app.get("/api/sandbox/jobs")
+    def sandbox_queue_api():
+        sandbox_auth()
+        return jsonify(jobs=[job for job in bridge.pending() if job["task_id"] not in archived_intake])
+
+    @app.route("/api/sandbox/jobs/<task_id>/<action>", methods=["GET", "POST"])
+    def sandbox_job_api(task_id, action):
+        sandbox_auth()
+        if task_id in archived_intake:
+            abort(404)
+        lease = request.headers.get("X-MMB-Sandbox-Lease", "")
+        if action == "package" and request.method == "GET":
+            path, version = bridge.package(task_id, lease)
+            return send_file(path, as_attachment=True, mimetype="application/zip",
+                             download_name=f"{task_id}-v{version}.zip")
+        if action in {"claim", "complete"} and request.method == "POST":
+            require(request.is_json, "沙盒请求须为 JSON。")
+            require(request.content_length is not None and request.content_length <= 1024 * 1024,
+                    "沙盒请求过大。")
+            payload = request.get_json()
+            require(isinstance(payload, dict), "沙盒请求须为 JSON 对象。")
+            if action == "claim":
+                return jsonify(bridge.claim(task_id, payload.get("job_id")))
+            return jsonify(bridge.complete(task_id, lease, payload.get("reports")))
+        abort(404)
 
     @app.post("/github/webhook")
     def webhook():

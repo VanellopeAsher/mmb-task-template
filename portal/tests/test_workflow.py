@@ -1,11 +1,14 @@
 """Integration tests for the three-stage decision gates and evidence boundaries."""
+import hashlib
 import hmac
 import io
 import json
 import os
 import re
 import tempfile
+import threading
 import unittest
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from zipfile import ZipFile
 
 from werkzeug.security import generate_password_hash
@@ -59,6 +62,7 @@ class WorkflowTest(unittest.TestCase):
         self.app = create_app({"TESTING": True, "SECRET_KEY": "test-secret-thirty-two-characters",
                                "MMB_DATA": temp.name, "MMB_DATABASE_URL": dsn, "MMB_WORKER_TOKEN": "test-worker",
                                "MMB_WEBHOOK_SECRET": "test-webhook", "MMB_WEBHOOK_REPOSITORY": "example/private",
+                               "MMB_SANDBOX_TOKEN": "test-sandbox",
                                "MMB_ACCOUNTS": {name: {**profile, "password_hash": password}
                                                 for name, profile in PROFILES.items()}})
         self.flow = self.app.extensions["mmb"]
@@ -227,6 +231,116 @@ class WorkflowTest(unittest.TestCase):
         result = self.flow.command(task, actor, "revise", {"note": "Fix"},
                                    archive({**PACKAGE, "environment/Dockerfile": "FROM alpine"}))
         self.assertEqual((result["stage"], result["version"]), ("TECHNICAL_REVIEW", 1))
+
+    def test_machine_review_calls_configured_model_for_all_three_phases(self):
+        received = []
+
+        class Model(BaseHTTPRequestHandler):
+            def log_message(self, *args):
+                pass
+
+            def do_POST(self):
+                raw = self.rfile.read(int(self.headers["Content-Length"]))
+                context = json.loads(json.loads(raw)["messages"][1]["content"])
+                received.append((self.path, raw, context["phase"]))
+                findings = [{"criterion_id": criterion, "status": "NEEDS EVIDENCE",
+                             "reason": "Review evidence", "evidence_location": "材料清单"}
+                            for criterion in context["criteria"]]
+                answer = {"model": "fixture-model", "message": {"content": json.dumps({"findings": findings})}}
+                self.send_response(200)
+                self.end_headers()
+                self.wfile.write(json.dumps(answer).encode())
+
+        model = ThreadingHTTPServer(("127.0.0.1", 0), Model)
+        thread = threading.Thread(target=model.serve_forever, daemon=True)
+        thread.start()
+        self.addCleanup(model.server_close)
+        self.addCleanup(model.shutdown)
+        self.app.config.update(MMB_REVIEW_MODEL="fixture-model",
+                               MMB_REVIEW_URL=f"http://127.0.0.1:{model.server_port}/api/chat")
+        task = self.task()
+        self.assign_all(task)
+        self.post("owner", task, "machine_review", {"version": 0}, 403)
+        self.assertEqual(self.post("tech", task, "machine_review", {"version": 0})["stage"], "TECHNICAL_REVIEW")
+        self.environment(task)
+        self.post("coordinator", task, "machine_review", {"version": 0})
+        for kind in PRECHECKS:
+            fields = {"reward": int(kind == "oracle")} if kind in {"oracle", "nop"} else {}
+            self.assertEqual(self.evidence(task, kind, **fields).status_code, 200)
+        self.sign("eng1", task)
+        self.sign("eng2", task)
+        self.post("coordinator", task, "machine_review", {"version": 0})
+        state, version = self.state(task)
+        self.assertEqual(state["stage"], "DOMAIN_REVIEW")
+        self.assertEqual([phase for _, _, phase in received], [1, 2, 3])
+        self.assertTrue(all(path == "/api/chat" and b"DO_NOT_EXPOSE" not in raw for path, raw, _ in received))
+        self.assertTrue(all(report["commit_sha"] == version["sha"] for report in state["support"].values()))
+        self.assertEqual(len(state["support"]), 3)
+
+    def test_sandbox_handoff_uses_version_bound_external_reports_in_all_phases(self):
+        task = self.task()
+        self.assign_all(task)
+        client = self.app.test_client()
+        identity = {"Authorization": "Bearer test-sandbox"}
+        root = f"/api/sandbox/jobs/{task}"
+        self.assertEqual(client.get("/api/sandbox/jobs").status_code, 401)
+
+        def claim(suite):
+            queued = self.post("coordinator", task, "sandbox_queue", {"suite": suite, "version": 0})
+            self.assertEqual(client.get("/api/sandbox/jobs", headers=identity).json["jobs"][0]["id"], queued["id"])
+            payload = {"job_id": queued["id"]}
+            result = client.post(root + "/claim", headers=identity, json=payload)
+            self.assertEqual(result.status_code, 200, result.get_data(as_text=True))
+            self.assertEqual(client.post(root + "/claim", headers=identity, json=payload).status_code, 422)
+            return result.json, {**identity, "X-MMB-Sandbox-Lease": result.json["lease"]}
+
+        def check(kind, receipt, **extra):
+            return {"kind": kind, "status": "PASS", "criterion_id": "T1", "log": "External fixture",
+                    "evidence_location": "fixture://sandbox", "version": receipt["version"],
+                    "commit_sha": receipt["commit_sha"], **extra}
+
+        receipt, lease = claim("reference")
+        self.assertEqual(client.get(root + "/package", headers=identity).status_code, 403)
+        with client.get(root + "/package", headers=lease) as bundle:
+            self.assertEqual(hashlib.sha256(bundle.data).hexdigest(), receipt["archive_sha256"])
+        self.assertEqual(client.post(root + "/complete", headers=lease, json={
+            "reports": [check("oracle", receipt, reward=1, version=1)]}).status_code, 422)
+        payload = {"reports": [check("oracle", receipt, reward=1)]}
+        self.assertEqual(client.post(root + "/complete", headers=lease, json=payload).status_code, 200)
+        self.assertTrue(client.post(root + "/complete", headers=lease, json=payload).json["duplicate"])
+        tech, _ = self.state(task)
+        self.assertIn("TECHNICAL_REVIEW/oracle", tech["support"])
+        self.assertNotIn("oracle", tech["checks"])
+
+        self.environment(task)
+        self.post("coordinator", task, "sandbox_queue", {"suite": "execution", "version": 0}, 422)
+        for kind in ("static", "similarity"):
+            self.assertEqual(self.evidence(task, kind).status_code, 200)
+        receipt, lease = claim("execution")
+        reports = [check("build", receipt), check("oracle", receipt, reward=1), check("nop", receipt, reward=0)]
+        self.assertEqual(client.post(root + "/complete", headers=lease, json={"reports": reports[:1]}).status_code, 422)
+        self.assertNotIn("build", self.state(task)[0]["checks"])
+        result = client.post(root + "/complete", headers=lease, json={"reports": reports})
+        self.assertEqual(result.json["stage"], "ENGINEERING_REVIEW_1")
+        self.sign("eng1", task)
+        self.sign("eng2", task)
+
+        for mode in ("formal", "hinted"):
+            receipt, lease = claim(mode)
+            report = {"mode": mode, "run_id": f"fixture-{mode}", "model": "model", "model_version": "v1",
+                      "trace": f"fixture://{mode}", "parameters": {}, "seconds": 1, "cost": 0,
+                      "version": receipt["version"], "commit_sha": receipt["commit_sha"], "reward": 1}
+            result = client.post(root + "/complete", headers=lease, json={"reports": [report]})
+            self.assertEqual(result.status_code, 200, result.get_data(as_text=True))
+        receipt, lease = claim("trace")
+        self.assertEqual(receipt["traces"], ["fixture://formal", "fixture://hinted"])
+        self.assertEqual(client.get(root + "/package", headers=lease).status_code, 403)
+        self.assertEqual(client.post(root + "/complete", headers=lease, json={
+            "reports": [check("trace", receipt)]}).status_code, 200)
+        state, _ = self.state(task)
+        self.assertEqual(state["stage"], "DOMAIN_REVIEW")
+        self.assertEqual([trial["mode"] for trial in state["trials"]], ["formal", "hinted"])
+        self.assertIn("DOMAIN_REVIEW/trace", state["support"])
 
     def test_legacy_evidence_without_legacy_signoff(self):
         task = self.task()

@@ -29,6 +29,9 @@ LABELS = {
     "FINISH_EVALUATION": "完成智能体评估", "DECISION": "记录最终裁决", "ISSUE": "创建修订项",
     "CLOSE_ISSUE": "关闭修订项", "REVISE": "提交新版本", "REQUEST_ADJUDICATION": "提交阻塞事项裁决",
     "ASSIGN": "指派审核人", "REVIEW": "签署审核", "ENVIRONMENT_READY": "登记环境交接",
+    "QUEUED": "待领取", "RUNNING": "外部正在处理", "REPORTED": "结果已回填", "CANCELLED": "交接已撤回",
+    "SANDBOX_QUEUED": "交接外部沙盒", "SANDBOX_CLAIMED": "沙盒同事已领取",
+    "SANDBOX_CANCELLED": "撤回沙盒交接", "SANDBOX_REPORTED": "沙盒结果已回填",
     "MECHANISM_UPDATED": "迁移到三阶段机制", "Added": "新增", "Modified": "修改", "Removed": "移除",
 }
 MESSAGES = {

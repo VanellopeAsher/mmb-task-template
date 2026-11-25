@@ -28,6 +28,7 @@ for (const form of document.querySelectorAll('form.command, form.multipart')) {
     const multipart = form.classList.contains('multipart');
     output.replaceChildren('正在保存…');
     output.classList.remove('error');
+    if (submitter) submitter.disabled = true;
     try {
       const response = await fetch(submitter?.getAttribute('formaction') || form.action, {
         method: 'POST',
@@ -49,6 +50,8 @@ for (const form of document.querySelectorAll('form.command, form.multipart')) {
     } catch (error) {
       output.textContent = error instanceof SyntaxError ? '请检查输入的 JSON 格式。' : error.message;
       output.classList.add('error');
+    } finally {
+      if (submitter) submitter.disabled = false;
     }
   });
 }
