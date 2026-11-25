@@ -1,7 +1,7 @@
 """Chinese Portal labels and the read-only workflow visualization."""
 import re
 
-from .review import STAGES as REVIEW_STAGES
+from .review import DOMAIN_SLOTS, REPAIR, STAGES as REVIEW_STAGES
 
 STAGES = {key: value[0] for key, value in REVIEW_STAGES.items()}
 TEAMS = dict(zip(
@@ -67,3 +67,47 @@ def message(value):
     if match := re.fullmatch(r"Rerun preflight and confirm (\w+) passes for (.+)\.", value):
         return f"重新运行预审，确认 {match[2]} 通过 {match[1]} 检查。"
     return value
+
+
+FLOW_NODE = {
+    "TECHNICAL_REVIEW": "technical",
+    "ENVIRONMENT_CONSTRUCTION": "environment",
+    "ENGINEERING_CHECKS": "checks",
+    "ENGINEERING_REVIEW_1": "engineering-1",
+    "ENGINEERING_REVIEW_2": "engineering-2",
+    "DOMAIN_REVIEW": "domain",
+    "SENIOR_REVIEW": "senior",
+    "AUTO_REPAIR": "auto-repair",
+    "READY_MAIN": "admitted",
+    "SIMULATION_PASSED": "admitted",
+}
+RETURN_NODE = {"AUTHOR_FIX": "technical-return", "NEEDS_CHANGES": "engineering-return",
+               "INSUFFICIENT": "insufficient", "TOO_EASY": "too-easy"}
+
+
+def workflow_diagram(state, restart):
+    stage = state["stage"]
+    decisions = state["decisions"]
+    visited = {"submitted"}
+    if decisions.get("technical"):
+        visited.add("technical")
+    if any(key.startswith("TECHNICAL_REVIEW/") for key in state["support"]):
+        visited.add("technical-evidence")
+    if state["environment"]:
+        visited.add("environment")
+        if stage != "ENGINEERING_CHECKS":
+            visited.add("checks")
+    for slot, node in (("engineering_1", "engineering-1"), ("engineering_2", "engineering-2"),
+                       ("senior", "senior")):
+        if slot in decisions:
+            visited.add(node)
+    if state["baselines"] or state["trials"]:
+        visited.add("difficulty")
+    if any(slot in decisions for slot in DOMAIN_SLOTS):
+        visited.add("domain")
+    if all(slot in decisions for slot in DOMAIN_SLOTS):
+        visited.add("decision")
+        if len({decisions[slot]["conclusion"] for slot in DOMAIN_SLOTS}) == 1:
+            visited.add("unanimous")
+    current = RETURN_NODE.get(state["outcome"]) if stage == "REVISION_REQUIRED" else FLOW_NODE.get(stage)
+    return {"current": current, "visited": visited, "returning": stage in REPAIR, "restart": restart}

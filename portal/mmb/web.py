@@ -244,8 +244,11 @@ def create_app(config=None):
             assigned = review.reviewer_slot(task, state, g.actor)
             released = all(key in state["decisions"] for key in review.DOMAIN_SLOTS)
             events = []
+            restart = None
             for row in db.execute("SELECT * FROM events WHERE task=? ORDER BY sequence DESC", (task_id,)).fetchall():
                 data = json.loads(row["data"])
+                if row["kind"] == "REVISE" and row["version"] == state["version"]:
+                    restart = data.get("restart_stage")
                 own = row["actor"] == g.actor["id"]
                 if row["kind"] == "BASELINE" and not own and assigned in review.DOMAIN_SLOTS:
                     continue
@@ -268,10 +271,10 @@ def create_app(config=None):
                    if private and (key not in review.DOMAIN_SLOTS or key == assigned
                                    or (released and assigned not in review.DOMAIN_SLOTS))}
         return render_template(
-            "task.html", task=view, approvals=state["assignments"], options=options,
+            "task.html", task=view, diagram=presentation.workflow_diagram(state, restart), approvals=state["assignments"], options=options,
             reviews=reviews, signed=state["decisions"].keys(), baselines=state["baselines"].keys(),
             assigned=assigned, active_slots=review.STAGE_SLOTS.get(state["stage"], ()),
-            outcome=state["outcome"], legacy=state.get("legacy_stage"), environment=state["environment"],
+            legacy=state.get("legacy_stage"), environment=state["environment"],
             files=files, private=private, events=events, versions=versions,
             issues=state["issues"] if private else {},
             checks=state["checks"] if private else {}, support=state["support"] if private else {},

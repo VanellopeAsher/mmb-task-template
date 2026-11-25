@@ -38,6 +38,8 @@
 <div><small>下一步</small><span>{{ task.next_action }}</span></div>
 {% if task.blocker and private %}<p class="error">{{ task.blocker }}</p>{% endif %}
 </div>
+{% include "workflow_map.html" %}
+<h2 class="approval-detail-heading">审核席位与检查结果</h2>
 <ol class="approval-stages">
 <li class="approval-stage{% if task.phase == 1 %} current{% endif %}" data-phase="1"{% if task.phase == 1 %} aria-current="step"{% endif %}>
 {{ header(1, '技术审核') }}
@@ -61,12 +63,6 @@
 </ul>
 </li>
 </ol>
-<div class="workflow-return{% if task.stage in ('REVISION_REQUIRED','AUTO_REPAIR') %} active{% endif %}">
-<span aria-hidden="true">↺</span>
-{% if task.stage in ('REVISION_REQUIRED','AUTO_REPAIR') %}<p><strong>{{ conclusions.get(outcome, '待修订') }}</strong> · 第 {{ task.phase }} 阶段退回，提交新版本后重新检查受影响环节。</p>
-{% elif task.version %}<p><strong>已修订 {{ task.version }} 次</strong> · 可在版本历史中查看变更与复审记录。</p>
-{% else %}<p>退回修订后，按改动范围重新执行受影响的审核与检查。</p>{% endif %}
-</div>
 {% if legacy and task.phase == 1 %}<p class="workflow-note">旧流程的检查证据与时间线已保留。本任务等待新版技术审核签署。</p>{% endif %}
 </section>
 
